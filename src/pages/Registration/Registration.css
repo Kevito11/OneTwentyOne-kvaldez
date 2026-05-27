@@ -1,0 +1,532 @@
+.registration-layout {
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
+  gap: 4rem;
+  align-items: flex-start;
+}
+
+.registration-info .subtitle {
+  font-family: var(--font-heading);
+  color: var(--accent-light);
+  font-weight: 800;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  font-size: 0.9rem;
+  display: block;
+  margin-bottom: 1rem;
+}
+
+.registration-info .title {
+  font-size: clamp(2.5rem, 5vw, 4rem);
+  font-weight: 900;
+  margin-bottom: 1.5rem;
+  line-height: 1.1;
+  letter-spacing: -1.5px;
+}
+
+.registration-info .description {
+  font-size: 1.1rem;
+  color: var(--text-secondary);
+  margin-bottom: 3rem;
+  line-height: 1.7;
+}
+
+.ticket-perks {
+  margin-bottom: 3rem;
+}
+
+.perk-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.perk-icon {
+  background: rgba(245, 158, 11, 0.1);
+  color: var(--accent-color);
+  width: 50px;
+  height: 50px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.perk-item h3 {
+  font-size: 1.2rem;
+  margin-bottom: 0.5rem;
+  font-weight: 700;
+}
+
+.perk-item p {
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+}
+
+.free-pass-badge {
+  background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-primary) 100%);
+  border: 1px solid var(--accent-color);
+  border-radius: 20px;
+  padding: 2.2rem;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(255, 255, 255, 0.05);
+  position: relative;
+  overflow: hidden;
+}
+
+.free-pass-badge::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.02) 0%, transparent 60%);
+  z-index: 0;
+}
+
+.badge-title {
+  display: block;
+  font-family: var(--font-heading);
+  color: var(--accent-light);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-bottom: 0.5rem;
+  position: relative;
+  z-index: 1;
+}
+
+.badge-price {
+  display: block;
+  font-size: 3rem;
+  font-weight: 900;
+  color: white;
+  margin-bottom: 0.5rem;
+  letter-spacing: -1px;
+  position: relative;
+  z-index: 1;
+  text-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+}
+
+.badge-note {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  position: relative;
+  z-index: 1;
+}
+
+/* Form Styles */
+.registration-form-container {
+  padding: 3rem;
+  border-radius: 24px;
+}
+
+.form-title {
+  font-size: 1.8rem;
+  margin-bottom: 2.2rem;
+  text-align: center;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+}
+
+.registration-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.6rem;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.form-group label {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+
+.input-with-icon {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-icon {
+  position: absolute;
+  left: 1.2rem;
+  color: var(--text-muted);
+  transition: color 0.3s ease;
+}
+
+.registration-form input,
+.registration-form select {
+  width: 100%;
+  padding: 1.1rem 1.1rem 1.1rem 3.2rem;
+  background: rgba(4, 9, 20, 0.4);
+  border: 1px solid var(--glass-border);
+  border-radius: 14px;
+  color: white;
+  font-family: var(--font-body);
+  font-size: 1rem;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.registration-form select {
+  padding-left: 1.2rem;
+  cursor: pointer;
+}
+
+.registration-form input:focus,
+.registration-form select:focus {
+  outline: none;
+  border-color: var(--accent-blue);
+  background: rgba(10, 17, 36, 0.6);
+  box-shadow: 0 0 15px rgba(6, 182, 212, 0.15);
+}
+
+.registration-form input:focus + .input-icon {
+  color: var(--accent-blue);
+}
+
+.submit-btn {
+  background: var(--accent-gradient);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 1.2rem;
+  border-radius: 14px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  margin-top: 1.2rem;
+  box-shadow: 0 4px 15px rgba(245, 158, 11, 0.2);
+}
+
+.submit-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 30px rgba(6, 182, 212, 0.4);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+/* Digital Ticket Styles */
+.ticket-success-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 700px;
+  margin: 0 auto;
+  gap: 2.5rem;
+}
+
+.success-header {
+  text-align: center;
+}
+
+.success-header h2 {
+  font-size: 2.2rem;
+  margin-bottom: 0.8rem;
+  font-weight: 800;
+}
+
+.success-header p {
+  color: var(--text-secondary);
+  font-size: 1.05rem;
+}
+
+.ticket-card {
+  width: 100%;
+  background: rgba(10, 10, 10, 0.85);
+  backdrop-filter: blur(20px);
+  border: 1.5px solid rgba(255, 255, 255, 0.3);
+  border-radius: 24px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), 0 0 30px rgba(255, 255, 255, 0.05);
+}
+
+.ticket-top {
+  padding: 2.5rem;
+  border-bottom: 2px dashed rgba(255, 255, 255, 0.1);
+  position: relative;
+}
+
+/* Punched Circular Side Cuts */
+.ticket-top::before, .ticket-top::after {
+  content: '';
+  position: absolute;
+  width: 28px;
+  height: 28px;
+  background: var(--bg-primary);
+  border-radius: 50%;
+  bottom: -14px;
+  z-index: 10;
+  border: 1.5px solid rgba(255, 255, 255, 0.3);
+}
+
+.ticket-top::before {
+  left: -15px;
+}
+
+.ticket-top::after {
+  right: -15px;
+}
+
+.ticket-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 2rem;
+}
+
+.ticket-event-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.ticket-event-label {
+  font-size: 0.8rem;
+  color: var(--accent-light);
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-bottom: 0.3rem;
+}
+
+.ticket-event-name {
+  font-size: 1.6rem;
+  font-weight: 900;
+  letter-spacing: -0.5px;
+}
+
+.ticket-event-subtitle {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.ticket-logo {
+  text-align: right;
+  line-height: 1;
+}
+
+.t-logo-text {
+  font-family: var(--font-heading);
+  font-weight: 900;
+  font-size: 1.2rem;
+}
+
+.t-logo-sub {
+  font-size: 0.65rem;
+  color: var(--accent-light);
+  font-weight: 600;
+  letter-spacing: 1px;
+}
+
+.ticket-body-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+}
+
+.ticket-info-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.ticket-info-label {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-weight: 600;
+}
+
+.ticket-info-value {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.ticket-info-value.free-badge {
+  color: #10b981; /* Emerald green for free access */
+  font-weight: 800;
+}
+
+.ticket-bottom {
+  padding: 2.2rem 2.5rem;
+  background: rgba(4, 9, 20, 0.4);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.ticket-actions-bar {
+  display: flex;
+  gap: 1.2rem;
+  width: 100%;
+}
+
+.ticket-action-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 1rem;
+  border-radius: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 0.95rem;
+  border: 1px solid var(--border-color);
+}
+
+.ticket-action-btn.print {
+  background: var(--accent-gradient);
+  color: white;
+  box-shadow: 0 4px 15px rgba(245, 158, 11, 0.2);
+}
+
+.ticket-action-btn.print:hover {
+  box-shadow: 0 6px 20px rgba(6, 182, 212, 0.3);
+  transform: translateY(-2px);
+}
+
+.ticket-action-btn.nav {
+  background: rgba(10, 17, 36, 0.7);
+  color: var(--text-primary);
+}
+
+.ticket-action-btn.nav:hover {
+  background: rgba(255, 255, 255, 0.05);
+  transform: translateY(-2px);
+}
+
+.qr-code-box {
+  width: 100px;
+  height: 100px;
+  background: white;
+  border-radius: 12px;
+  padding: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.05);
+}
+
+.qr-code-box svg {
+  width: 100%;
+  height: 100%;
+}
+
+/* Printable styling */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  .ticket-card, .ticket-card * {
+    visibility: visible;
+  }
+  .ticket-card {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    border: 1px solid #000;
+    box-shadow: none;
+    background: white !important;
+    color: black !important;
+  }
+  .ticket-top::before, .ticket-top::after {
+    display: none;
+  }
+  .ticket-info-value {
+    color: black !important;
+  }
+  .ticket-actions-bar {
+    display: none;
+  }
+}
+
+@media (max-width: 900px) {
+  .registration-layout {
+    grid-template-columns: 1fr;
+    gap: 3rem;
+  }
+}
+
+@media (max-width: 600px) {
+  .form-row {
+    grid-template-columns: 1fr;
+    gap: 1.6rem;
+  }
+  
+  .ticket-body-grid {
+    grid-template-columns: 1fr;
+    gap: 1.2rem;
+  }
+  
+  .ticket-bottom {
+    flex-direction: column;
+    gap: 1.5rem;
+    align-items: center;
+    padding: 1.8rem;
+  }
+  
+  .ticket-logo {
+    text-align: left;
+  }
+  
+  .ticket-header {
+    flex-direction: column;
+    gap: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .registration-form-container {
+    padding: 1.8rem 1.2rem;
+  }
+  .form-title {
+    font-size: 1.5rem;
+    margin-bottom: 1.6rem;
+  }
+  .ticket-top {
+    padding: 1.8rem 1.2rem;
+  }
+  .ticket-bottom {
+    padding: 1.5rem 1.2rem;
+  }
+  .ticket-event-name {
+    font-size: 1.3rem;
+  }
+  .ticket-body-grid {
+    gap: 1rem;
+  }
+  .ticket-actions-bar {
+    flex-direction: column;
+    gap: 0.8rem;
+    width: 100%;
+  }
+  .ticket-action-btn {
+    width: 100%;
+  }
+  .qr-code-box {
+    width: 85px;
+    height: 85px;
+  }
+}

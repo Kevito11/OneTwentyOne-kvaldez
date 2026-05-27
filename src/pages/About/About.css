@@ -1,0 +1,202 @@
+.about-intro {
+  margin-bottom: 5.5rem;
+}
+
+.about-intro .subtitle {
+  font-family: var(--font-heading);
+  color: var(--accent-light);
+  font-weight: 800;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  font-size: 0.95rem;
+  display: block;
+  margin-bottom: 1.2rem;
+}
+
+.about-intro .title {
+  font-size: clamp(3rem, 6vw, 5.2rem);
+  font-weight: 900;
+  margin-bottom: 1.5rem;
+  letter-spacing: -2px;
+}
+
+.about-intro .description {
+  font-size: 1.2rem;
+  color: var(--text-secondary);
+  max-width: 750px;
+  margin: 0 auto;
+  line-height: 1.8;
+}
+
+.vision-mission-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2.5rem;
+  margin-bottom: 5rem;
+}
+
+.vm-card {
+  padding: 3rem;
+  text-align: center;
+  border-radius: 24px;
+}
+
+.vm-title {
+  font-size: 1.9rem;
+  margin-bottom: 1.5rem;
+  color: var(--accent-light);
+  font-weight: 800;
+}
+
+.vm-card p {
+  color: var(--text-secondary);
+  font-size: 1.08rem;
+  line-height: 1.7;
+}
+
+.church-section {
+  padding: 4.5rem;
+  text-align: center;
+  margin-bottom: 6rem;
+  background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-primary) 100%);
+  border: 1px solid var(--glass-border);
+  position: relative;
+  overflow: hidden;
+  border-radius: 24px;
+}
+
+.church-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background: var(--accent-gradient);
+}
+
+.church-content h2 {
+  font-size: 2.6rem;
+  margin-bottom: 1.5rem;
+  font-weight: 850;
+  letter-spacing: -0.5px;
+}
+
+.church-content p {
+  font-size: 1.12rem;
+  color: var(--text-secondary);
+  max-width: 850px;
+  margin: 0 auto 1.8rem;
+  line-height: 1.8;
+}
+
+.highlight-text {
+  font-weight: 700;
+  color: var(--accent-light) !important;
+  font-size: 1.25rem !important;
+}
+
+.team-section {
+  margin-top: 5rem;
+}
+
+.team-section h2 {
+  font-size: 2.6rem;
+  margin-bottom: 1.2rem;
+  font-weight: 850;
+  letter-spacing: -0.5px;
+}
+
+.team-desc {
+  color: var(--text-secondary);
+  font-size: 1.15rem;
+  margin-bottom: 5rem;
+}
+
+.team-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 3.5rem;
+}
+
+.team-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: rgba(20, 20, 20, 0.4);
+  padding: 2.5rem 2rem;
+  border-radius: 20px;
+  border: 1px solid var(--glass-border);
+  transition: all 0.3s ease;
+}
+
+.team-card:hover {
+  transform: translateY(-5px);
+  border-color: rgba(225, 48, 108, 0.25);
+  box-shadow: 0 10px 30px rgba(225, 48, 108, 0.05);
+}
+
+.team-image-placeholder {
+  width: 160px;
+  height: 160px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--bg-tertiary) 0%, var(--bg-secondary) 100%);
+  border: 2px solid rgba(255, 255, 255, 0.06);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1.8rem;
+  color: var(--accent-light);
+  font-family: var(--font-heading);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+}
+
+.team-card:hover .team-image-placeholder {
+  border-color: var(--accent-blue);
+  color: white;
+  background: linear-gradient(135deg, #1e1136 0%, #e1306c 100%);
+  transform: scale(1.06) rotate(5deg);
+  box-shadow: 0 8px 30px rgba(225, 48, 108, 0.3);
+}
+
+.team-card h3 {
+  font-size: 1.4rem;
+  margin-bottom: 0.6rem;
+  font-weight: 700;
+}
+
+.team-card p {
+  color: var(--accent-blue);
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+@media (max-width: 768px) {
+  .vision-mission-grid {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+  
+  .church-section {
+    padding: 3rem 1.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .vm-card {
+    padding: 2rem 1.2rem;
+  }
+  .team-card {
+    padding: 2rem 1.2rem;
+  }
+  .church-section {
+    padding: 2.2rem 1.2rem;
+  }
+  .church-content h2 {
+    font-size: 1.8rem;
+  }
+}

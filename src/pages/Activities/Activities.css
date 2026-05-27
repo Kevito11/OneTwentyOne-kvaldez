@@ -1,0 +1,113 @@
+.page-header {
+  margin-bottom: 5rem;
+  padding-top: 2rem;
+}
+
+.page-header .subtitle {
+  font-family: var(--font-heading);
+  color: var(--accent-light);
+  font-weight: 800;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  font-size: 0.95rem;
+  display: block;
+  margin-bottom: 1.2rem;
+}
+
+.page-header .title {
+  font-size: clamp(2.5rem, 6vw, 4rem);
+  font-weight: 900;
+  margin-bottom: 1.5rem;
+  letter-spacing: -1.5px;
+}
+
+.page-header .description {
+  font-size: 1.15rem;
+  color: var(--text-secondary);
+  max-width: 650px;
+  margin: 0 auto;
+  line-height: 1.7;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.activities-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 2.5rem;
+}
+
+.activity-card {
+  padding: 3rem 2.5rem;
+  position: relative;
+  overflow: hidden;
+  border-radius: 24px;
+}
+
+.activity-tag {
+  position: absolute;
+  top: 1.5rem;
+  right: 1.5rem;
+  background: rgba(245, 158, 11, 0.15);
+  color: var(--accent-light);
+  padding: 0.35rem 1rem;
+  border-radius: 50px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  border: 1px solid rgba(245, 158, 11, 0.2);
+  letter-spacing: 0.5px;
+}
+
+.activity-title {
+  font-size: 1.6rem;
+  margin-top: 1.2rem;
+  margin-bottom: 1rem;
+  padding-right: 5rem; /* leave space for tag */
+  font-weight: 800;
+  letter-spacing: -0.5px;
+}
+
+.activity-desc {
+  color: var(--text-secondary);
+  margin-bottom: 2rem;
+  font-size: 0.98rem;
+  line-height: 1.6;
+}
+
+.activity-details {
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding-top: 1.8rem;
+}
+
+.detail-item {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  color: var(--text-secondary);
+  font-size: 0.92rem;
+}
+
+.detail-icon {
+  color: var(--accent-blue);
+  filter: drop-shadow(0 0 3px rgba(6, 182, 212, 0.3));
+}
+
+@media (max-width: 480px) {
+  .activity-card {
+    padding: 2rem 1.5rem;
+  }
+  .activity-title {
+    font-size: 1.35rem;
+    padding-right: 0;
+    margin-top: 2.5rem;
+  }
+  .activity-tag {
+    top: 1.2rem;
+    right: 1.2rem;
+  }
+}

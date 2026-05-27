@@ -1,0 +1,147 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Outfit:wght@400;500;700;800;900&display=swap');
+
+:root {
+  /* Colors */
+  --bg-primary: #000000; /* Pure Pitch Black */
+  --bg-secondary: #0a0a0a; /* Ultra Dark Charcoal */
+  --bg-tertiary: #141414; /* Deep Charcoal */
+  
+  --text-primary: #ffffff; /* Pure High Contrast White */
+  --text-secondary: #a3a3a3; /* Silver Grey */
+  --text-muted: #525252; /* Charcoal Muted Grey */
+
+  /* Accent Colors - Sleek Premium Monochrome (White, Silver, Deep Charcoal) */
+  --accent-color: #ffffff; /* White Accent */
+  --accent-light: #f5f5f5; /* Soft Off-White */
+  --accent-blue: #888888; /* Silver Grey */
+  --accent-gradient: linear-gradient(135deg, #ffffff 0%, #a3a3a3 50%, #404040 100%);
+  --accent-glow: rgba(255, 255, 255, 0.15);
+  --blue-glow: rgba(136, 136, 136, 0.2);
+
+  /* Borders & Glassmorphism */
+  --border-color: rgba(255, 255, 255, 0.08);
+  --glass-bg: rgba(10, 10, 10, 0.75);
+  --glass-border: rgba(255, 255, 255, 0.06);
+  --glass-glow: rgba(255, 255, 255, 0.02);
+
+  /* Typography */
+  --font-body: 'Inter', sans-serif;
+  --font-heading: 'Outfit', sans-serif;
+
+  /* Spacing */
+  --container-px: 2rem;
+  --max-width: 1200px;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-body);
+  background-color: var(--bg-primary);
+  background-image: 
+    radial-gradient(at 10% 20%, rgba(255, 255, 255, 0.03) 0px, transparent 55%),
+    radial-gradient(at 90% 80%, rgba(136, 136, 136, 0.04) 0px, transparent 55%),
+    radial-gradient(at 50% 50%, rgba(255, 255, 255, 0.01) 0px, transparent 50%);
+  background-attachment: fixed;
+  color: var(--text-primary);
+  line-height: 1.6;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+  line-height: 1.2;
+  font-weight: 700;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+ul {
+  list-style: none;
+}
+
+/* Scrollbar Customization */
+::-webkit-scrollbar {
+  width: 10px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-primary);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--bg-tertiary);
+  border-radius: 5px;
+  border: 2px solid var(--bg-primary);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-color);
+}
+
+/* Utilities */
+.container {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 0 var(--container-px);
+}
+
+.text-gradient {
+  background: var(--accent-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: transparent;
+  filter: drop-shadow(0 2px 8px rgba(255, 255, 255, 0.15));
+}
+
+.glass-panel {
+  background: var(--glass-bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--glass-border);
+  border-radius: 20px;
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.glass-panel:hover {
+  border-color: rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 32px 0 rgba(255, 255, 255, 0.03);
+}
+
+.section-padding {
+  padding: 8rem 0;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 15px var(--accent-glow); }
+  50% { box-shadow: 0 0 25px rgba(255, 255, 255, 0.35); }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.9s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  :root {
+    --container-px: 1.5rem;
+  }
+  .section-padding {
+    padding: 5rem 0;
+  }
+}
