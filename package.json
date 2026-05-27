@@ -1,7 +1,8 @@
 {
-  "name": "8---lovable",
+  "name": "onetwentyone-icc",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
+  "description": "Sitio web oficial y sistema de registro para OneTwentyOne (Siervos Para Cristo), el ministerio de jóvenes de la Iglesia de Convertidos a Cristo (ICC) en Santo Domingo, R.D. Desarrollado en React y Vite con diseño premium en blanco y negro, generador de boletos digitales y cronogramas interactivos.",
   "type": "module",
   "scripts": {
     "dev": "vite",
