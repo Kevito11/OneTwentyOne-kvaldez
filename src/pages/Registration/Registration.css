@@ -530,3 +530,29 @@
     height: 85px;
   }
 }
+
+/* Registration Poster */
+.registration-poster-wrapper {
+  margin-top: 2.5rem;
+  border-radius: 20px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  padding: 0 !important;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5);
+  transition: border-color 0.4s ease;
+}
+
+.registration-poster-wrapper:hover {
+  border-color: rgba(255, 255, 255, 0.25);
+}
+
+.registration-poster {
+  width: 100%;
+  height: auto;
+  display: block;
+  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.registration-poster:hover {
+  transform: scale(1.02);
+}

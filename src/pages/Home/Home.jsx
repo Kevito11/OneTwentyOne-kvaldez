@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { Calendar, MapPin, ArrowRight, Clock, HelpCircle, Plus, Star, ExternalLink } from 'lucide-react';
+import { Calendar, MapPin, ArrowRight, Clock, HelpCircle, Plus, Star, ExternalLink, ChevronLeft, ChevronRight } from 'lucide-react';
 import './Home.css';
 
 const Home = () => {
@@ -60,25 +60,32 @@ const Home = () => {
   // Speakers Data
   const speakers = [
     {
-      name: "Cuerpo Pastoral ICC",
-      role: "Exposición Bíblica",
-      subtitle: "Pastores de la Iglesia Convertidos a Cristo",
-      desc: "Líderes comprometidos con la sana doctrina y la predicación expositiva de la Palabra de Dios, guiando a la congregación en Santo Domingo por más de 40 años.",
-      initials: "ICC"
+      name: "Ps. Narciso Nadal",
+      role: "Expositor Bíblico",
+      subtitle: "Pastor de la Iglesia Convertidos a Cristo (ICC)",
+      desc: "Pastor y maestro dedicado a la proclamación fiel de la Palabra de Dios y al discipulado de la juventud en la sana doctrina.",
+      initials: "NN"
+    },
+    {
+      name: "Ps. Sigfrido Guillén",
+      role: "Expositor Bíblico",
+      subtitle: "Pastor de la Iglesia Convertidos a Cristo (ICC)",
+      desc: "Pastor enfocado en la enseñanza bíblica y apologética práctica, capacitando a las nuevas generaciones para defender su fe con convicción.",
+      initials: "SG"
+    },
+    {
+      name: "Hno. Julián Musa",
+      role: "Expositor Bíblico",
+      subtitle: "Predicador & Líder ICC",
+      desc: "Predicador apasionado por el Evangelio, comprometido en guiar a la juventud a vivir con un corazón sincero y una fe inquebrantable sin filtros.",
+      initials: "JM"
     },
     {
       name: "OneTwentyOne Worship",
       role: "Alabanza & Adoración",
-      subtitle: "Banda de Jóvenes ICC",
-      desc: "Ministerio de música dedicado a levantar el nombre de Jesús, guiando a nuestra generación a adorar al Padre en espíritu y en verdad a través de cada acorde.",
+      subtitle: "Ministerio de Música",
+      desc: "Banda de jóvenes de la ICC, dedicada a exaltar a Jesús y guiar a esta generación a adorar al Padre en espíritu y en verdad.",
       initials: "121"
-    },
-    {
-      name: "Liderazgo OneTwentyOne",
-      role: "Talleres Prácticos",
-      subtitle: "Coordinadores de Ministerio",
-      desc: "Servidores enfocados en equipar y discipular a la juventud a través de dinámicas, apologética aplicada y espacios interactivos de crecimiento espiritual.",
-      initials: "SPC"
     }
   ];
 
@@ -86,7 +93,7 @@ const Home = () => {
   const faqs = [
     {
       question: "¿La conferencia tiene algún costo?",
-      answer: "No, la conferencia de jóvenes OneTwentyOne es 100% gratis. Nuestro anhelo es que todos los jóvenes puedan participar. Sin embargo, los cupos son limitados por espacio y es obligatorio registrarse para asegurar tu entrada."
+      answer: "No, la conferencia de jóvenes 'Sin Filtro' es 100% gratis. Nuestro anhelo es que todos los jóvenes puedan participar. Sin embargo, los cupos son limitados por espacio y es obligatorio registrarse para asegurar tu entrada."
     },
     {
       question: "¿Quiénes pueden participar del evento?",
@@ -98,9 +105,54 @@ const Home = () => {
     },
     {
       question: "¿La iglesia cuenta con estacionamiento y seguridad?",
-      answer: "Sí, las instalaciones de la Iglesia Convertidas a Cristo (ICC) cuentan con amplios parqueos controlados y un equipo de logística y seguridad para garantizar la tranquilidad de todos los asistentes."
+      answer: "Sí, las instalaciones de la Iglesia Convertidos a Cristo (ICC) cuentan con amplios parqueos controlados y un equipo de logística y seguridad para garantizar la tranquilidad de todos los asistentes."
     }
   ];
+
+  // Carousel Logic for "Nuestra Comunidad"
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const totalSlides = 6;
+  const [visibleSlides, setVisibleSlides] = useState(3);
+  const autoPlayRef = useRef(null);
+  
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth <= 600) {
+        setVisibleSlides(1);
+      } else if (window.innerWidth <= 900) {
+        setVisibleSlides(2);
+      } else {
+        setVisibleSlides(3);
+      }
+    };
+    
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  const maxIndex = totalSlides - visibleSlides;
+
+  const nextSlide = () => {
+    setCurrentSlide((prev) => (prev >= maxIndex ? 0 : prev + 1));
+  };
+
+  const prevSlide = () => {
+    setCurrentSlide((prev) => (prev <= 0 ? maxIndex : prev - 1));
+  };
+
+  // Auto-play cycle
+  useEffect(() => {
+    autoPlayRef.current = nextSlide;
+  });
+
+  useEffect(() => {
+    const play = () => {
+      autoPlayRef.current();
+    };
+    const interval = setInterval(play, 4000);
+    return () => clearInterval(interval);
+  }, [visibleSlides]);
 
   return (
     <div className="home-page animate-fade-in">
@@ -108,42 +160,55 @@ const Home = () => {
       <section className="hero-section">
         <div className="hero-bg-overlay"></div>
         <div className="container hero-container">
-          <div className="hero-content">
-            <span className="hero-subtitle">
-              <Star size={16} /> Conferencia de Jóvenes OneTwentyOne
-            </span>
-            <h1 className="hero-title">
-              INQUEBRANTABLES <br />
-              <span className="text-gradient">2026</span>
-            </h1>
-            <p className="hero-description">
-              Organizado por el ministerio de jóvenes <strong>OneTwentyOne (Siervos Para Cristo)</strong> de la <strong>Iglesia Convertidas a Cristo (ICC)</strong>. Nuestro anhelo es levantar una generación apasionada por Jesús y arraigada en Su Palabra. <em>¡La entrada es completamente gratis!</em>
-            </p>
-            
-            <div className="hero-cta">
-              <Link to="/registro" className="btn-primary">
-                Registro Gratis
-                <ArrowRight size={20} />
-              </Link>
-              <a 
-                href="https://maps.app.goo.gl/jRX8PC4S3oVrPMQz6" 
-                target="_blank" 
-                rel="noopener noreferrer" 
-                className="btn-secondary"
-              >
-                Ver Ubicación
-                <MapPin size={20} className="meta-icon" />
-              </a>
+          <div className="hero-split-layout">
+            <div className="hero-content-col">
+              <span className="hero-subtitle">
+                <Star size={16} /> Ministerio de Jóvenes ICC
+              </span>
+              <h1 className="hero-title">
+                OneTwentyOne <br />
+                <span className="text-gradient">Vivir es Cristo</span>
+              </h1>
+              <p className="hero-description">
+                Somos la comunidad de jóvenes de la <strong>Iglesia Convertidos a Cristo (ICC)</strong>. Nuestro anhelo es ver a una generación apasionada por Jesús, arraigada en Su Palabra, comprometida con la sana doctrina y capacitada para servir al Señor en espíritu y verdad.
+              </p>
+              
+              <div className="hero-cta">
+                <Link to="/registro" className="btn-primary">
+                  Registro Gratis
+                  <ArrowRight size={20} />
+                </Link>
+                <a 
+                  href="https://maps.app.goo.gl/jRX8PC4S3oVrPMQz6" 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="btn-secondary"
+                >
+                  Ver Ubicación
+                  <MapPin size={20} className="meta-icon" />
+                </a>
+              </div>
             </div>
             
-            <div className="hero-meta">
-              <div className="meta-item">
-                <Calendar className="meta-icon" />
-                <span>Viernes 28 y Sábado 29 de Agosto</span>
-              </div>
-              <div className="meta-item">
-                <MapPin className="meta-icon" />
-                <span>Dr. Núñez Domínguez #30, Ens. La Julia, Santo Domingo</span>
+            <div className="hero-featured-col">
+              <div className="hero-featured-card glass-panel">
+                <div className="featured-card-image-wrap">
+                  <img src="/sin-filtro-poster.jpeg" alt="Afiche Conferencia Sin Filtro 2026" className="featured-card-poster" />
+                  <div className="featured-card-badge">PRÓXIMO EVENTO</div>
+                </div>
+                <div className="featured-card-details">
+                  <h3>Conferencia "Sin Filtro" 2026</h3>
+                  <div className="featured-card-meta">
+                    <Calendar size={14} style={{ color: 'var(--accent-blue)', flexShrink: 0 }} />
+                    <span>28 y 29 de Agosto</span>
+                    <span className="separator">•</span>
+                    <Clock size={14} style={{ color: 'var(--accent-blue)', flexShrink: 0 }} />
+                    <span>Gratis</span>
+                  </div>
+                  <Link to="/registro" className="btn-primary-sm">
+                    Asegurar Entrada Gratis
+                  </Link>
+                </div>
               </div>
             </div>
           </div>
@@ -154,7 +219,7 @@ const Home = () => {
       <section className="countdown-section">
         <div className="container">
           <div className="countdown-wrapper glass-panel">
-            <h2 className="countdown-title">¡El evento está por comenzar!</h2>
+            <h2 className="countdown-title">¡La conferencia "Sin Filtro" está por comenzar!</h2>
             <div className="countdown-timer">
               <div className="time-block">
                 <span className="time-value text-gradient">{timeLeft.days}</span>
@@ -208,7 +273,7 @@ const Home = () => {
       </section>
 
       {/* Schedule / Programa Section */}
-      <section className="schedule-section section-padding" style={{ backgroundColor: 'rgba(10, 17, 36, 0.3)' }}>
+      <section className="schedule-section section-padding" style={{ backgroundColor: 'rgba(10, 10, 10, 0.45)' }}>
         <div className="container">
           <div className="section-header">
             <h2>Programa de la <span className="text-gradient">Conferencia</span></h2>
@@ -328,6 +393,101 @@ const Home = () => {
         </div>
       </section>
 
+      {/* Gallery Section */}
+      <section className="gallery-section section-padding" style={{ backgroundColor: 'rgba(10, 10, 10, 0.25)' }}>
+        <div className="container">
+          <div className="section-header">
+            <h2>Nuestra <span className="text-gradient">Comunidad</span></h2>
+            <p>Así vivimos la fe, el discipulado y el servicio en las actividades de jóvenes de la ICC.</p>
+          </div>
+
+          <div className="carousel-wrapper">
+            <button className="carousel-nav-btn prev" onClick={prevSlide} aria-label="Anterior">
+              <ChevronLeft size={24} />
+            </button>
+            
+            <div className="carousel-track-container">
+              <div 
+                className="carousel-track" 
+                style={{ 
+                  transform: `translateX(-${currentSlide * (100 / visibleSlides)}%)`,
+                  transition: 'transform 0.6s cubic-bezier(0.16, 1, 0.3, 1)'
+                }}
+              >
+                <div className="carousel-slide-item" style={{ width: `${100 / visibleSlides}%` }}>
+                  <div className="gallery-item glass-panel">
+                    <img src="/camp-photo-1.jpg" alt="Momentos de Comunión 1" />
+                    <div className="gallery-overlay">
+                      <span>Comunión & Fe</span>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="carousel-slide-item" style={{ width: `${100 / visibleSlides}%` }}>
+                  <div className="gallery-item glass-panel">
+                    <img src="/camp-photo-2.jpg" alt="Estudio de la Palabra" />
+                    <div className="gallery-overlay">
+                      <span>Estudio de la Palabra</span>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="carousel-slide-item" style={{ width: `${100 / visibleSlides}%` }}>
+                  <div className="gallery-item glass-panel">
+                    <img src="/camp-photo-3.jpg" alt="Oración & Alabanza" />
+                    <div className="gallery-overlay">
+                      <span>Oración & Alabanza</span>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="carousel-slide-item" style={{ width: `${100 / visibleSlides}%` }}>
+                  <div className="gallery-item glass-panel">
+                    <img src="/camp-photo-4.jpg" alt="Servicio Activo" />
+                    <div className="gallery-overlay">
+                      <span>Servicio Activo</span>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="carousel-slide-item" style={{ width: `${100 / visibleSlides}%` }}>
+                  <div className="gallery-item glass-panel">
+                    <img src="/camp-photo-5.jpg" alt="Vida en Comunidad" />
+                    <div className="gallery-overlay">
+                      <span>Vida en Comunidad</span>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="carousel-slide-item" style={{ width: `${100 / visibleSlides}%` }}>
+                  <div className="gallery-item glass-panel">
+                    <img src="/camp-photo-6.jpg" alt="Crecimiento Espiritual" />
+                    <div className="gallery-overlay">
+                      <span>Crecimiento Espiritual</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <button className="carousel-nav-btn next" onClick={nextSlide} aria-label="Siguiente">
+              <ChevronRight size={24} />
+            </button>
+          </div>
+          
+          <div className="carousel-dots">
+            {Array.from({ length: maxIndex + 1 }).map((_, idx) => (
+              <button 
+                key={idx} 
+                className={`dot ${currentSlide === idx ? 'active' : ''}`}
+                onClick={() => setCurrentSlide(idx)}
+                aria-label={`Ir al slide ${idx + 1}`}
+              />
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* Location Section */}
       <section className="location-section section-padding">
         <div className="container">
@@ -382,11 +542,11 @@ const Home = () => {
       </section>
 
       {/* FAQ Section */}
-      <section className="faq-section section-padding" style={{ backgroundColor: 'rgba(10, 17, 36, 0.3)' }}>
+      <section className="faq-section section-padding" style={{ backgroundColor: 'rgba(10, 10, 10, 0.45)' }}>
         <div className="container">
           <div className="section-header">
             <h2>Preguntas <span className="text-gradient">Frecuentes</span></h2>
-            <p>Aclara tus dudas sobre el registro, accesos y logística de la Conferencia OneTwentyOne.</p>
+            <p>Aclara tus dudas sobre el registro, accesos y logística de la Conferencia "Sin Filtro".</p>
           </div>
 
           <div className="faq-container">

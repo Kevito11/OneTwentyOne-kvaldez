@@ -5,6 +5,17 @@ import './Activities.css';
 const Activities = () => {
   const activities = [
     {
+      id: 0,
+      title: "Conferencia de Jóvenes 'Sin Filtro' 2026",
+      date: "28 y 29 de Agosto, 2026",
+      time: "Viernes 7:00 PM / Sábado 9:00 AM",
+      location: "Salón Principal ICC",
+      mapLink: "https://maps.app.goo.gl/jRX8PC4S3oVrPMQz6",
+      description: "Nuestra actividad más cercana y esperada. Un fin de semana intensivo y sin rodeos para confrontar la cultura con la verdad eterna de las Escrituras. Con la predicación de los pastores Narciso Nadal, Sigfrido Guillén y el Hno. Julián Musa. Alabanza guiada por OneTwentyOne Worship.",
+      tag: "Próximo Evento",
+      featured: true
+    },
+    {
       id: 1,
       title: "Reunión General de Jóvenes",
       date: "Todos los Viernes",
@@ -50,7 +61,7 @@ const Activities = () => {
 
         <div className="activities-grid">
           {activities.map(activity => (
-            <div key={activity.id} className="activity-card glass-panel">
+            <div key={activity.id} className={`activity-card glass-panel ${activity.featured ? 'featured' : ''}`}>
               <div className="activity-tag">{activity.tag}</div>
               <h3 className="activity-title">{activity.title}</h3>
               <p className="activity-desc">{activity.description}</p>

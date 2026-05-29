@@ -52,17 +52,26 @@ const Navbar = () => {
         </div>
 
         {/* Mobile Menu Button */}
-        <button 
-          className="mobile-menu-btn mobile-only"
-          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          aria-label="Toggle menu"
-        >
-          {mobileMenuOpen ? <X size={28} /> : <Menu size={28} />}
-        </button>
+        {!mobileMenuOpen && (
+          <button 
+            className="mobile-menu-btn mobile-only"
+            onClick={() => setMobileMenuOpen(true)}
+            aria-label="Abrir menú"
+          >
+            <Menu size={28} />
+          </button>
+        )}
       </div>
 
       {/* Mobile Navigation Dropdown */}
       <div className={`mobile-menu ${mobileMenuOpen ? 'open' : ''}`}>
+        <button 
+          className="mobile-menu-close-btn mobile-only"
+          onClick={() => setMobileMenuOpen(false)}
+          aria-label="Cerrar menú"
+        >
+          <X size={32} />
+        </button>
         <div className="mobile-menu-content">
           {navLinks.map((link) => (
             <Link 

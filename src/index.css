@@ -1,27 +1,27 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Outfit:wght@400;500;700;800;900&display=swap');
 
 :root {
-  /* Colors */
+  /* Colors - Premium High-Contrast Monochrome (Black and White) Scheme */
   --bg-primary: #000000; /* Pure Pitch Black */
-  --bg-secondary: #0a0a0a; /* Ultra Dark Charcoal */
-  --bg-tertiary: #141414; /* Deep Charcoal */
+  --bg-secondary: #080808; /* Deep Obsidian Charcoal */
+  --bg-tertiary: #121212; /* Rich Dark Charcoal */
   
   --text-primary: #ffffff; /* Pure High Contrast White */
-  --text-secondary: #a3a3a3; /* Silver Grey */
-  --text-muted: #525252; /* Charcoal Muted Grey */
+  --text-secondary: #a3a3a3; /* Soft Silver Grey */
+  --text-muted: #555555; /* Muted Charcoal Grey */
 
-  /* Accent Colors - Sleek Premium Monochrome (White, Silver, Deep Charcoal) */
-  --accent-color: #ffffff; /* White Accent */
+  /* Accent Colors - High Contrast Grayscale and Pure White */
+  --accent-color: #ffffff; /* Pure White Accent */
   --accent-light: #f5f5f5; /* Soft Off-White */
   --accent-blue: #888888; /* Silver Grey */
-  --accent-gradient: linear-gradient(135deg, #ffffff 0%, #a3a3a3 50%, #404040 100%);
-  --accent-glow: rgba(255, 255, 255, 0.15);
-  --blue-glow: rgba(136, 136, 136, 0.2);
+  --accent-gradient: linear-gradient(135deg, #ffffff 0%, #888888 50%, #262626 100%);
+  --accent-glow: rgba(255, 255, 255, 0.08);
+  --blue-glow: rgba(136, 136, 136, 0.12);
 
-  /* Borders & Glassmorphism */
+  /* Borders & Glassmorphism - Crisp Grayscale Highlights */
   --border-color: rgba(255, 255, 255, 0.08);
-  --glass-bg: rgba(10, 10, 10, 0.75);
-  --glass-border: rgba(255, 255, 255, 0.06);
+  --glass-bg: rgba(10, 10, 10, 0.82);
+  --glass-border: rgba(255, 255, 255, 0.08);
   --glass-glow: rgba(255, 255, 255, 0.02);
 
   /* Typography */
@@ -44,8 +44,8 @@ body {
   font-family: var(--font-body);
   background-color: var(--bg-primary);
   background-image: 
-    radial-gradient(at 10% 20%, rgba(255, 255, 255, 0.03) 0px, transparent 55%),
-    radial-gradient(at 90% 80%, rgba(136, 136, 136, 0.04) 0px, transparent 55%),
+    radial-gradient(at 10% 20%, rgba(255, 255, 255, 0.02) 0px, transparent 55%),
+    radial-gradient(at 90% 80%, rgba(136, 136, 136, 0.03) 0px, transparent 55%),
     radial-gradient(at 50% 50%, rgba(255, 255, 255, 0.01) 0px, transparent 50%);
   background-attachment: fixed;
   color: var(--text-primary);

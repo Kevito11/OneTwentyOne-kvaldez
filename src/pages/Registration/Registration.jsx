@@ -101,7 +101,7 @@ const Registration = () => {
               </span>
               <h1 className="title">Asegura tu <span className="text-gradient">Lugar</span></h1>
               <p className="description">
-                Únete a nosotros del <strong>29 al 30 de Agosto</strong> en la conferencia OneTwentyOne. Vive un fin de semana lleno de adoración, instrucción expositiva de la Palabra y comunión. 
+                Únete a nosotros el <strong>28 y 29 de Agosto</strong> en la conferencia de jóvenes <strong>"Sin Filtro"</strong>. Vive un fin de semana lleno de adoración, instrucción expositiva de la Palabra y comunión. 
               </p>
               
               <div className="ticket-perks">
@@ -126,6 +126,10 @@ const Registration = () => {
                 <span className="badge-title">Tipo de Entrada</span>
                 <span className="badge-price">GRATIS</span>
                 <span className="badge-note">* Registro previo obligatorio para la logística del evento.</span>
+              </div>
+
+              <div className="registration-poster-wrapper glass-panel">
+                <img src="/sin-filtro-poster.jpeg" alt="Afiche Conferencia Sin Filtro 2026" className="registration-poster" />
               </div>
             </div>
 
@@ -259,8 +263,8 @@ const Registration = () => {
                 <div className="ticket-header">
                   <div className="ticket-event-info">
                     <span className="ticket-event-label">Boleto de Entrada</span>
-                    <span className="ticket-event-name text-gradient">INQUEBRANTABLES 2026</span>
-                    <span className="ticket-event-subtitle">Conferencia de Jóvenes OneTwentyOne</span>
+                    <span className="ticket-event-name text-gradient">SIN FILTRO 2026</span>
+                    <span className="ticket-event-subtitle">Conferencia de Jóvenes ICC</span>
                   </div>
                   <div className="ticket-logo">
                     <span className="t-logo-text">OneTwentyOne</span>
