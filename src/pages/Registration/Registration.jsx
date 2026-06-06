@@ -1,6 +1,44 @@
-import React, { useState } from 'react';
-import { Ticket, User, Mail, Phone, Home, Star, Printer, ArrowRight, RotateCcw, MapPin, CheckCircle } from 'lucide-react';
+import { useState } from 'react';
+import { Ticket, User, Mail, Phone, Home, Star, Printer, RotateCcw, MapPin, CheckCircle, X } from 'lucide-react';
 import './Registration.css';
+
+// Mock QR Code SVG for visual WOW factor
+const MockQRCode = () => (
+  <svg viewBox="0 0 100 100" fill="currentColor">
+    {/* Outer borders */}
+    <rect x="0" y="0" width="25" height="25" fill="none" stroke="currentColor" strokeWidth="4" />
+    <rect x="5" y="5" width="15" height="15" />
+    
+    <rect x="75" y="0" width="25" height="25" fill="none" stroke="currentColor" strokeWidth="4" />
+    <rect x="80" y="5" width="15" height="15" />
+    
+    <rect x="0" y="75" width="25" height="25" fill="none" stroke="currentColor" strokeWidth="4" />
+    <rect x="5" y="80" width="15" height="15" />
+
+    {/* Internal random modules representing QR blocks */}
+    <rect x="35" y="5" width="8" height="8" />
+    <rect x="48" y="10" width="8" height="18" />
+    <rect x="60" y="5" width="8" height="8" />
+    
+    <rect x="5" y="35" width="18" height="8" />
+    <rect x="30" y="30" width="8" height="8" />
+    <rect x="42" y="35" width="15" height="8" />
+    <rect x="70" y="35" width="8" height="20" />
+    
+    <rect x="5" y="50" width="8" height="15" />
+    <rect x="25" y="48" width="12" height="8" />
+    <rect x="45" y="50" width="8" height="8" />
+    <rect x="85" y="45" width="10" height="15" />
+    
+    <rect x="35" y="65" width="8" height="8" />
+    <rect x="50" y="60" width="15" height="8" />
+    <rect x="80" y="70" width="15" height="8" />
+    
+    <rect x="30" y="80" width="18" height="12" />
+    <rect x="60" y="85" width="10" height="8" />
+    <rect x="55" y="75" width="8" height="8" />
+  </svg>
+);
 
 const Registration = () => {
   const [formData, setFormData] = useState({
@@ -9,12 +47,33 @@ const Registration = () => {
     email: '',
     phone: '',
     church: '',
-    ageGroup: '18-25',
-    participateTalleres: 'si'
+    ageGroup: '18-25'
   });
 
   const [isRegistered, setIsRegistered] = useState(false);
   const [ticketCode, setTicketCode] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState('');
+  const [showExitWarning, setShowExitWarning] = useState(false);
+
+  const handleExitAttempt = () => {
+    setShowExitWarning(true);
+  };
+
+  const confirmExit = () => {
+    setShowExitWarning(false);
+    resetForm();
+  };
+
+  const cancelExit = () => {
+    setShowExitWarning(false);
+  };
+
+  const handleOutsideClick = (e) => {
+    if (e.target.classList.contains('ticket-success-container')) {
+      handleExitAttempt();
+    }
+  };
 
   const handleChange = (e) => {
     setFormData({
@@ -23,12 +82,60 @@ const Registration = () => {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Generate a unique ticket code: 121-ICC-[Random 4-digit number]
+    setIsSubmitting(true);
+    setSubmitError('');
+
     const randomCode = Math.floor(1000 + Math.random() * 9000);
-    setTicketCode(`121-ICC-${randomCode}`);
-    setIsRegistered(true);
+    const generatedCode = `121-ICC-${randomCode}`;
+    const sheetUrl = import.meta.env.VITE_SHEETS_API_URL;
+
+    // Si la URL de la API no está configurada, simulamos localmente para desarrollo
+    if (!sheetUrl || sheetUrl.trim() === '') {
+      console.warn("VITE_SHEETS_API_URL no está configurada en .env.local. Se simulará el registro localmente.");
+      setTimeout(() => {
+        setTicketCode(generatedCode);
+        setIsRegistered(true);
+        setIsSubmitting(false);
+      }, 1000);
+      return;
+    }
+
+    try {
+      // Usamos 'text/plain;charset=utf-8' para evitar problemas con peticiones CORS preflight (OPTIONS)
+      const response = await fetch(sheetUrl, {
+        method: 'POST',
+        mode: 'cors',
+        headers: {
+          'Content-Type': 'text/plain;charset=utf-8'
+        },
+        body: JSON.stringify({
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          email: formData.email,
+          phone: formData.phone,
+          church: formData.church || 'Iglesia Convertidas a Cristo',
+          ageGroup: formData.ageGroup,
+          participateTalleres: 'No',
+          ticketCode: generatedCode
+        })
+      });
+
+      const result = await response.json();
+
+      if (result.status === 'success') {
+        setTicketCode(generatedCode);
+        setIsRegistered(true);
+      } else {
+        throw new Error(result.message || 'Error del servidor al guardar los datos.');
+      }
+    } catch (error) {
+      console.error("Error al registrar en Google Sheets:", error);
+      setSubmitError("Hubo un problema al enviar tus datos. Por favor, verifica tu conexión e inténtalo de nuevo.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const resetForm = () => {
@@ -38,53 +145,16 @@ const Registration = () => {
       email: '',
       phone: '',
       church: '',
-      ageGroup: '18-25',
-      participateTalleres: 'si'
+      ageGroup: '18-25'
     });
+    setSubmitError('');
+    setIsSubmitting(false);
     setIsRegistered(false);
   };
 
   const handlePrint = () => {
     window.print();
   };
-
-  // Mock QR Code SVG for visual WOW factor
-  const MockQRCode = () => (
-    <svg viewBox="0 0 100 100" fill="currentColor">
-      {/* Outer borders */}
-      <rect x="0" y="0" width="25" height="25" fill="none" stroke="currentColor" strokeWidth="4" />
-      <rect x="5" y="5" width="15" height="15" />
-      
-      <rect x="75" y="0" width="25" height="25" fill="none" stroke="currentColor" strokeWidth="4" />
-      <rect x="80" y="5" width="15" height="15" />
-      
-      <rect x="0" y="75" width="25" height="25" fill="none" stroke="currentColor" strokeWidth="4" />
-      <rect x="5" y="80" width="15" height="15" />
-
-      {/* Internal random modules representing QR blocks */}
-      <rect x="35" y="5" width="8" height="8" />
-      <rect x="48" y="10" width="8" height="18" />
-      <rect x="60" y="5" width="8" height="8" />
-      
-      <rect x="5" y="35" width="18" height="8" />
-      <rect x="30" y="30" width="8" height="8" />
-      <rect x="42" y="35" width="15" height="8" />
-      <rect x="70" y="35" width="8" height="20" />
-      
-      <rect x="5" y="50" width="8" height="15" />
-      <rect x="25" y="48" width="12" height="8" />
-      <rect x="45" y="50" width="8" height="8" />
-      <rect x="85" y="45" width="10" height="15" />
-      
-      <rect x="35" y="65" width="8" height="8" />
-      <rect x="50" y="60" width="15" height="8" />
-      <rect x="80" y="70" width="15" height="8" />
-      
-      <rect x="30" y="80" width="18" height="12" />
-      <rect x="60" y="85" width="10" height="8" />
-      <rect x="55" y="75" width="8" height="8" />
-    </svg>
-  );
 
   return (
     <div className="registration-page animate-fade-in section-padding">
@@ -101,7 +171,7 @@ const Registration = () => {
               </span>
               <h1 className="title">Asegura tu <span className="text-gradient">Lugar</span></h1>
               <p className="description">
-                Únete a nosotros el <strong>28 y 29 de Agosto</strong> en la conferencia de jóvenes <strong>"Sin Filtro"</strong>. Vive un fin de semana lleno de adoración, instrucción expositiva de la Palabra y comunión. 
+                Únete a nosotros el <strong>29 de Agosto</strong> en la conferencia de jóvenes <strong>"Sin Filtro"</strong>. Vive un día intensivo lleno de adoración, instrucción expositiva de la Palabra y comunión. 
               </p>
               
               <div className="ticket-perks">
@@ -116,8 +186,8 @@ const Registration = () => {
                 <div className="perk-item">
                   <div className="perk-icon"><Star size={24} /></div>
                   <div>
-                    <h3>Talleres & Alimentación Incluida</h3>
-                    <p>Acceso a talleres específicos y almuerzo del sábado 100% de cortesía.</p>
+                    <h3>Experiencia Organizada</h3>
+                    <p>Es necesario registrarse previamente para poder brindarte una experiencia más cómoda y coordinada.</p>
                   </div>
                 </div>
               </div>
@@ -136,6 +206,12 @@ const Registration = () => {
             {/* Form Column */}
             <div className="registration-form-container glass-panel">
               <h2 className="form-title">Formulario de Registro</h2>
+              
+              {submitError && (
+                <div className="submit-error-alert">
+                  <span>⚠️ {submitError}</span>
+                </div>
+              )}
               
               <form onSubmit={handleSubmit} className="registration-form">
                 <div className="form-row">
@@ -213,36 +289,22 @@ const Registration = () => {
                   </div>
                 </div>
 
-                <div className="form-row">
-                  <div className="form-group">
-                    <label>Rango de Edad</label>
-                    <select 
-                      name="ageGroup" 
-                      value={formData.ageGroup} 
-                      onChange={handleChange}
-                    >
-                      <option value="12-17">12 - 17 años</option>
-                      <option value="18-25">18 - 25 años</option>
-                      <option value="26-35">26 - 35 años</option>
-                      <option value="35+">Más de 35 años</option>
-                    </select>
-                  </div>
-                  
-                  <div className="form-group">
-                    <label>¿Participarás en Talleres?</label>
-                    <select 
-                      name="participateTalleres" 
-                      value={formData.participateTalleres} 
-                      onChange={handleChange}
-                    >
-                      <option value="si">Sí, deseo participar</option>
-                      <option value="no">No podré asistir a talleres</option>
-                    </select>
-                  </div>
+                <div className="form-group">
+                  <label>Rango de Edad</label>
+                  <select 
+                    name="ageGroup" 
+                    value={formData.ageGroup} 
+                    onChange={handleChange}
+                  >
+                    <option value="12-17">12 - 17 años</option>
+                    <option value="18-25">18 - 25 años</option>
+                    <option value="26-35">26 - 35 años</option>
+                    <option value="35+">Más de 35 años</option>
+                  </select>
                 </div>
 
-                <button type="submit" className="submit-btn">
-                  Completar Registro Gratis
+                <button type="submit" className="submit-btn" disabled={isSubmitting}>
+                  {isSubmitting ? 'Registrando...' : 'Completar Registro Gratis'}
                 </button>
               </form>
             </div>
@@ -250,7 +312,17 @@ const Registration = () => {
           </div>
         ) : (
           /* Success Screen & Digital Ticket */
-          <div className="ticket-success-container">
+          <div className="ticket-success-container" onClick={handleOutsideClick}>
+            <button 
+              onClick={(e) => {
+                e.stopPropagation();
+                handleExitAttempt();
+              }}
+              className="ticket-close-btn" 
+              aria-label="Cerrar y volver al registro"
+            >
+              <X size={20} />
+            </button>
             <div className="success-header">
               <CheckCircle size={64} style={{ color: '#10b981', margin: '0 auto 1rem auto' }} />
               <h2>¡Registro Exitoso!</h2>
@@ -258,7 +330,7 @@ const Registration = () => {
             </div>
 
             {/* Virtual Ticket Card */}
-            <div className="ticket-card animate-fade-in">
+            <div className="ticket-card animate-fade-in" onClick={(e) => e.stopPropagation()}>
               <div className="ticket-top">
                 <div className="ticket-header">
                   <div className="ticket-event-info">
@@ -287,7 +359,12 @@ const Registration = () => {
 
                   <div className="ticket-info-item">
                     <span className="ticket-info-label">Fecha del Evento</span>
-                    <span className="ticket-info-value">28 - 29 Agosto, 2026</span>
+                    <span className="ticket-info-value">Sábado 29 Agosto, 2026</span>
+                  </div>
+
+                  <div className="ticket-info-item">
+                    <span className="ticket-info-label">Hora de Apertura</span>
+                    <span className="ticket-info-value">8:30 AM</span>
                   </div>
 
                   <div className="ticket-info-item">
@@ -298,13 +375,6 @@ const Registration = () => {
                   <div className="ticket-info-item">
                     <span className="ticket-info-label">Iglesia</span>
                     <span className="ticket-info-value">{formData.church || 'Iglesia Convertidas a Cristo'}</span>
-                  </div>
-
-                  <div className="ticket-info-item">
-                    <span className="ticket-info-label">Talleres & Almuerzo</span>
-                    <span className="ticket-info-value">
-                      {formData.participateTalleres === 'si' ? '✓ Incluidos' : 'No seleccionados'}
-                    </span>
                   </div>
                 </div>
               </div>
@@ -341,7 +411,7 @@ const Registration = () => {
                 Cómo llegar (Maps)
               </a>
 
-              <button onClick={resetForm} className="ticket-action-btn nav">
+              <button onClick={handleExitAttempt} className="ticket-action-btn nav">
                 <RotateCcw size={18} />
                 Registrar a Otro
               </button>
@@ -350,6 +420,29 @@ const Registration = () => {
         )}
 
       </div>
+
+      {/* Modal de Advertencia al Salir */}
+      {showExitWarning && (
+        <div className="exit-warning-overlay" onClick={cancelExit}>
+          <div className="exit-warning-modal glass-panel" onClick={(e) => e.stopPropagation()}>
+            <div className="warning-icon-wrap">
+              <Star size={32} className="warning-star-icon" />
+            </div>
+            <h3>¿Guardaste tu boleto?</h3>
+            <p>
+              Asegúrate de haberle tomado una captura de pantalla al boleto o haber guardado tu código de entrada (<strong>{ticketCode}</strong>) antes de salir, ya que lo necesitarás el día del evento.
+            </p>
+            <div className="warning-buttons">
+              <button onClick={confirmExit} className="warning-btn confirm">
+                Sí, ya lo guardé
+              </button>
+              <button onClick={cancelExit} className="warning-btn cancel">
+                No, déjame guardarlo
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

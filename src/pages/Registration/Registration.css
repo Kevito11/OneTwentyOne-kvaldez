@@ -228,10 +228,12 @@
   max-width: 700px;
   margin: 0 auto;
   gap: 2.5rem;
+  position: relative;
 }
 
 .success-header {
   text-align: center;
+  padding: 0 3.5rem;
 }
 
 .success-header h2 {
@@ -556,3 +558,152 @@
 .registration-poster:hover {
   transform: scale(1.02);
 }
+
+/* Submit Error Alert Box */
+.submit-error-alert {
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.25);
+  color: #f87171;
+  padding: 1rem;
+  border-radius: 12px;
+  margin-bottom: 1.5rem;
+  font-size: 0.95rem;
+  font-weight: 500;
+  line-height: 1.5;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Close button on Ticket */
+.ticket-close-btn {
+  position: absolute;
+  top: 0rem;
+  right: 1.5rem;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: white;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  z-index: 20;
+}
+
+.ticket-close-btn:hover {
+  background: rgba(239, 68, 68, 0.2);
+  border-color: rgba(239, 68, 68, 0.4);
+  color: #f87171;
+  transform: rotate(90deg);
+}
+
+/* Exit Warning Overlay & Modal */
+.exit-warning-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(4, 9, 20, 0.75);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.3s ease;
+}
+
+.exit-warning-modal {
+  max-width: 450px;
+  width: 90%;
+  padding: 2.5rem;
+  border-radius: 20px;
+  text-align: center;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5), 0 0 30px rgba(245, 158, 11, 0.1);
+  border: 1.5px solid rgba(255, 255, 255, 0.2);
+  animation: scaleUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.warning-icon-wrap {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: rgba(245, 158, 11, 0.1);
+  color: var(--accent-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1.5rem auto;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.warning-star-icon {
+  animation: pulse 2s infinite;
+}
+
+.exit-warning-modal h3 {
+  font-size: 1.5rem;
+  font-weight: 800;
+  margin-bottom: 0.8rem;
+  color: white;
+}
+
+.exit-warning-modal p {
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  line-height: 1.6;
+  margin-bottom: 2rem;
+}
+
+.warning-buttons {
+  display: flex;
+  gap: 1rem;
+}
+
+.warning-btn {
+  flex: 1;
+  padding: 0.9rem;
+  border-radius: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 0.95rem;
+}
+
+.warning-btn.confirm {
+  background: var(--accent-gradient);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 4px 15px rgba(245, 158, 11, 0.2);
+}
+
+.warning-btn.confirm:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(245, 158, 11, 0.4);
+}
+
+.warning-btn.cancel {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text-primary);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.warning-btn.cancel:hover {
+  background: rgba(255, 255, 255, 0.15);
+  transform: translateY(-2px);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scaleUp {
+  from { transform: scale(0.9); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+

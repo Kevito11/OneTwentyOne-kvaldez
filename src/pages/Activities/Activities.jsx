@@ -7,11 +7,11 @@ const Activities = () => {
     {
       id: 0,
       title: "Conferencia de Jóvenes 'Sin Filtro' 2026",
-      date: "28 y 29 de Agosto, 2026",
-      time: "Viernes 7:00 PM / Sábado 9:00 AM",
+      date: "29 de Agosto, 2026",
+      time: "Sábado 8:30 AM",
       location: "Salón Principal ICC",
       mapLink: "https://maps.app.goo.gl/jRX8PC4S3oVrPMQz6",
-      description: "Nuestra actividad más cercana y esperada. Un fin de semana intensivo y sin rodeos para confrontar la cultura con la verdad eterna de las Escrituras. Con la predicación de los pastores Narciso Nadal, Sigfrido Guillén y el Hno. Julián Musa. Alabanza guiada por OneTwentyOne Worship.",
+      description: "Nuestra actividad más cercana y esperada. Un día intensivo y sin rodeos para confrontar la cultura con la verdad eterna de las Escrituras. Con la predicación de los pastores Narciso Nadal, Sigfrido Guillén y el Hno. Julián Musa. Alabanza guiada por OneTwentyOne Worship.",
       tag: "Próximo Evento",
       featured: true
     },

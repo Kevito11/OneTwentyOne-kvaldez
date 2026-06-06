@@ -3,6 +3,33 @@ import { Star, MapPin, ExternalLink, Calendar, Users, Shield } from 'lucide-reac
 import './About.css';
 
 const About = () => {
+  const pastors = [
+    {
+      name: "Pr. José Mallén Malla",
+      role: "Pastor Fundador",
+      image: "/pastores/mallen.jpg",
+      initials: "JM"
+    },
+    {
+      name: "Pr. Luis Valdera Cáceres",
+      role: "Pastor",
+      image: "/pastores/luis.png",
+      initials: "LV"
+    },
+    {
+      name: "Pr. Narciso Nadal Ortíz",
+      role: "Pastor de Jóvenes",
+      image: "/pastores/narciso.png",
+      initials: "NN"
+    },
+    {
+      name: "Pr. Santiago Peralta",
+      role: "Pastor",
+      image: "/pastores/santiago.jpg",
+      initials: "SP"
+    }
+  ];
+
   return (
     <div className="about-page animate-fade-in section-padding">
       <div className="container">
@@ -83,33 +110,23 @@ const About = () => {
 
         {/* Team/Pastors Section */}
         <section className="team-section text-center">
-          <h2>Liderazgo & Servicio</h2>
-          <p className="team-desc">Conoce a quienes sirven con amor guiando a nuestra juventud en el ministerio.</p>
+          <h2>Nuestros Pastores</h2>
+          <p className="team-desc">Conoce al cuerpo pastoral de nuestra iglesia que nos guía, aconseja e instruye en la sana doctrina.</p>
           
           <div className="team-grid">
-            <div className="team-card">
-              <div className="team-image-placeholder">
-                <Users size={48} />
+            {pastors.map((pastor, idx) => (
+              <div key={idx} className="team-card">
+                {pastor.image ? (
+                  <img src={pastor.image} alt={pastor.name} className="team-member-img" />
+                ) : (
+                  <div className="team-image-placeholder">
+                    {pastor.initials}
+                  </div>
+                )}
+                <h3>{pastor.name}</h3>
+                <p>{pastor.role}</p>
               </div>
-              <h3>Cuerpo Pastoral ICC</h3>
-              <p>Cobertura & Dirección Espiritual</p>
-            </div>
-            
-            <div className="team-card">
-              <div className="team-image-placeholder">
-                <Star size={48} />
-              </div>
-              <h3>OneTwentyOne Worship</h3>
-              <p>Ministerio de Alabanza</p>
-            </div>
-
-            <div className="team-card">
-              <div className="team-image-placeholder">
-                <Calendar size={48} />
-              </div>
-              <h3>Coordinación SPC</h3>
-              <p>Logística, Eventos & Discipulado</p>
-            </div>
+            ))}
           </div>
         </section>
 

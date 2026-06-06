@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { Calendar, MapPin, ArrowRight, Clock, HelpCircle, Plus, Star, ExternalLink, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Calendar, MapPin, ArrowRight, Clock, HelpCircle, Plus, Star, ExternalLink, ChevronLeft, ChevronRight, Heart, MessageCircle, Send, Bookmark, MoreHorizontal, X } from 'lucide-react';
 import './Home.css';
 
 const Home = () => {
@@ -15,8 +15,8 @@ const Home = () => {
   useEffect(() => {
     const targetDate = new Date();
     targetDate.setMonth(7); // August (0-indexed is 7)
-    targetDate.setDate(28);
-    targetDate.setHours(19, 0, 0, 0); // Friday 7:00 PM opening
+    targetDate.setDate(29);
+    targetDate.setHours(8, 30, 0, 0); // Saturday 8:30 AM opening
     
     // If we are already past August 28 this year, set for next year
     if (new Date() > targetDate) {
@@ -43,8 +43,7 @@ const Home = () => {
     return () => clearInterval(interval);
   }, []);
 
-  // Schedule Active Tab
-  const [activeTab, setActiveTab] = useState('friday');
+  // Schedule state is no longer needed since it's a single-day event
 
   // FAQ Accordion Active Item
   const [activeFaq, setActiveFaq] = useState(null);
@@ -57,35 +56,39 @@ const Home = () => {
     }
   };
 
-  // Speakers Data
+  // Pastores Data
   const speakers = [
     {
-      name: "Ps. Narciso Nadal",
-      role: "Expositor Bíblico",
-      subtitle: "Pastor de la Iglesia Convertidos a Cristo (ICC)",
-      desc: "Pastor y maestro dedicado a la proclamación fiel de la Palabra de Dios y al discipulado de la juventud en la sana doctrina.",
-      initials: "NN"
-    },
-    {
-      name: "Ps. Sigfrido Guillén",
-      role: "Expositor Bíblico",
-      subtitle: "Pastor de la Iglesia Convertidos a Cristo (ICC)",
-      desc: "Pastor enfocado en la enseñanza bíblica y apologética práctica, capacitando a las nuevas generaciones para defender su fe con convicción.",
-      initials: "SG"
-    },
-    {
-      name: "Hno. Julián Musa",
-      role: "Expositor Bíblico",
-      subtitle: "Predicador & Líder ICC",
-      desc: "Predicador apasionado por el Evangelio, comprometido en guiar a la juventud a vivir con un corazón sincero y una fe inquebrantable sin filtros.",
+      name: "Pr. José Mallén Malla",
+      role: "Pastor Fundador",
+      subtitle: "Iglesia Convertidos a Cristo (ICC)",
+      desc: "Nació en 1949 en San Pedro de Macorís. Arquitecto de profesión. Llamado al ministerio en 1981, sirvió fielmente por 40 años guiando a la congregación en Santo Domingo hasta su partida con el Señor en junio de 2021.",
+      image: "/pastores/mallen.jpg",
       initials: "JM"
     },
     {
-      name: "OneTwentyOne Worship",
-      role: "Alabanza & Adoración",
-      subtitle: "Ministerio de Música",
-      desc: "Banda de jóvenes de la ICC, dedicada a exaltar a Jesús y guiar a esta generación a adorar al Padre en espíritu y en verdad.",
-      initials: "121"
+      name: "Pr. Luis Valdera Cáceres",
+      role: "Pastor",
+      subtitle: "Iglesia Convertidos a Cristo (ICC)",
+      desc: "Nació en La Vega en 1955. Graduado en Contabilidad y Administración de empresas. Fue reconocido como pastor a tiempo completo en el año 2000, sirviendo en la edificación de la congregación y el desarrollo de ministerios.",
+      image: "/pastores/luis.png",
+      initials: "LV"
+    },
+    {
+      name: "Pr. Narciso Nadal Ortíz",
+      role: "Pastor de Jóvenes",
+      subtitle: "Joven para Cristo / ICC",
+      desc: "Nació en 1976 en Santo Domingo. Doctor en Medicina y Maestría en Teología. Reconocido como pastor en 2006, trabaja de lleno con el ministerio de Joven para Cristo y el discipulado bíblico juvenil.",
+      image: "/pastores/narciso.png",
+      initials: "NN"
+    },
+    {
+      name: "Pr. Santiago Peralta",
+      role: "Pastor",
+      subtitle: "Iglesia Convertidos a Cristo (ICC)",
+      desc: "Ingeniero en Sistemas Informáticos y Maestría en Teología. Con amplia trayectoria en la educación cristiana y docencia teológica, fue ordenado como pastor de la iglesia en agosto de 2024.",
+      image: "/pastores/santiago.jpg",
+      initials: "SP"
     }
   ];
 
@@ -100,59 +103,38 @@ const Home = () => {
       answer: "El evento está diseñado para adolescentes, jóvenes y jóvenes adultos (entre 12 y 35 años) que deseen profundizar en su fe, conocer nuevos hermanos en Cristo y crecer espiritualmente."
     },
     {
-      question: "¿Se incluye alimentación durante la conferencia?",
-      answer: "¡Sí! El almuerzo del día sábado y refrigerios selectos están incluidos de manera totalmente gratuita para todas las personas que se registren previamente en nuestra página web."
-    },
-    {
       question: "¿La iglesia cuenta con estacionamiento y seguridad?",
-      answer: "Sí, las instalaciones de la Iglesia Convertidos a Cristo (ICC) cuentan con amplios parqueos controlados y un equipo de logística y seguridad para garantizar la tranquilidad de todos los asistentes."
+      answer: "Sí, las instalaciones de la Iglesia Convertidas a Cristo (ICC) cuentan con amplios parqueos controlados y un equipo de logística y seguridad para garantizar la tranquilidad de todos los asistentes."
     }
   ];
 
-  // Carousel Logic for "Nuestra Comunidad"
-  const [currentSlide, setCurrentSlide] = useState(0);
-  const totalSlides = 6;
-  const [visibleSlides, setVisibleSlides] = useState(3);
-  const autoPlayRef = useRef(null);
+  // Alfredo Carousel States & Data
+  const alfredoImages = [
+    '/alfredo/1.jpeg',
+    '/alfredo/2.jpeg',
+    '/alfredo/3.jpeg',
+    '/alfredo/4.jpeg',
+    '/alfredo/5.jpeg',
+    '/alfredo/6.jpeg',
+    '/alfredo/7.jpeg',
+    '/alfredo/8.jpeg',
+    '/alfredo/9.jpeg'
+  ];
+
+  // Comunidad Grid Data
+  const comunidadImages = [
+    '/comunidad/1.jpg',
+    '/comunidad/2.jpg',
+    '/comunidad/3.jpg',
+    '/comunidad/4.jpg',
+    '/comunidad/5.jpg',
+    '/comunidad/6.jpg',
+    '/comunidad/7.jpg'
+  ];
   
-  useEffect(() => {
-    const handleResize = () => {
-      if (window.innerWidth <= 600) {
-        setVisibleSlides(1);
-      } else if (window.innerWidth <= 900) {
-        setVisibleSlides(2);
-      } else {
-        setVisibleSlides(3);
-      }
-    };
-    
-    handleResize();
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
-
-  const maxIndex = totalSlides - visibleSlides;
-
-  const nextSlide = () => {
-    setCurrentSlide((prev) => (prev >= maxIndex ? 0 : prev + 1));
-  };
-
-  const prevSlide = () => {
-    setCurrentSlide((prev) => (prev <= 0 ? maxIndex : prev - 1));
-  };
-
-  // Auto-play cycle
-  useEffect(() => {
-    autoPlayRef.current = nextSlide;
-  });
-
-  useEffect(() => {
-    const play = () => {
-      autoPlayRef.current();
-    };
-    const interval = setInterval(play, 4000);
-    return () => clearInterval(interval);
-  }, [visibleSlides]);
+  const [activeAlfredoSlide, setActiveAlfredoSlide] = useState(0);
+  const [lightboxIndex, setLightboxIndex] = useState(null);
+  const [comunidadLightboxIndex, setComunidadLightboxIndex] = useState(null);
 
   return (
     <div className="home-page animate-fade-in">
@@ -200,7 +182,7 @@ const Home = () => {
                   <h3>Conferencia "Sin Filtro" 2026</h3>
                   <div className="featured-card-meta">
                     <Calendar size={14} style={{ color: 'var(--accent-blue)', flexShrink: 0 }} />
-                    <span>28 y 29 de Agosto</span>
+                    <span>29 de Agosto</span>
                     <span className="separator">•</span>
                     <Clock size={14} style={{ color: 'var(--accent-blue)', flexShrink: 0 }} />
                     <span>Gratis</span>
@@ -249,18 +231,22 @@ const Home = () => {
       <section className="speakers-section section-padding">
         <div className="container">
           <div className="section-header">
-            <h2>Expositores e <span className="text-gradient">Invitados</span></h2>
-            <p>Conoce a los pastores y líderes que nos estarán acompañando para impartir la Palabra de Dios y guiar la adoración.</p>
+            <h2>Nuestros <span className="text-gradient">Pastores</span></h2>
+            <p>Conoce al cuerpo pastoral de nuestra iglesia que nos guía, aconseja e instruye en la sana doctrina de la Palabra de Dios.</p>
           </div>
 
           <div className="speakers-grid">
             {speakers.map((speaker, idx) => (
               <div key={idx} className="speaker-card glass-panel">
                 <div className="speaker-img-wrapper">
-                  <div className="speaker-avatar-sim">
-                    <span>{speaker.initials}</span>
-                    <span style={{ fontSize: '0.8rem', opacity: 0.6, marginTop: '5px' }}>ICC Santo Domingo</span>
-                  </div>
+                  {speaker.image ? (
+                    <img src={speaker.image} alt={speaker.name} className="speaker-img" />
+                  ) : (
+                    <div className="speaker-avatar-sim">
+                      <span>{speaker.initials}</span>
+                      <span style={{ fontSize: '0.8rem', opacity: 0.6, marginTop: '5px' }}>ICC Santo Domingo</span>
+                    </div>
+                  )}
                   <span className="speaker-role-badge">{speaker.role}</span>
                 </div>
                 <h3>{speaker.name}</h3>
@@ -277,213 +263,64 @@ const Home = () => {
         <div className="container">
           <div className="section-header">
             <h2>Programa de la <span className="text-gradient">Conferencia</span></h2>
-            <p>Dos días intensivos de plenarias, talleres especializados y un poderoso tiempo de adoración.</p>
-          </div>
-
-          <div className="schedule-tabs">
-            <button 
-              className={`tab-btn ${activeTab === 'friday' ? 'active' : ''}`}
-              onClick={() => setActiveTab('friday')}
-            >
-              Viernes 28 de Agosto
-            </button>
-            <button 
-              className={`tab-btn ${activeTab === 'saturday' ? 'active' : ''}`}
-              onClick={() => setActiveTab('saturday')}
-            >
-              Sábado 29 de Agosto
-            </button>
+            <p>Un día intensivo de plenarias y un poderoso tiempo de adoración y comunión.</p>
           </div>
 
           <div className="timeline-container">
-            {activeTab === 'friday' ? (
-              <>
-                <div className="timeline-item glass-panel">
-                  <div className="timeline-time">
-                    <span className="time-hour">6:30 PM</span>
-                    <span className="time-type">Entrada</span>
-                  </div>
-                  <div className="timeline-details">
-                    <h3>Registro & Bienvenida</h3>
-                    <p>Entrega de credenciales, pulseras de acceso y asignación de materiales oficiales de la conferencia.</p>
-                  </div>
-                </div>
-
-                <div className="timeline-item glass-panel">
-                  <div className="timeline-time">
-                    <span className="time-hour">7:00 PM</span>
-                    <span className="time-type">Apertura</span>
-                  </div>
-                  <div className="timeline-details">
-                    <h3>Plenaria 1: Cimientos Firmes</h3>
-                    <p>Tiempo inicial de alabanza a cargo de OneTwentyOne Worship, seguido de la primera plenaria de exposición doctrinal impartida por nuestro cuerpo pastoral.</p>
-                  </div>
-                </div>
-
-                <div className="timeline-item glass-panel">
-                  <div className="timeline-time">
-                    <span className="time-hour">8:30 PM</span>
-                    <span className="time-type">Especial</span>
-                  </div>
-                  <div className="timeline-details">
-                    <h3>OneTwentyOne Worship Night</h3>
-                    <p>Noche extendida de adoración en espíritu y verdad. Un espacio íntimo para buscar la presencia del Señor y orar en comunidad.</p>
-                  </div>
-                </div>
-              </>
-            ) : (
-              <>
-                <div className="timeline-item glass-panel">
-                  <div className="timeline-time">
-                    <span className="time-hour">9:00 AM</span>
-                    <span className="time-type">Mañana</span>
-                  </div>
-                  <div className="timeline-details">
-                    <h3>Oración & Alabanza Colectiva</h3>
-                    <p>Comienzo del segundo día con un devocional de oración comunitaria y adoración.</p>
-                  </div>
-                </div>
-
-                <div className="timeline-item glass-panel">
-                  <div className="timeline-time">
-                    <span className="time-hour">9:30 AM</span>
-                    <span className="time-type">Plenaria</span>
-                  </div>
-                  <div className="timeline-details">
-                    <h3>Plenaria 2: En la Brecha</h3>
-                    <p>Exposición bíblica enfocada en la santidad, el carácter cristiano en la juventud actual y el llamado al servicio activo en el Reino.</p>
-                  </div>
-                </div>
-
-                <div className="timeline-item glass-panel">
-                  <div className="timeline-time">
-                    <span className="time-hour">11:00 AM</span>
-                    <span className="time-type">Talleres</span>
-                  </div>
-                  <div className="timeline-details">
-                    <h3>Talleres Prácticos & Apologética</h3>
-                    <p>Talleres simultáneos donde abordaremos temas de relevancia cultural, defensa de la fe y el evangelio en una cultura hiperconectada.</p>
-                  </div>
-                </div>
-
-                <div className="timeline-item glass-panel">
-                  <div className="timeline-time">
-                    <span className="time-hour">1:00 PM</span>
-                    <span className="time-type">Comunión</span>
-                  </div>
-                  <div className="timeline-details">
-                    <h3>Almuerzo & Convivencia (Gratis)</h3>
-                    <p>Almuerzo de cortesía incluido para todos los jóvenes registrados. Espacio de esparcimiento, música en vivo y juegos en los patios de la iglesia.</p>
-                  </div>
-                </div>
-
-                <div className="timeline-item glass-panel">
-                  <div className="timeline-time">
-                    <span className="time-hour">3:00 PM</span>
-                    <span className="time-type">Cierre</span>
-                  </div>
-                  <div className="timeline-details">
-                    <h3>Plenaria 3: Comisionados a Servir & Mesa Redonda</h3>
-                    <p>Plenaria final de envío misionero, seguida de una sesión interactiva de preguntas y respuestas (Q&A) con los pastores, resolviendo inquietudes bíblicas y teológicas enviadas por los jóvenes.</p>
-                  </div>
-                </div>
-              </>
-            )}
-          </div>
-        </div>
-      </section>
-
-      {/* Gallery Section */}
-      <section className="gallery-section section-padding" style={{ backgroundColor: 'rgba(10, 10, 10, 0.25)' }}>
-        <div className="container">
-          <div className="section-header">
-            <h2>Nuestra <span className="text-gradient">Comunidad</span></h2>
-            <p>Así vivimos la fe, el discipulado y el servicio en las actividades de jóvenes de la ICC.</p>
-          </div>
-
-          <div className="carousel-wrapper">
-            <button className="carousel-nav-btn prev" onClick={prevSlide} aria-label="Anterior">
-              <ChevronLeft size={24} />
-            </button>
-            
-            <div className="carousel-track-container">
-              <div 
-                className="carousel-track" 
-                style={{ 
-                  transform: `translateX(-${currentSlide * (100 / visibleSlides)}%)`,
-                  transition: 'transform 0.6s cubic-bezier(0.16, 1, 0.3, 1)'
-                }}
-              >
-                <div className="carousel-slide-item" style={{ width: `${100 / visibleSlides}%` }}>
-                  <div className="gallery-item glass-panel">
-                    <img src="/camp-photo-1.jpg" alt="Momentos de Comunión 1" />
-                    <div className="gallery-overlay">
-                      <span>Comunión & Fe</span>
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="carousel-slide-item" style={{ width: `${100 / visibleSlides}%` }}>
-                  <div className="gallery-item glass-panel">
-                    <img src="/camp-photo-2.jpg" alt="Estudio de la Palabra" />
-                    <div className="gallery-overlay">
-                      <span>Estudio de la Palabra</span>
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="carousel-slide-item" style={{ width: `${100 / visibleSlides}%` }}>
-                  <div className="gallery-item glass-panel">
-                    <img src="/camp-photo-3.jpg" alt="Oración & Alabanza" />
-                    <div className="gallery-overlay">
-                      <span>Oración & Alabanza</span>
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="carousel-slide-item" style={{ width: `${100 / visibleSlides}%` }}>
-                  <div className="gallery-item glass-panel">
-                    <img src="/camp-photo-4.jpg" alt="Servicio Activo" />
-                    <div className="gallery-overlay">
-                      <span>Servicio Activo</span>
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="carousel-slide-item" style={{ width: `${100 / visibleSlides}%` }}>
-                  <div className="gallery-item glass-panel">
-                    <img src="/camp-photo-5.jpg" alt="Vida en Comunidad" />
-                    <div className="gallery-overlay">
-                      <span>Vida en Comunidad</span>
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="carousel-slide-item" style={{ width: `${100 / visibleSlides}%` }}>
-                  <div className="gallery-item glass-panel">
-                    <img src="/camp-photo-6.jpg" alt="Crecimiento Espiritual" />
-                    <div className="gallery-overlay">
-                      <span>Crecimiento Espiritual</span>
-                    </div>
-                  </div>
-                </div>
+            <div className="timeline-item glass-panel">
+              <div className="timeline-time">
+                <span className="time-hour">8:30 AM</span>
+                <span className="time-type">Registro</span>
+              </div>
+              <div className="timeline-details">
+                <h3>Registro & Bienvenida</h3>
+                <p>Entrega de credenciales y materiales oficiales de la conferencia.</p>
               </div>
             </div>
-            
-            <button className="carousel-nav-btn next" onClick={nextSlide} aria-label="Siguiente">
-              <ChevronRight size={24} />
-            </button>
-          </div>
-          
-          <div className="carousel-dots">
-            {Array.from({ length: maxIndex + 1 }).map((_, idx) => (
-              <button 
-                key={idx} 
-                className={`dot ${currentSlide === idx ? 'active' : ''}`}
-                onClick={() => setCurrentSlide(idx)}
-                aria-label={`Ir al slide ${idx + 1}`}
-              />
-            ))}
+
+            <div className="timeline-item glass-panel">
+              <div className="timeline-time">
+                <span className="time-hour">9:00 AM</span>
+                <span className="time-type">Apertura</span>
+              </div>
+              <div className="timeline-details">
+                <h3>Plenaria 1: Cimientos Firmes</h3>
+                <p>Tiempo de alabanza y adoración con OneTwentyOne Worship, seguido de la primera plenaria de exposición doctrinal.</p>
+              </div>
+            </div>
+
+            <div className="timeline-item glass-panel">
+              <div className="timeline-time">
+                <span className="time-hour">10:30 AM</span>
+                <span className="time-type">Receso</span>
+              </div>
+              <div className="timeline-details">
+                <h3>Receso & Comunión</h3>
+                <p>Espacio para compartir con otros jóvenes y disfrutar de un tiempo de comunión y refrigerio ligero.</p>
+              </div>
+            </div>
+
+            <div className="timeline-item glass-panel">
+              <div className="timeline-time">
+                <span className="time-hour">11:00 AM</span>
+                <span className="time-type">Plenaria</span>
+              </div>
+              <div className="timeline-details">
+                <h3>Plenaria 2: En la Brecha</h3>
+                <p>Exposición bíblica enfocada en el testimonio y la firmeza del carácter cristiano frente a la cultura actual.</p>
+              </div>
+            </div>
+
+            <div className="timeline-item glass-panel">
+              <div className="timeline-time">
+                <span className="time-hour">12:30 PM</span>
+                <span className="time-type">Cierre</span>
+              </div>
+              <div className="timeline-details">
+                <h3>Plenaria 3: Envío & Sesión de Q&A</h3>
+                <p>Plenaria final de consagración seguida de un bloque interactivo de preguntas y respuestas con nuestros expositores pastorales.</p>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -572,6 +409,276 @@ const Home = () => {
           </div>
         </div>
       </section>
+
+      {/* Gallery Section */}
+      <section className="gallery-section section-padding" style={{ backgroundColor: 'rgba(10, 10, 10, 0.25)' }}>
+        <div className="container">
+          <div className="section-header">
+            <h2>Nuestra <span className="text-gradient">Comunidad</span></h2>
+            <p>Conoce de cerca la vida, comunión y servicio de los jóvenes de la ICC en Santo Domingo.</p>
+          </div>
+
+          <div className="instagram-profile-layout">
+            {/* Left Column: Featured Alfredo Post */}
+            <div className="instagram-featured-post">
+              <span className="profile-section-title">Post Destacado: Alfredo 😎</span>
+              
+              <div className="instagram-post-card">
+                {/* Instagram Header */}
+                <div className="instagram-header">
+                  <div className="instagram-user-info">
+                    <a 
+                      href="https://www.instagram.com/onetwentyoneicc/" 
+                      target="_blank" 
+                      rel="noopener noreferrer" 
+                      className="instagram-avatar"
+                    >
+                      <img src="/logo-121.png" alt="121 Logo" className="instagram-avatar-img" />
+                    </a>
+                    <div className="instagram-meta">
+                      <a 
+                        href="https://www.instagram.com/onetwentyoneicc/" 
+                        target="_blank" 
+                        rel="noopener noreferrer" 
+                        className="instagram-username"
+                      >
+                        onetwentyoneicc
+                      </a>
+                      <span className="instagram-location">Iglesia Convertidas a Cristo</span>
+                    </div>
+                  </div>
+                  <button className="instagram-more-btn" aria-label="Más opciones">
+                    <MoreHorizontal size={20} />
+                  </button>
+                </div>
+
+                {/* Instagram Image Slider */}
+                <div className="instagram-slider-wrapper">
+                  <div className="instagram-slide-counter">
+                    {activeAlfredoSlide + 1} / {alfredoImages.length}
+                  </div>
+
+                  <div 
+                    className="instagram-slider-track"
+                    style={{ transform: `translateX(-${activeAlfredoSlide * 100}%)` }}
+                  >
+                    {alfredoImages.map((imgUrl, idx) => (
+                      <div 
+                        key={idx} 
+                        className="instagram-slide"
+                        onClick={() => setLightboxIndex(idx)}
+                        title="Haz clic para ver la imagen completa"
+                      >
+                        <img src={imgUrl} alt={`Alfredo Servidor - Imagen ${idx + 1}`} className="instagram-image" />
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Slider Navigation */}
+                  {activeAlfredoSlide > 0 && (
+                    <button 
+                      className="instagram-nav-btn prev" 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setActiveAlfredoSlide(prev => prev - 1);
+                      }}
+                      aria-label="Imagen anterior"
+                    >
+                      <ChevronLeft size={20} />
+                    </button>
+                  )}
+                  {activeAlfredoSlide < alfredoImages.length - 1 && (
+                    <button 
+                      className="instagram-nav-btn next" 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setActiveAlfredoSlide(next => next + 1);
+                      }}
+                      aria-label="Imagen siguiente"
+                    >
+                      <ChevronRight size={20} />
+                    </button>
+                  )}
+                </div>
+
+                {/* Instagram Actions Bar */}
+                <div className="instagram-actions">
+                  <div className="instagram-actions-left">
+                    <div className="instagram-action-btn static" aria-label="Me gusta">
+                      <Heart size={22} fill="none" stroke="currentColor" />
+                    </div>
+                    <div className="instagram-action-btn static" aria-label="Comentar">
+                      <MessageCircle size={22} />
+                    </div>
+                    <div className="instagram-action-btn static" aria-label="Compartir">
+                      <Send size={22} />
+                    </div>
+                  </div>
+                  <div className="instagram-action-btn static" aria-label="Guardar">
+                    <Bookmark size={22} fill="none" stroke="currentColor" />
+                  </div>
+                </div>
+
+                {/* Details & Caption */}
+                <div className="instagram-details">
+                  
+                  <div className="instagram-caption">
+                    <a 
+                      href="https://www.instagram.com/onetwentyoneicc/" 
+                      target="_blank" 
+                      rel="noopener noreferrer" 
+                      className="caption-username"
+                    >
+                      onetwentyoneicc
+                    </a>
+                    <span className="caption-text">
+                      Nuevo año, nuevo semestre, nuevo servidor.😎🔥<br />
+                      ¿Quieren conocer a Alfredo en persona? 👀 Te esperamos en la próxima reunión.
+                    </span>
+                  </div>
+
+                  <div className="instagram-hashtags">
+                    <span>#OneTwentyOne #ICC #Alfredo #SinFiltro2026 #NuevoServidor</span>
+                  </div>
+                  
+                  <span className="instagram-date">Hace 2 horas</span>
+                </div>
+              </div>
+
+              {/* Indicator Dots */}
+              <div className="instagram-slider-dots">
+                {alfredoImages.map((_, idx) => (
+                  <button 
+                    key={idx} 
+                    className={`instagram-dot ${activeAlfredoSlide === idx ? 'active' : ''}`}
+                    onClick={() => setActiveAlfredoSlide(idx)}
+                    aria-label={`Ir a la imagen ${idx + 1}`}
+                  />
+                ))}
+              </div>
+            </div>
+
+            {/* Right Column: Community Grid */}
+            <div className="instagram-grid-section">
+              <span className="profile-section-title">Momentos de la Comunidad 📸</span>
+              <div className="instagram-grid">
+                {comunidadImages.map((imgUrl, idx) => (
+                  <div 
+                    key={idx} 
+                    className="instagram-grid-item"
+                    onClick={() => setComunidadLightboxIndex(idx)}
+                    title="Haz clic para ver a pantalla completa"
+                  >
+                    <img src={imgUrl} alt={`Momento de la Comunidad ${idx + 1}`} className="instagram-grid-img" />
+                    <div className="instagram-grid-overlay">
+                      <div className="grid-overlay-stat">
+                        <Heart size={18} fill="white" />
+                        <span>{Math.floor(40 + idx * 8)}</span>
+                      </div>
+                      <div className="grid-overlay-stat">
+                        <MessageCircle size={18} fill="white" />
+                        <span>{Math.floor(2 + idx)}</span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Lightbox Overlay */}
+      {lightboxIndex !== null && (
+        <div className="lightbox-overlay" onClick={() => setLightboxIndex(null)}>
+          <button 
+            className="lightbox-close-btn" 
+            onClick={() => setLightboxIndex(null)}
+            aria-label="Cerrar vista completa"
+          >
+            <X size={28} />
+          </button>
+
+          <div className="lightbox-content" onClick={(e) => e.stopPropagation()}>
+            <img 
+              src={alfredoImages[lightboxIndex]} 
+              alt={`Alfredo Servidor - Pantalla completa ${lightboxIndex + 1}`} 
+              className="lightbox-image" 
+            />
+
+            {/* Lightbox navigation */}
+            {lightboxIndex > 0 && (
+              <button 
+                className="lightbox-nav-btn prev" 
+                onClick={() => setLightboxIndex(prev => prev - 1)}
+                aria-label="Imagen anterior"
+              >
+                <ChevronLeft size={36} />
+              </button>
+            )}
+            {lightboxIndex < alfredoImages.length - 1 && (
+              <button 
+                className="lightbox-nav-btn next" 
+                onClick={() => setLightboxIndex(next => next + 1)}
+                aria-label="Imagen siguiente"
+              >
+                <ChevronRight size={36} />
+              </button>
+            )}
+
+            {/* Counter pill */}
+            <div className="lightbox-counter">
+              {lightboxIndex + 1} / {alfredoImages.length}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Comunidad Lightbox Overlay */}
+      {comunidadLightboxIndex !== null && (
+        <div className="lightbox-overlay" onClick={() => setComunidadLightboxIndex(null)}>
+          <button 
+            className="lightbox-close-btn" 
+            onClick={() => setComunidadLightboxIndex(null)}
+            aria-label="Cerrar vista completa"
+          >
+            <X size={28} />
+          </button>
+
+          <div className="lightbox-content" onClick={(e) => e.stopPropagation()}>
+            <img 
+              src={comunidadImages[comunidadLightboxIndex]} 
+              alt={`Momento de la Comunidad - Pantalla completa ${comunidadLightboxIndex + 1}`} 
+              className="lightbox-image" 
+            />
+
+            {/* Lightbox navigation */}
+            {comunidadLightboxIndex > 0 && (
+              <button 
+                className="lightbox-nav-btn prev" 
+                onClick={() => setComunidadLightboxIndex(prev => prev - 1)}
+                aria-label="Imagen anterior"
+              >
+                <ChevronLeft size={36} />
+              </button>
+            )}
+            {comunidadLightboxIndex < comunidadImages.length - 1 && (
+              <button 
+                className="lightbox-nav-btn next" 
+                onClick={() => setComunidadLightboxIndex(next => next + 1)}
+                aria-label="Imagen siguiente"
+              >
+                <ChevronRight size={36} />
+              </button>
+            )}
+
+            {/* Counter pill */}
+            <div className="lightbox-counter">
+              {comunidadLightboxIndex + 1} / {comunidadImages.length}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

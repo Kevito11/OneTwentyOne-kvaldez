@@ -163,6 +163,23 @@
   box-shadow: 0 8px 30px rgba(225, 48, 108, 0.3);
 }
 
+.team-member-img {
+  width: 160px;
+  height: 160px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid rgba(255, 255, 255, 0.06);
+  margin-bottom: 1.8rem;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.team-card:hover .team-member-img {
+  border-color: var(--accent-blue);
+  transform: scale(1.06) rotate(5deg);
+  box-shadow: 0 8px 30px rgba(225, 48, 108, 0.3);
+}
+
 .team-card h3 {
   font-size: 1.4rem;
   margin-bottom: 0.6rem;
