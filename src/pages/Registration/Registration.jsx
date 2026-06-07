@@ -115,7 +115,7 @@ const Registration = () => {
           lastName: formData.lastName,
           email: formData.email,
           phone: formData.phone,
-          church: formData.church || 'Iglesia Convertidas a Cristo',
+          church: formData.church || 'Iglesia de Convertidos a Cristo',
           ageGroup: formData.ageGroup,
           participateTalleres: 'No',
           ticketCode: generatedCode
@@ -374,7 +374,7 @@ const Registration = () => {
 
                   <div className="ticket-info-item">
                     <span className="ticket-info-label">Iglesia</span>
-                    <span className="ticket-info-value">{formData.church || 'Iglesia Convertidas a Cristo'}</span>
+                    <span className="ticket-info-value">{formData.church || 'Iglesia de Convertidos a Cristo'}</span>
                   </div>
                 </div>
               </div>
@@ -383,7 +383,7 @@ const Registration = () => {
                 <div className="ticket-info-item" style={{ maxWidth: '70%' }}>
                   <span className="ticket-info-label">Ubicación / Lugar</span>
                   <span className="ticket-info-value" style={{ fontSize: '0.9rem', fontWeight: '500' }}>
-                    Iglesia Convertidas a Cristo (ICC)<br />
+                    Iglesia de Convertidos a Cristo (ICC)<br />
                     C/ Dr. Núñez Domínguez #30, La Julia, Santo Domingo
                   </span>
                 </div>

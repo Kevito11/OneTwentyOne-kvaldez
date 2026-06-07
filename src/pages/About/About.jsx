@@ -1,31 +1,24 @@
-import React from 'react';
-import { Star, MapPin, ExternalLink, Calendar, Users, Shield } from 'lucide-react';
+import { MapPin, ExternalLink, Users, Shield } from 'lucide-react';
 import './About.css';
 
 const About = () => {
   const pastors = [
     {
-      name: "Pr. José Mallén Malla",
-      role: "Pastor Fundador",
-      image: "/pastores/mallen.jpg",
-      initials: "JM"
-    },
-    {
       name: "Pr. Luis Valdera Cáceres",
       role: "Pastor",
-      image: "/pastores/luis.png",
+      image: "/pastores/Pr-Luis-Valdera-Sept-2024.jpg",
       initials: "LV"
     },
     {
       name: "Pr. Narciso Nadal Ortíz",
-      role: "Pastor de Jóvenes",
-      image: "/pastores/narciso.png",
+      role: "Pastor",
+      image: "/pastores/Pr-Narciso-Nadal-Sept-2024.jpg",
       initials: "NN"
     },
     {
       name: "Pr. Santiago Peralta",
       role: "Pastor",
-      image: "/pastores/santiago.jpg",
+      image: "/pastores/Pr-Santiago-Peralta-Sept-2024.jpg",
       initials: "SP"
     }
   ];
@@ -39,7 +32,7 @@ const About = () => {
           <span className="subtitle">Nuestra Identidad</span>
           <h1 className="title">OneTwenty<span className="text-gradient">One</span></h1>
           <p className="description">
-            Somos el ministerio de jóvenes de la <strong>Iglesia Convertidas a Cristo (ICC)</strong>. 
+            Somos el ministerio de jóvenes de la <strong>Iglesia de Convertidos a Cristo (ICC)</strong>. 
             Nuestro nombre está inspirado en <strong>Filipenses 1:21</strong>: <br />
             <span style={{ color: 'var(--accent-light)', fontStyle: 'italic', display: 'block', marginTop: '1rem', fontSize: '1.4rem', fontWeight: '600' }}>
               "Porque para mí el vivir es Cristo, y el morir es ganancia."
@@ -73,7 +66,7 @@ const About = () => {
         {/* The Church Section */}
         <section className="church-section glass-panel">
           <div className="church-content">
-            <h2>Nuestra Casa: Iglesia Convertidas a Cristo</h2>
+            <h2>Nuestra Casa: Iglesia de Convertidos a Cristo</h2>
             <p>
               La <strong>Iglesia de Convertidos a Cristo (ICC)</strong> fue fundada el domingo <strong>19 de septiembre de 1982</strong> por el pastor **Arq. José R. Mallén Malla**, quien por gracia de Dios dejó su profesión para dedicarse enteramente al pastoreo y la proclamación del Evangelio. Iniciando en la sala de su propio hogar, la obra creció por la gracia divina y en 1988 se estableció en su local actual en el sector La Julia, en Santo Domingo, República Dominicana.
             </p>

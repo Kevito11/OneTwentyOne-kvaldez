@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Calendar, MapPin, ArrowRight, Clock, HelpCircle, Plus, Star, ExternalLink, ChevronLeft, ChevronRight, Heart, MessageCircle, Send, Bookmark, MoreHorizontal, X } from 'lucide-react';
+import { Calendar, MapPin, ArrowRight, Clock, Plus, Star, ExternalLink, ChevronLeft, ChevronRight, Heart, MessageCircle, Send, Bookmark, MoreHorizontal, X } from 'lucide-react';
 import './Home.css';
 
 const Home = () => {
@@ -43,7 +43,17 @@ const Home = () => {
     return () => clearInterval(interval);
   }, []);
 
-  // Schedule state is no longer needed since it's a single-day event
+  // Poster Carousel Logic
+  const posterImages = ['/sin-filtro-poster.jpeg', '/sin-filtros-theme.jpeg'];
+  const [activePosterIndex, setActivePosterIndex] = useState(0);
+  const [showConfDetails, setShowConfDetails] = useState(false);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setActivePosterIndex((prevIndex) => (prevIndex + 1) % posterImages.length);
+    }, 4500); // Transitions every 4.5 seconds
+    return () => clearInterval(timer);
+  }, [posterImages.length]);
 
   // FAQ Accordion Active Item
   const [activeFaq, setActiveFaq] = useState(null);
@@ -59,27 +69,19 @@ const Home = () => {
   // Pastores Data
   const speakers = [
     {
-      name: "Pr. José Mallén Malla",
-      role: "Pastor Fundador",
-      subtitle: "Iglesia Convertidos a Cristo (ICC)",
-      desc: "Nació en 1949 en San Pedro de Macorís. Arquitecto de profesión. Llamado al ministerio en 1981, sirvió fielmente por 40 años guiando a la congregación en Santo Domingo hasta su partida con el Señor en junio de 2021.",
-      image: "/pastores/mallen.jpg",
-      initials: "JM"
-    },
-    {
       name: "Pr. Luis Valdera Cáceres",
       role: "Pastor",
       subtitle: "Iglesia Convertidos a Cristo (ICC)",
       desc: "Nació en La Vega en 1955. Graduado en Contabilidad y Administración de empresas. Fue reconocido como pastor a tiempo completo en el año 2000, sirviendo en la edificación de la congregación y el desarrollo de ministerios.",
-      image: "/pastores/luis.png",
+      image: "/pastores/Pr-Luis-Valdera-Sept-2024.jpg",
       initials: "LV"
     },
     {
       name: "Pr. Narciso Nadal Ortíz",
-      role: "Pastor de Jóvenes",
-      subtitle: "Joven para Cristo / ICC",
-      desc: "Nació en 1976 en Santo Domingo. Doctor en Medicina y Maestría en Teología. Reconocido como pastor en 2006, trabaja de lleno con el ministerio de Joven para Cristo y el discipulado bíblico juvenil.",
-      image: "/pastores/narciso.png",
+      role: "Pastor",
+      subtitle: "Iglesia Convertidos a Cristo (ICC)",
+      desc: "Nació en 1976 en Santo Domingo. Doctor en Medicina y Maestría en Teología. Fue reconocido como pastor en 2006, sirviendo fielmente en la predicación de la Palabra, la consejería pastoral y el discipulado bíblico.",
+      image: "/pastores/Pr-Narciso-Nadal-Sept-2024.jpg",
       initials: "NN"
     },
     {
@@ -87,7 +89,7 @@ const Home = () => {
       role: "Pastor",
       subtitle: "Iglesia Convertidos a Cristo (ICC)",
       desc: "Ingeniero en Sistemas Informáticos y Maestría en Teología. Con amplia trayectoria en la educación cristiana y docencia teológica, fue ordenado como pastor de la iglesia en agosto de 2024.",
-      image: "/pastores/santiago.jpg",
+      image: "/pastores/Pr-Santiago-Peralta-Sept-2024.jpg",
       initials: "SP"
     }
   ];
@@ -95,16 +97,44 @@ const Home = () => {
   // FAQ Data
   const faqs = [
     {
-      question: "¿La conferencia tiene algún costo?",
-      answer: "No, la conferencia de jóvenes 'Sin Filtro' es 100% gratis. Nuestro anhelo es que todos los jóvenes puedan participar. Sin embargo, los cupos son limitados por espacio y es obligatorio registrarse para asegurar tu entrada."
+      question: "¿Cuándo y dónde se reúnen los jóvenes?",
+      answer: (
+        <>
+          Contamos con dos cultos de jóvenes que se realizan en las instalaciones de la iglesia:
+          <br /><br />
+          • <strong>Jóvenes Para Cristo (JPC)</strong>: Diseñado para adolescentes de <strong>12 a 17 años</strong>. Se reúnen los sábados de <strong>7:00 PM a 8:30 PM</strong>.
+          <br />
+          • <strong>Siervos Para Cristo (OneTwentyOne)</strong>: Diseñado para jóvenes de <strong>18 años en adelante</strong>. Se reúnen cada 15 días los viernes de <strong>8:00 PM a 10:00 PM</strong>.
+          <br /><br />
+          Para mayor información, avisos especiales y confirmaciones de horarios, te invitamos a estar atento a nuestras cuentas de Instagram:{" "}
+          <a 
+            href="https://www.instagram.com/jovenes_icc/" 
+            target="_blank" 
+            rel="noopener noreferrer" 
+            style={{ color: 'var(--accent-blue)', textDecoration: 'underline' }}
+          >
+            @jovenes_icc
+          </a>{" "}
+          (JPC) y{" "}
+          <a 
+            href="https://www.instagram.com/onetwentyoneicc/" 
+            target="_blank" 
+            rel="noopener noreferrer" 
+            style={{ color: 'var(--accent-blue)', textDecoration: 'underline' }}
+          >
+            @onetwentyoneicc
+          </a>{" "}
+          (Siervos Para Cristo).
+        </>
+      )
     },
     {
-      question: "¿Quiénes pueden participar del evento?",
-      answer: "El evento está diseñado para adolescentes, jóvenes y jóvenes adultos (entre 12 y 35 años) que deseen profundizar en su fe, conocer nuevos hermanos en Cristo y crecer espiritualmente."
+      question: "¿Puedo asistir a las reuniones si no soy miembro de la iglesia?",
+      answer: "¡Por supuesto! Nuestras puertas están abiertas para cualquier adolescente, joven o joven adulto que desee visitarnos, sin importar si asiste a otra iglesia o si es su primera vez en una congregación cristiana. ¡Estaremos felices de recibirte!"
     },
     {
       question: "¿La iglesia cuenta con estacionamiento y seguridad?",
-      answer: "Sí, las instalaciones de la Iglesia Convertidas a Cristo (ICC) cuentan con amplios parqueos controlados y un equipo de logística y seguridad para garantizar la tranquilidad de todos los asistentes."
+      answer: "Sí, las instalaciones de la Iglesia de Convertidos a Cristo (ICC) cuentan con amplios parqueos controlados y un equipo de logística y seguridad para garantizar la tranquilidad de todos los asistentes."
     }
   ];
 
@@ -174,22 +204,75 @@ const Home = () => {
             
             <div className="hero-featured-col">
               <div className="hero-featured-card glass-panel">
-                <div className="featured-card-image-wrap">
-                  <img src="/sin-filtro-poster.jpeg" alt="Afiche Conferencia Sin Filtro 2026" className="featured-card-poster" />
+                <div 
+                  className="featured-card-image-wrap"
+                  onClick={() => setShowConfDetails(true)}
+                  style={{ cursor: 'pointer' }}
+                  title="Haz clic para ver detalles de la conferencia"
+                >
+                  <div 
+                    className="poster-carousel-track"
+                    style={{ transform: `translateX(-${activePosterIndex * 50}%)` }}
+                  >
+                    <div className="poster-carousel-item">
+                      <img src="/sin-filtro-poster.jpeg" alt="Afiche Conferencia Sin Filtro 2026 - Opción 1" className="featured-card-poster" />
+                    </div>
+                    <div className="poster-carousel-item">
+                      <img src="/sin-filtros-theme.jpeg" alt="Afiche Conferencia Sin Filtro 2026 - Opción 2" className="featured-card-poster" />
+                    </div>
+                  </div>
                   <div className="featured-card-badge">PRÓXIMO EVENTO</div>
+                  <div className="poster-carousel-dots">
+                    {posterImages.map((_, idx) => (
+                      <button 
+                        key={idx} 
+                        className={`poster-dot ${activePosterIndex === idx ? 'active' : ''}`}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          e.preventDefault();
+                          setActivePosterIndex(idx);
+                        }}
+                        aria-label={`Ver afiche ${idx + 1}`}
+                      />
+                    ))}
+                  </div>
                 </div>
                 <div className="featured-card-details">
                   <h3>Conferencia "Sin Filtro" 2026</h3>
+
+
                   <div className="featured-card-meta">
-                    <Calendar size={14} style={{ color: 'var(--accent-blue)', flexShrink: 0 }} />
-                    <span>29 de Agosto</span>
-                    <span className="separator">•</span>
                     <Clock size={14} style={{ color: 'var(--accent-blue)', flexShrink: 0 }} />
                     <span>Gratis</span>
                   </div>
-                  <Link to="/registro" className="btn-primary-sm">
-                    Asegurar Entrada Gratis
-                  </Link>
+                  <div style={{ display: 'flex', gap: '0.8rem', marginTop: '0.4rem' }}>
+                    <button 
+                      onClick={() => setShowConfDetails(true)} 
+                      className="btn-secondary-sm"
+                      style={{ 
+                        flex: 1, 
+                        fontSize: '0.85rem', 
+                        padding: '0.65rem 1rem', 
+                        borderRadius: '50px',
+                        border: '1px solid rgba(255, 255, 255, 0.15)',
+                        background: 'rgba(255, 255, 255, 0.05)',
+                        color: 'var(--text-primary)',
+                        cursor: 'pointer',
+                        fontWeight: '700',
+                        textAlign: 'center',
+                        transition: 'all 0.2s ease'
+                      }}
+                    >
+                      Ver Info
+                    </button>
+                    <Link 
+                      to="/registro" 
+                      className="btn-primary-sm"
+                      style={{ flex: 1, margin: 0, padding: '0.65rem 1rem', fontSize: '0.85rem' }}
+                    >
+                      Registrarse
+                    </Link>
+                  </div>
                 </div>
               </div>
             </div>
@@ -227,163 +310,13 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Speakers / Expositores Section */}
-      <section className="speakers-section section-padding">
-        <div className="container">
-          <div className="section-header">
-            <h2>Nuestros <span className="text-gradient">Pastores</span></h2>
-            <p>Conoce al cuerpo pastoral de nuestra iglesia que nos guía, aconseja e instruye en la sana doctrina de la Palabra de Dios.</p>
-          </div>
-
-          <div className="speakers-grid">
-            {speakers.map((speaker, idx) => (
-              <div key={idx} className="speaker-card glass-panel">
-                <div className="speaker-img-wrapper">
-                  {speaker.image ? (
-                    <img src={speaker.image} alt={speaker.name} className="speaker-img" />
-                  ) : (
-                    <div className="speaker-avatar-sim">
-                      <span>{speaker.initials}</span>
-                      <span style={{ fontSize: '0.8rem', opacity: 0.6, marginTop: '5px' }}>ICC Santo Domingo</span>
-                    </div>
-                  )}
-                  <span className="speaker-role-badge">{speaker.role}</span>
-                </div>
-                <h3>{speaker.name}</h3>
-                <p className="speaker-subtitle">{speaker.subtitle}</p>
-                <p className="speaker-description">{speaker.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Schedule / Programa Section */}
-      <section className="schedule-section section-padding" style={{ backgroundColor: 'rgba(10, 10, 10, 0.45)' }}>
-        <div className="container">
-          <div className="section-header">
-            <h2>Programa de la <span className="text-gradient">Conferencia</span></h2>
-            <p>Un día intensivo de plenarias y un poderoso tiempo de adoración y comunión.</p>
-          </div>
-
-          <div className="timeline-container">
-            <div className="timeline-item glass-panel">
-              <div className="timeline-time">
-                <span className="time-hour">8:30 AM</span>
-                <span className="time-type">Registro</span>
-              </div>
-              <div className="timeline-details">
-                <h3>Registro & Bienvenida</h3>
-                <p>Entrega de credenciales y materiales oficiales de la conferencia.</p>
-              </div>
-            </div>
-
-            <div className="timeline-item glass-panel">
-              <div className="timeline-time">
-                <span className="time-hour">9:00 AM</span>
-                <span className="time-type">Apertura</span>
-              </div>
-              <div className="timeline-details">
-                <h3>Plenaria 1: Cimientos Firmes</h3>
-                <p>Tiempo de alabanza y adoración con OneTwentyOne Worship, seguido de la primera plenaria de exposición doctrinal.</p>
-              </div>
-            </div>
-
-            <div className="timeline-item glass-panel">
-              <div className="timeline-time">
-                <span className="time-hour">10:30 AM</span>
-                <span className="time-type">Receso</span>
-              </div>
-              <div className="timeline-details">
-                <h3>Receso & Comunión</h3>
-                <p>Espacio para compartir con otros jóvenes y disfrutar de un tiempo de comunión y refrigerio ligero.</p>
-              </div>
-            </div>
-
-            <div className="timeline-item glass-panel">
-              <div className="timeline-time">
-                <span className="time-hour">11:00 AM</span>
-                <span className="time-type">Plenaria</span>
-              </div>
-              <div className="timeline-details">
-                <h3>Plenaria 2: En la Brecha</h3>
-                <p>Exposición bíblica enfocada en el testimonio y la firmeza del carácter cristiano frente a la cultura actual.</p>
-              </div>
-            </div>
-
-            <div className="timeline-item glass-panel">
-              <div className="timeline-time">
-                <span className="time-hour">12:30 PM</span>
-                <span className="time-type">Cierre</span>
-              </div>
-              <div className="timeline-details">
-                <h3>Plenaria 3: Envío & Sesión de Q&A</h3>
-                <p>Plenaria final de consagración seguida de un bloque interactivo de preguntas y respuestas con nuestros expositores pastorales.</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Location Section */}
-      <section className="location-section section-padding">
-        <div className="container">
-          <div className="section-header">
-            <h2>Cómo <span className="text-gradient">Llegar</span></h2>
-            <p>El evento se llevará a cabo en el templo principal de la Iglesia Convertidas a Cristo en Santo Domingo.</p>
-          </div>
-
-          <div className="location-panel glass-panel">
-            <div className="location-info-block">
-              <span className="location-badge">Lugar del Evento</span>
-              <h3>Iglesia Convertidas a Cristo</h3>
-              <p className="location-address">
-                Calle Dr. Núñez Domínguez #30,<br />
-                Ensanche La Julia, Santo Domingo 10109,<br />
-                República Dominicana.
-              </p>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
-                <a 
-                  href="https://maps.app.goo.gl/jRX8PC4S3oVrPMQz6" 
-                  target="_blank" 
-                  rel="noopener noreferrer" 
-                  className="btn-primary"
-                  style={{ width: 'fit-content' }}
-                >
-                  <MapPin size={18} />
-                  Abrir en Google Maps
-                </a>
-                <a 
-                  href="https://www.convertidosacristo.org/" 
-                  target="_blank" 
-                  rel="noopener noreferrer" 
-                  className="feature-link"
-                  style={{ marginTop: '0.5rem', width: 'fit-content', display: 'flex', alignItems: 'center', gap: '5px' }}
-                >
-                  Web de la Iglesia <ExternalLink size={14} />
-                </a>
-              </div>
-            </div>
-            
-            <div className="location-map-mock">
-              <div className="map-mock-bg"></div>
-              <div className="map-pin-pulse">
-                <div className="pin-icon-wrap">
-                  <MapPin size={24} />
-                </div>
-                <div className="pin-tag">ICC Santo Domingo</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
 
       {/* FAQ Section */}
       <section className="faq-section section-padding" style={{ backgroundColor: 'rgba(10, 10, 10, 0.45)' }}>
         <div className="container">
           <div className="section-header">
             <h2>Preguntas <span className="text-gradient">Frecuentes</span></h2>
-            <p>Aclara tus dudas sobre el registro, accesos y logística de la Conferencia "Sin Filtro".</p>
+            <p>Resuelve tus dudas generales sobre nuestras reuniones, actividades semanales y participación.</p>
           </div>
 
           <div className="faq-container">
@@ -401,7 +334,7 @@ const Home = () => {
                 </button>
                 <div className="faq-answer">
                   <div className="faq-answer-inner">
-                    <p>{faq.answer}</p>
+                    <div>{faq.answer}</div>
                   </div>
                 </div>
               </div>
@@ -444,7 +377,7 @@ const Home = () => {
                       >
                         onetwentyoneicc
                       </a>
-                      <span className="instagram-location">Iglesia Convertidas a Cristo</span>
+                      <span className="instagram-location">Iglesia de Convertidos a Cristo</span>
                     </div>
                   </div>
                   <button className="instagram-more-btn" aria-label="Más opciones">
@@ -588,6 +521,37 @@ const Home = () => {
         </div>
       </section>
 
+      {/* Speakers / Expositores Section */}
+      <section className="speakers-section section-padding">
+        <div className="container">
+          <div className="section-header">
+            <h2>Nuestros <span className="text-gradient">Pastores</span></h2>
+            <p>Conoce al cuerpo pastoral de nuestra iglesia que nos guía, aconseja e instruye en la sana doctrina de la Palabra de Dios.</p>
+          </div>
+
+          <div className="speakers-grid">
+            {speakers.map((speaker, idx) => (
+              <div key={idx} className="speaker-card glass-panel">
+                <div className="speaker-img-wrapper">
+                  {speaker.image ? (
+                    <img src={speaker.image} alt={speaker.name} className="speaker-img" />
+                  ) : (
+                    <div className="speaker-avatar-sim">
+                      <span>{speaker.initials}</span>
+                      <span style={{ fontSize: '0.8rem', opacity: 0.6, marginTop: '5px' }}>ICC Santo Domingo</span>
+                    </div>
+                  )}
+                  <span className="speaker-role-badge">{speaker.role}</span>
+                </div>
+                <h3>{speaker.name}</h3>
+                <p className="speaker-subtitle">{speaker.subtitle}</p>
+                <p className="speaker-description">{speaker.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* Lightbox Overlay */}
       {lightboxIndex !== null && (
         <div className="lightbox-overlay" onClick={() => setLightboxIndex(null)}>
@@ -675,6 +639,183 @@ const Home = () => {
             {/* Counter pill */}
             <div className="lightbox-counter">
               {comunidadLightboxIndex + 1} / {comunidadImages.length}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de Detalles de la Conferencia */}
+      {showConfDetails && (
+        <div className="modal-overlay" onClick={() => setShowConfDetails(false)}>
+          <div className="modal-content glass-panel" onClick={(e) => e.stopPropagation()}>
+            <button 
+              className="modal-close-btn" 
+              onClick={() => setShowConfDetails(false)}
+              aria-label="Cerrar detalles"
+            >
+              <X size={24} />
+            </button>
+            
+            <div className="modal-header">
+              <span className="modal-subtitle">Conferencia "Sin Filtro" 2026</span>
+              <h2 className="modal-title text-gradient">Detalles del Evento</h2>
+            </div>
+            
+            <div className="modal-body-scroll">
+              {/* Posters Section */}
+              <div className="modal-section" style={{ marginBottom: '3rem' }}>
+                <h3 className="modal-section-title">Afiches Oficiales</h3>
+                <div 
+                  style={{ 
+                    display: 'grid', 
+                    gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', 
+                    gap: '2rem', 
+                    justifyContent: 'center', 
+                    alignItems: 'center' 
+                  }}
+                >
+                  <div 
+                    className="glass-panel" 
+                    style={{ 
+                      overflow: 'hidden', 
+                      borderRadius: '16px', 
+                      border: '1px solid rgba(255, 255, 255, 0.08)',
+                      background: 'rgba(10, 10, 10, 0.5)',
+                      boxShadow: '0 10px 30px rgba(0, 0, 0, 0.5)'
+                    }}
+                  >
+                    <img 
+                      src="/sin-filtro-poster.jpeg" 
+                      alt="Afiche Conferencia Sin Filtro - Opción 1" 
+                      style={{ width: '100%', display: 'block', height: 'auto', objectFit: 'cover' }} 
+                    />
+                  </div>
+                  <div 
+                    className="glass-panel" 
+                    style={{ 
+                      overflow: 'hidden', 
+                      borderRadius: '16px', 
+                      border: '1px solid rgba(255, 255, 255, 0.08)',
+                      background: 'rgba(10, 10, 10, 0.5)',
+                      boxShadow: '0 10px 30px rgba(0, 0, 0, 0.5)'
+                    }}
+                  >
+                    <img 
+                      src="/sin-filtros-theme.jpeg" 
+                      alt="Afiche Conferencia Sin Filtro - Opción 2" 
+                      style={{ width: '100%', display: 'block', height: 'auto', objectFit: 'cover' }} 
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Schedule Section */}
+              <div className="modal-section">
+                <h3 className="modal-section-title">Programa de la Conferencia</h3>
+                <div className="timeline-container">
+                  <div className="timeline-item glass-panel">
+                    <div className="timeline-time">
+                      <span className="time-hour">8:30 AM</span>
+                      <span className="time-type">Registro</span>
+                    </div>
+                    <div className="timeline-details">
+                      <h3>Registro & Bienvenida</h3>
+                      <p>Entrega de credenciales y materiales oficiales de la conferencia.</p>
+                    </div>
+                  </div>
+
+                  <div className="timeline-item glass-panel">
+                    <div className="timeline-time">
+                      <span className="time-hour">9:00 AM</span>
+                      <span className="time-type">Apertura</span>
+                    </div>
+                    <div className="timeline-details">
+                      <h3>Plenaria 1: Cimientos Firmes</h3>
+                      <p>Tiempo de alabanza y adoración con OneTwentyOne Worship, seguido de la primera plenaria de exposición doctrinal.</p>
+                    </div>
+                  </div>
+
+                  <div className="timeline-item glass-panel">
+                    <div className="timeline-time">
+                      <span className="time-hour">10:30 AM</span>
+                      <span className="time-type">Receso</span>
+                    </div>
+                    <div className="timeline-details">
+                      <h3>Receso & Comunión</h3>
+                      <p>Espacio para compartir con otros jóvenes y disfrutar de un tiempo de comunión y refrigerio ligero.</p>
+                    </div>
+                  </div>
+
+                  <div className="timeline-item glass-panel">
+                    <div className="timeline-time">
+                      <span className="time-hour">11:00 AM</span>
+                      <span className="time-type">Plenaria</span>
+                    </div>
+                    <div className="timeline-details">
+                      <h3>Plenaria 2: En la Brecha</h3>
+                      <p>Exposición bíblica enfocada en el testimonio y la firmeza del carácter cristiano frente a la cultura actual.</p>
+                    </div>
+                  </div>
+
+                  <div className="timeline-item glass-panel">
+                    <div className="timeline-time">
+                      <span className="time-hour">12:30 PM</span>
+                      <span className="time-type">Cierre</span>
+                    </div>
+                    <div className="timeline-details">
+                      <h3>Plenaria 3: Envío & Sesión de Q&A</h3>
+                      <p>Plenaria final de consagración seguida de un bloque interactivo de preguntas y respuestas con nuestros expositores pastorales.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Location Section */}
+              <div className="modal-section" style={{ marginTop: '3rem' }}>
+                <h3 className="modal-section-title">Ubicación del Evento</h3>
+                <div className="location-panel glass-panel" style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '2rem', padding: '2rem' }}>
+                  <div className="location-info-block">
+                    <span className="location-badge">Lugar del Evento</span>
+                    <h3>Iglesia de Convertidos a Cristo</h3>
+                    <p className="location-address" style={{ fontSize: '0.95rem', marginBottom: '1.5rem', lineHeight: '1.6', color: 'var(--text-secondary)' }}>
+                      Calle Dr. Núñez Domínguez #30,<br />
+                      Ensanche La Julia, Santo Domingo 10109,<br />
+                      República Dominicana.
+                    </p>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
+                      <a 
+                        href="https://maps.app.goo.gl/jRX8PC4S3oVrPMQz6" 
+                        target="_blank" 
+                        rel="noopener noreferrer" 
+                        className="btn-primary"
+                        style={{ width: 'fit-content', padding: '0.7rem 1.5rem', fontSize: '0.9rem' }}
+                      >
+                        <MapPin size={16} />
+                        Abrir en Google Maps
+                      </a>
+                      <a 
+                        href="https://www.convertidosacristo.org/" 
+                        target="_blank" 
+                        rel="noopener noreferrer" 
+                        className="feature-link"
+                        style={{ marginTop: '0.3rem', width: 'fit-content', display: 'flex', alignItems: 'center', gap: '5px', fontSize: '0.85rem' }}
+                      >
+                        Web de la Iglesia <ExternalLink size={12} />
+                      </a>
+                    </div>
+                  </div>
+                  
+                  <div className="location-map-mock" style={{ height: '220px' }}>
+                    <div className="map-mock-bg"></div>
+                    <div className="map-pin-pulse">
+                      <div className="pin-icon-wrap" style={{ width: '40px', height: '40px' }}>
+                        <MapPin size={20} />
+                      </div>
+                      <div className="pin-tag" style={{ fontSize: '0.75rem', padding: '0.3rem 0.8rem' }}>ICC Santo Domingo</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>

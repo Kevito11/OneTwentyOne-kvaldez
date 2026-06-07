@@ -1,8 +1,10 @@
-import React from 'react';
-import { Calendar, Clock, MapPin, ExternalLink } from 'lucide-react';
+import { useState } from 'react';
+import { Calendar, Clock, MapPin, ExternalLink, X } from 'lucide-react';
 import './Activities.css';
 
 const Activities = () => {
+  const [selectedActivity, setSelectedActivity] = useState(null);
+
   const activities = [
     {
       id: 0,
@@ -17,33 +19,23 @@ const Activities = () => {
     },
     {
       id: 1,
-      title: "Reunión General de Jóvenes",
-      date: "Todos los Viernes",
-      time: "7:30 PM",
+      title: "Culto de Jóvenes Para Cristo (JPC)",
+      date: "Todos los Sábados",
+      time: "7:00 PM - 8:30 PM",
       location: "Salón Principal ICC",
       mapLink: "https://maps.app.goo.gl/jRX8PC4S3oVrPMQz6",
-      description: "Nuestro punto de encuentro principal. Un tiempo especial de alabanza, predicación expositiva de la Palabra de Dios y un espacio excelente para la comunión y el crecimiento en comunidad.",
-      tag: "General"
+      description: "Nuestra reunión y espacio de adoración diseñado especialmente para adolescentes de 12 a 17 años. Un tiempo enfocado en la alabanza, la enseñanza expositiva de la Palabra y el compañerismo cristiano.",
+      tag: "Edades 12-17"
     },
     {
       id: 2,
-      title: "Grupos Pequeños (Células)",
-      date: "Miércoles Semanales",
-      time: "8:00 PM",
-      location: "Diferentes hogares (Santo Domingo)",
-      mapLink: null,
-      description: "Estudio bíblico aplicado y discipulado en grupos pequeños e íntimos organizados por sectores, para crecer espiritualmente en confianza, apoyo mutuo y rendición de cuentas.",
-      tag: "Discipulado"
-    },
-    {
-      id: 3,
-      title: "OneTwentyOne Worship Night",
-      date: "Último viernes del mes",
-      time: "8:00 PM",
+      title: "Culto de Siervos Para Cristo (OneTwentyOne)",
+      date: "Viernes Quincenales",
+      time: "8:00 PM - 10:00 PM",
       location: "Salón Principal ICC",
       mapLink: "https://maps.app.goo.gl/jRX8PC4S3oVrPMQz6",
-      description: "Una noche de adoración comunitaria extendida a cargo de la banda OneTwentyOne Worship, enfocada en la oración, la exaltación al nombre de Jesús y la consagración personal.",
-      tag: "Especial"
+      description: "Nuestra reunión y culto de adoración para jóvenes de 18 años en adelante. Un tiempo quincenal enfocado en la predicación expositiva, la consejería pastoral, la comunión y la edificación mutua.",
+      tag: "Edades 18+"
     }
   ];
 
@@ -61,7 +53,13 @@ const Activities = () => {
 
         <div className="activities-grid">
           {activities.map(activity => (
-            <div key={activity.id} className={`activity-card glass-panel ${activity.featured ? 'featured' : ''}`}>
+            <div 
+              key={activity.id} 
+              className={`activity-card glass-panel ${activity.featured ? 'featured' : ''}`}
+              onClick={() => setSelectedActivity(activity)}
+              style={{ cursor: 'pointer' }}
+              title="Haz clic para ver detalles de esta actividad"
+            >
               <div className="activity-tag">{activity.tag}</div>
               <h3 className="activity-title">{activity.title}</h3>
               <p className="activity-desc">{activity.description}</p>
@@ -83,6 +81,7 @@ const Activities = () => {
                       rel="noopener noreferrer" 
                       style={{ display: 'flex', alignItems: 'center', gap: '0.85rem', color: 'inherit' }}
                       className="nav-link"
+                      onClick={(e) => e.stopPropagation()}
                     >
                       <MapPin size={18} className="detail-icon" />
                       <span style={{ textDecoration: 'underline', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
@@ -102,6 +101,249 @@ const Activities = () => {
         </div>
 
       </div>
+
+      {/* Modal de Detalles de Actividad */}
+      {selectedActivity && (
+        <div className="modal-overlay" onClick={() => setSelectedActivity(null)}>
+          <div className="modal-content glass-panel" onClick={(e) => e.stopPropagation()}>
+            <button 
+              className="modal-close-btn" 
+              onClick={() => setSelectedActivity(null)}
+              aria-label="Cerrar detalles"
+            >
+              <X size={24} />
+            </button>
+            
+            <div className="modal-header">
+              <span className="modal-subtitle">{selectedActivity.tag}</span>
+              <h2 className="modal-title text-gradient">{selectedActivity.title}</h2>
+            </div>
+            
+            <div className="modal-body-scroll">
+              <div className="modal-section">
+                <p style={{ fontSize: '1.1rem', lineHeight: '1.7', color: 'var(--text-secondary)', marginBottom: '2rem' }}>
+                  {selectedActivity.description}
+                </p>
+                
+                <div className="activity-details" style={{ borderTop: 'none', padding: 0, gap: '1.5rem', marginBottom: '2.5rem' }}>
+                  <div className="detail-item" style={{ fontSize: '1.05rem' }}>
+                    <Calendar size={20} className="detail-icon" />
+                    <span><strong>Fecha / Frecuencia:</strong> {selectedActivity.date}</span>
+                  </div>
+                  <div className="detail-item" style={{ fontSize: '1.05rem' }}>
+                    <Clock size={20} className="detail-icon" />
+                    <span><strong>Horario:</strong> {selectedActivity.time}</span>
+                  </div>
+                  <div className="detail-item" style={{ fontSize: '1.05rem' }}>
+                    <MapPin size={20} className="detail-icon" />
+                    <span><strong>Lugar:</strong> {selectedActivity.location}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Conferencia specific section: Show posters and schedule */}
+              {selectedActivity.id === 0 && (
+                <>
+                  <div className="modal-section" style={{ marginBottom: '3rem' }}>
+                    <h3 className="modal-section-title">Afiches Oficiales</h3>
+                    <div 
+                      style={{ 
+                        display: 'grid', 
+                        gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', 
+                        gap: '2rem', 
+                        justifyContent: 'center', 
+                        alignItems: 'center' 
+                      }}
+                    >
+                      <div 
+                        className="glass-panel" 
+                        style={{ 
+                          overflow: 'hidden', 
+                          borderRadius: '16px', 
+                          border: '1px solid rgba(255, 255, 255, 0.08)',
+                          background: 'rgba(10, 10, 10, 0.5)',
+                          boxShadow: '0 10px 30px rgba(0, 0, 0, 0.5)'
+                        }}
+                      >
+                        <img 
+                          src="/sin-filtro-poster.jpeg" 
+                          alt="Afiche Conferencia Sin Filtro - Opción 1" 
+                          style={{ width: '100%', display: 'block', height: 'auto', objectFit: 'cover' }} 
+                        />
+                      </div>
+                      <div 
+                        className="glass-panel" 
+                        style={{ 
+                          overflow: 'hidden', 
+                          borderRadius: '16px', 
+                          border: '1px solid rgba(255, 255, 255, 0.08)',
+                          background: 'rgba(10, 10, 10, 0.5)',
+                          boxShadow: '0 10px 30px rgba(0, 0, 0, 0.5)'
+                        }}
+                      >
+                        <img 
+                          src="/sin-filtros-theme.jpeg" 
+                          alt="Afiche Conferencia Sin Filtro - Opción 2" 
+                          style={{ width: '100%', display: 'block', height: 'auto', objectFit: 'cover' }} 
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="modal-section" style={{ marginBottom: '3rem' }}>
+                    <h3 className="modal-section-title">Programa de la Conferencia</h3>
+                    <div className="timeline-container" style={{ maxWidth: '100%' }}>
+                      <div className="timeline-item glass-panel">
+                        <div className="timeline-time">
+                          <span className="time-hour">8:30 AM</span>
+                          <span className="time-type">Registro</span>
+                        </div>
+                        <div className="timeline-details">
+                          <h3>Registro & Bienvenida</h3>
+                          <p>Entrega de credenciales y materiales oficiales de la conferencia.</p>
+                        </div>
+                      </div>
+
+                      <div className="timeline-item glass-panel">
+                        <div className="timeline-time">
+                          <span className="time-hour">9:00 AM</span>
+                          <span className="time-type">Apertura</span>
+                        </div>
+                        <div className="timeline-details">
+                          <h3>Plenaria 1: Cimientos Firmes</h3>
+                          <p>Tiempo de alabanza y adoración con OneTwentyOne Worship, seguido de la primera plenaria de exposición doctrinal.</p>
+                        </div>
+                      </div>
+
+                      <div className="timeline-item glass-panel">
+                        <div className="timeline-time">
+                          <span className="time-hour">10:30 AM</span>
+                          <span className="time-type">Receso</span>
+                        </div>
+                        <div className="timeline-details">
+                          <h3>Receso & Comunión</h3>
+                          <p>Espacio para compartir con otros jóvenes y disfrutar de un tiempo de comunión y refrigerio ligero.</p>
+                        </div>
+                      </div>
+
+                      <div className="timeline-item glass-panel">
+                        <div className="timeline-time">
+                          <span className="time-hour">11:00 AM</span>
+                          <span className="time-type">Plenaria</span>
+                        </div>
+                        <div className="timeline-details">
+                          <h3>Plenaria 2: En la Brecha</h3>
+                          <p>Exposición bíblica enfocada en el testimonio y la firmeza del carácter cristiano frente a la cultura actual.</p>
+                        </div>
+                      </div>
+
+                      <div className="timeline-item glass-panel">
+                        <div className="timeline-time">
+                          <span className="time-hour">12:30 PM</span>
+                          <span className="time-type">Cierre</span>
+                        </div>
+                        <div className="timeline-details">
+                          <h3>Plenaria 3: Envío & Sesión de Q&A</h3>
+                          <p>Plenaria final de consagración seguida de un bloque interactivo de preguntas y respuestas con nuestros expositores pastorales.</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </>
+              )}
+
+              {/* JPC specific section: Show Instagram info */}
+              {selectedActivity.id === 1 && (
+                <div className="modal-section" style={{ marginBottom: '3rem' }}>
+                  <h3 className="modal-section-title">Comunidad en Instagram</h3>
+                  <p style={{ color: 'var(--text-secondary)', marginBottom: '1.2rem', lineHeight: '1.6' }}>
+                    Para enterarte de los próximos temas, avisos especiales de última hora y novedades del grupo, síguenos en nuestra cuenta de Instagram oficial de JPC:
+                  </p>
+                  <a 
+                    href="https://www.instagram.com/jovenes_icc/" 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className="btn-primary"
+                    style={{ display: 'inline-flex', width: 'fit-content', padding: '0.8rem 1.8rem', gap: '0.5rem' }}
+                  >
+                    @jovenes_icc en Instagram
+                    <ExternalLink size={16} />
+                  </a>
+                </div>
+              )}
+
+              {/* Siervos specific section: Show Instagram info */}
+              {selectedActivity.id === 2 && (
+                <div className="modal-section" style={{ marginBottom: '3rem' }}>
+                  <h3 className="modal-section-title">Comunidad en Instagram</h3>
+                  <p style={{ color: 'var(--text-secondary)', marginBottom: '1.2rem', lineHeight: '1.6' }}>
+                    Para mantenerte al tanto de la programación de cultos quincenales, actividades de servicio, devocionales y publicaciones especiales, síguenos en nuestra cuenta oficial de Instagram:
+                  </p>
+                  <a 
+                    href="https://www.instagram.com/onetwentyoneicc/" 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className="btn-primary"
+                    style={{ display: 'inline-flex', width: 'fit-content', padding: '0.8rem 1.8rem', gap: '0.5rem' }}
+                  >
+                    @onetwentyoneicc en Instagram
+                    <ExternalLink size={16} />
+                  </a>
+                </div>
+              )}
+
+              {/* General Map/Location component for all activities since they are all at ICC templo */}
+              <div className="modal-section">
+                <h3 className="modal-section-title">Ubicación del Templo</h3>
+                <div className="location-panel glass-panel" style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '2rem', padding: '2rem' }}>
+                  <div className="location-info-block">
+                    <span className="location-badge">Lugar de Reunión</span>
+                    <h3>Iglesia de Convertidos a Cristo</h3>
+                    <p className="location-address" style={{ fontSize: '0.95rem', marginBottom: '1.5rem', lineHeight: '1.6', color: 'var(--text-secondary)' }}>
+                      Calle Dr. Núñez Domínguez #30,<br />
+                      Ensanche La Julia, Santo Domingo 10109,<br />
+                      República Dominicana.
+                    </p>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
+                      <a 
+                        href="https://maps.app.goo.gl/jRX8PC4S3oVrPMQz6" 
+                        target="_blank" 
+                        rel="noopener noreferrer" 
+                        className="btn-primary"
+                        style={{ width: 'fit-content', padding: '0.7rem 1.5rem', fontSize: '0.9rem' }}
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <MapPin size={16} />
+                        Abrir en Google Maps
+                      </a>
+                      <a 
+                        href="https://www.convertidosacristo.org/" 
+                        target="_blank" 
+                        rel="noopener noreferrer" 
+                        className="feature-link"
+                        style={{ marginTop: '0.3rem', width: 'fit-content', display: 'flex', alignItems: 'center', gap: '5px', fontSize: '0.85rem' }}
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        Web de la Iglesia <ExternalLink size={12} />
+                      </a>
+                    </div>
+                  </div>
+                  
+                  <div className="location-map-mock" style={{ height: '220px' }}>
+                    <div className="map-mock-bg"></div>
+                    <div className="map-pin-pulse">
+                      <div className="pin-icon-wrap" style={{ width: '40px', height: '40px' }}>
+                        <MapPin size={20} />
+                      </div>
+                      <div className="pin-tag" style={{ fontSize: '0.75rem', padding: '0.3rem 0.8rem' }}>ICC Santo Domingo</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

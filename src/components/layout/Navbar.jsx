@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Menu, X } from 'lucide-react';
 import './Navbar.css';
@@ -16,10 +16,6 @@ const Navbar = () => {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
-
-  useEffect(() => {
-    setMobileMenuOpen(false);
-  }, [location]);
 
   const navLinks = [
     { name: 'Inicio', path: '/' },
@@ -77,12 +73,13 @@ const Navbar = () => {
             <Link 
               key={link.path} 
               to={link.path}
+              onClick={() => setMobileMenuOpen(false)}
               className={`mobile-nav-link ${location.pathname === link.path ? 'active' : ''}`}
             >
               {link.name}
             </Link>
           ))}
-          <Link to="/registro" className="mobile-nav-btn">
+          <Link to="/registro" onClick={() => setMobileMenuOpen(false)} className="mobile-nav-btn">
             Registro
           </Link>
         </div>
