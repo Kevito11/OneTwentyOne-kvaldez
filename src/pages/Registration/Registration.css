@@ -531,6 +531,14 @@
     width: 85px;
     height: 85px;
   }
+  .featured-card-poster {
+    object-fit: contain !important;
+    background-color: #0b0b0b;
+  }
+  .registration-poster-wrapper {
+    padding: 0.8rem !important;
+    box-sizing: border-box;
+  }
 }
 
 .registration-poster-wrapper {

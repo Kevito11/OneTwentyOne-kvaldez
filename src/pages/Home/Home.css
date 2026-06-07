@@ -881,6 +881,14 @@
     width: calc(100% - 12px) !important;
     margin: 0 auto;
   }
+  .featured-card-poster {
+    object-fit: contain !important;
+    background-color: #0b0b0b;
+  }
+  .featured-card-image-wrap {
+    padding: 0.8rem;
+    box-sizing: border-box;
+  }
   .hero-title {
     font-size: clamp(1.8rem, 8.5vw, 2.4rem);
     line-height: 1.1;
