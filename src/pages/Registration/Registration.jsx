@@ -209,14 +209,11 @@ const Registration = () => {
                 <span className="badge-note">* Registro previo obligatorio para la logística del evento.</span>
               </div>
               <div className="registration-poster-wrapper glass-panel">
-                <div 
-                  className="poster-carousel-track"
-                  style={{ transform: `translateX(-${activePosterIndex * 50}%)` }}
-                >
-                  <div className="poster-carousel-item">
+                <div className="poster-carousel-track">
+                  <div className={`poster-carousel-item ${activePosterIndex === 0 ? 'active' : ''}`}>
                     <img src="/sin-filtro-poster.jpeg" alt="Afiche Conferencia Sin Filtro 2026 - Opción 1" className="featured-card-poster" />
                   </div>
-                  <div className="poster-carousel-item">
+                  <div className={`poster-carousel-item ${activePosterIndex === 1 ? 'active' : ''}`}>
                     <img src="/sin-filtros-theme.jpeg" alt="Afiche Conferencia Sin Filtro 2026 - Opción 2" className="featured-card-poster" />
                   </div>
                 </div>
