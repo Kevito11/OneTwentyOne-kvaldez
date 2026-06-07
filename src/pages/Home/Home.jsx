@@ -549,7 +549,6 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Lightbox Overlay */}
       {lightboxIndex !== null && (
         <div className="lightbox-overlay" onClick={() => setLightboxIndex(null)}>
           <button 
@@ -559,38 +558,53 @@ const Home = () => {
           >
             <X size={28} />
           </button>
-
+ 
           <div className="lightbox-content" onClick={(e) => e.stopPropagation()}>
-            <img 
-              src={alfredoImages[lightboxIndex]} 
-              alt={`Alfredo Servidor - Pantalla completa ${lightboxIndex + 1}`} 
-              className="lightbox-image" 
-            />
-
-            {/* Lightbox navigation */}
-            {lightboxIndex > 0 && (
-              <button 
-                className="lightbox-nav-btn prev" 
-                onClick={() => setLightboxIndex(prev => prev - 1)}
-                aria-label="Imagen anterior"
-              >
-                <ChevronLeft size={36} />
-              </button>
-            )}
-            {lightboxIndex < alfredoImages.length - 1 && (
-              <button 
-                className="lightbox-nav-btn next" 
-                onClick={() => setLightboxIndex(next => next + 1)}
-                aria-label="Imagen siguiente"
-              >
-                <ChevronRight size={36} />
-              </button>
-            )}
-
-            {/* Counter pill */}
-            <div className="lightbox-counter">
-              {lightboxIndex + 1} / {alfredoImages.length}
+            <div 
+              className="lightbox-slider-track"
+              style={{ transform: `translateX(-${lightboxIndex * 100}%)` }}
+            >
+              {alfredoImages.map((imgUrl, idx) => (
+                <div key={idx} className="lightbox-slide">
+                  <img 
+                    src={imgUrl} 
+                    alt={`Alfredo Servidor - Pantalla completa ${idx + 1}`} 
+                    className="lightbox-image" 
+                  />
+                </div>
+              ))}
             </div>
+          </div>
+
+          {/* Lightbox navigation outside overflow:hidden wrapper */}
+          {lightboxIndex > 0 && (
+            <button 
+              className="lightbox-nav-btn prev" 
+              onClick={(e) => {
+                e.stopPropagation();
+                setLightboxIndex(prev => prev - 1);
+              }}
+              aria-label="Imagen anterior"
+            >
+              <ChevronLeft size={36} />
+            </button>
+          )}
+          {lightboxIndex < alfredoImages.length - 1 && (
+            <button 
+              className="lightbox-nav-btn next" 
+              onClick={(e) => {
+                e.stopPropagation();
+                setLightboxIndex(next => next + 1);
+              }}
+              aria-label="Imagen siguiente"
+            >
+              <ChevronRight size={36} />
+            </button>
+          )}
+
+          {/* Counter pill outside */}
+          <div className="lightbox-counter" onClick={(e) => e.stopPropagation()}>
+            {lightboxIndex + 1} / {alfredoImages.length}
           </div>
         </div>
       )}
@@ -605,38 +619,53 @@ const Home = () => {
           >
             <X size={28} />
           </button>
-
+ 
           <div className="lightbox-content" onClick={(e) => e.stopPropagation()}>
-            <img 
-              src={comunidadImages[comunidadLightboxIndex]} 
-              alt={`Momento de la Comunidad - Pantalla completa ${comunidadLightboxIndex + 1}`} 
-              className="lightbox-image" 
-            />
-
-            {/* Lightbox navigation */}
-            {comunidadLightboxIndex > 0 && (
-              <button 
-                className="lightbox-nav-btn prev" 
-                onClick={() => setComunidadLightboxIndex(prev => prev - 1)}
-                aria-label="Imagen anterior"
-              >
-                <ChevronLeft size={36} />
-              </button>
-            )}
-            {comunidadLightboxIndex < comunidadImages.length - 1 && (
-              <button 
-                className="lightbox-nav-btn next" 
-                onClick={() => setComunidadLightboxIndex(next => next + 1)}
-                aria-label="Imagen siguiente"
-              >
-                <ChevronRight size={36} />
-              </button>
-            )}
-
-            {/* Counter pill */}
-            <div className="lightbox-counter">
-              {comunidadLightboxIndex + 1} / {comunidadImages.length}
+            <div 
+              className="lightbox-slider-track"
+              style={{ transform: `translateX(-${comunidadLightboxIndex * 100}%)` }}
+            >
+              {comunidadImages.map((imgUrl, idx) => (
+                <div key={idx} className="lightbox-slide">
+                  <img 
+                    src={imgUrl} 
+                    alt={`Momento de la Comunidad - Pantalla completa ${idx + 1}`} 
+                    className="lightbox-image" 
+                  />
+                </div>
+              ))}
             </div>
+          </div>
+
+          {/* Lightbox navigation outside overflow:hidden wrapper */}
+          {comunidadLightboxIndex > 0 && (
+            <button 
+              className="lightbox-nav-btn prev" 
+              onClick={(e) => {
+                e.stopPropagation();
+                setComunidadLightboxIndex(prev => prev - 1);
+              }}
+              aria-label="Imagen anterior"
+            >
+              <ChevronLeft size={36} />
+            </button>
+          )}
+          {comunidadLightboxIndex < comunidadImages.length - 1 && (
+            <button 
+              className="lightbox-nav-btn next" 
+              onClick={(e) => {
+                e.stopPropagation();
+                setComunidadLightboxIndex(next => next + 1);
+              }}
+              aria-label="Imagen siguiente"
+            >
+              <ChevronRight size={36} />
+            </button>
+          )}
+
+          {/* Counter pill outside */}
+          <div className="lightbox-counter" onClick={(e) => e.stopPropagation()}>
+            {comunidadLightboxIndex + 1} / {comunidadImages.length}
           </div>
         </div>
       )}
