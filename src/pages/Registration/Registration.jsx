@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Ticket, User, Mail, Phone, Home, Star, Printer, RotateCcw, MapPin, CheckCircle, X } from 'lucide-react';
 import './Registration.css';
 
@@ -41,6 +41,17 @@ const MockQRCode = () => (
 );
 
 const Registration = () => {
+  // Carousel images
+  const posterImages = ['/sin-filtro-poster.jpeg', '/sin-filtros-theme.jpeg'];
+  const [activePosterIndex, setActivePosterIndex] = useState(0);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setActivePosterIndex((prevIndex) => (prevIndex + 1) % posterImages.length);
+    }, 4500);
+    return () => clearInterval(timer);
+  }, [posterImages.length]);
+
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -197,9 +208,33 @@ const Registration = () => {
                 <span className="badge-price">GRATIS</span>
                 <span className="badge-note">* Registro previo obligatorio para la logística del evento.</span>
               </div>
-
               <div className="registration-poster-wrapper glass-panel">
-                <img src="/sin-filtro-poster.jpeg" alt="Afiche Conferencia Sin Filtro 2026" className="registration-poster" />
+                <div 
+                  className="poster-carousel-track"
+                  style={{ transform: `translateX(-${activePosterIndex * 50}%)` }}
+                >
+                  <div className="poster-carousel-item">
+                    <img src="/sin-filtro-poster.jpeg" alt="Afiche Conferencia Sin Filtro 2026 - Opción 1" className="featured-card-poster" />
+                  </div>
+                  <div className="poster-carousel-item">
+                    <img src="/sin-filtros-theme.jpeg" alt="Afiche Conferencia Sin Filtro 2026 - Opción 2" className="featured-card-poster" />
+                  </div>
+                </div>
+
+                <div className="registration-poster-dots">
+                  {posterImages.map((_, idx) => (
+                    <button 
+                      key={idx} 
+                      className={`poster-dot ${activePosterIndex === idx ? 'active' : ''}`}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        setActivePosterIndex(idx);
+                      }}
+                      aria-label={`Ver afiche ${idx + 1}`}
+                    />
+                  ))}
+                </div>
               </div>
             </div>
 
