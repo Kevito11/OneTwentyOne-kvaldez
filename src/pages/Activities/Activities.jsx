@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Calendar, Clock, MapPin, ExternalLink, X } from 'lucide-react';
+import { getImageUrl } from '../../config/images';
 import './Activities.css';
 
 const Activities = () => {
@@ -166,7 +167,7 @@ const Activities = () => {
                         }}
                       >
                         <img 
-                          src="/sin-filtro-poster.jpeg" 
+                          src={getImageUrl("/sin-filtro-poster.jpeg")} 
                           alt="Afiche Conferencia Sin Filtro - Opción 1" 
                           style={{ width: '100%', display: 'block', height: 'auto', objectFit: 'cover' }} 
                         />
@@ -182,7 +183,7 @@ const Activities = () => {
                         }}
                       >
                         <img 
-                          src="/sin-filtros-theme.jpeg" 
+                          src={getImageUrl("/sin-filtros-theme.jpeg")} 
                           alt="Afiche Conferencia Sin Filtro - Opción 2" 
                           style={{ width: '100%', display: 'block', height: 'auto', objectFit: 'cover' }} 
                         />

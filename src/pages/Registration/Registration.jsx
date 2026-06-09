@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Ticket, User, Mail, Phone, Home, Star, Printer, RotateCcw, MapPin, CheckCircle, X } from 'lucide-react';
+import { getImageUrl } from '../../config/images';
 import './Registration.css';
 
 // Mock QR Code SVG for visual WOW factor
@@ -42,7 +43,7 @@ const MockQRCode = () => (
 
 const Registration = () => {
   // Carousel images
-  const posterImages = ['/sin-filtro-poster.jpeg', '/sin-filtros-theme.jpeg'];
+  const posterImages = [getImageUrl('/sin-filtro-poster.jpeg'), getImageUrl('/sin-filtros-theme.jpeg')];
   const [activePosterIndex, setActivePosterIndex] = useState(0);
 
   useEffect(() => {
@@ -211,10 +212,10 @@ const Registration = () => {
               <div className="registration-poster-wrapper glass-panel">
                 <div className="poster-carousel-track">
                   <div className={`poster-carousel-item ${activePosterIndex === 0 ? 'active' : ''}`}>
-                    <img src="/sin-filtro-poster.jpeg" alt="Afiche Conferencia Sin Filtro 2026 - Opción 1" className="featured-card-poster" />
+                    <img src={posterImages[0]} alt="Afiche Conferencia Sin Filtro 2026 - Opción 1" className="featured-card-poster" />
                   </div>
                   <div className={`poster-carousel-item ${activePosterIndex === 1 ? 'active' : ''}`}>
-                    <img src="/sin-filtros-theme.jpeg" alt="Afiche Conferencia Sin Filtro 2026 - Opción 2" className="featured-card-poster" />
+                    <img src={posterImages[1]} alt="Afiche Conferencia Sin Filtro 2026 - Opción 2" className="featured-card-poster" />
                   </div>
                 </div>
 

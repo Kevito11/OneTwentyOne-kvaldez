@@ -1,4 +1,5 @@
 import { MapPin, ExternalLink, Users, Shield } from 'lucide-react';
+import { getImageUrl } from '../../config/images';
 import './About.css';
 
 const About = () => {
@@ -6,19 +7,19 @@ const About = () => {
     {
       name: "Pr. Luis Valdera Cáceres",
       role: "Pastor",
-      image: "/pastores/Pr-Luis-Valdera-Sept-2024.jpg",
+      image: getImageUrl("/pastores/Pr-Luis-Valdera-Sept-2024.jpg"),
       initials: "LV"
     },
     {
       name: "Pr. Narciso Nadal Ortíz",
       role: "Pastor",
-      image: "/pastores/Pr-Narciso-Nadal-Sept-2024.jpg",
+      image: getImageUrl("/pastores/Pr-Narciso-Nadal-Sept-2024.jpg"),
       initials: "NN"
     },
     {
       name: "Pr. Santiago Peralta",
       role: "Pastor",
-      image: "/pastores/Pr-Santiago-Peralta-Sept-2024.jpg",
+      image: getImageUrl("/pastores/Pr-Santiago-Peralta-Sept-2024.jpg"),
       initials: "SP"
     }
   ];

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Calendar, MapPin, ArrowRight, Clock, Plus, Star, ExternalLink, ChevronLeft, ChevronRight, Heart, MessageCircle, Send, Bookmark, MoreHorizontal, X } from 'lucide-react';
+import { getImageUrl } from '../../config/images';
 import './Home.css';
 
 const Home = () => {
@@ -44,7 +45,7 @@ const Home = () => {
   }, []);
 
   // Poster Carousel Logic
-  const posterImages = ['/sin-filtro-poster.jpeg', '/sin-filtros-theme.jpeg'];
+  const posterImages = [getImageUrl('/sin-filtro-poster.jpeg'), getImageUrl('/sin-filtros-theme.jpeg')];
   const [activePosterIndex, setActivePosterIndex] = useState(0);
   const [showConfDetails, setShowConfDetails] = useState(false);
 
@@ -73,7 +74,7 @@ const Home = () => {
       role: "Pastor",
       subtitle: "Iglesia Convertidos a Cristo (ICC)",
       desc: "Nació en La Vega en 1955. Graduado en Contabilidad y Administración de empresas. Fue reconocido como pastor a tiempo completo en el año 2000, sirviendo en la edificación de la congregación y el desarrollo de ministerios.",
-      image: "/pastores/Pr-Luis-Valdera-Sept-2024.jpg",
+      image: getImageUrl("/pastores/Pr-Luis-Valdera-Sept-2024.jpg"),
       initials: "LV"
     },
     {
@@ -81,7 +82,7 @@ const Home = () => {
       role: "Pastor",
       subtitle: "Iglesia Convertidos a Cristo (ICC)",
       desc: "Nació en 1976 en Santo Domingo. Doctor en Medicina y Maestría en Teología. Fue reconocido como pastor en 2006, sirviendo fielmente en la predicación de la Palabra, la consejería pastoral y el discipulado bíblico.",
-      image: "/pastores/Pr-Narciso-Nadal-Sept-2024.jpg",
+      image: getImageUrl("/pastores/Pr-Narciso-Nadal-Sept-2024.jpg"),
       initials: "NN"
     },
     {
@@ -89,7 +90,7 @@ const Home = () => {
       role: "Pastor",
       subtitle: "Iglesia Convertidos a Cristo (ICC)",
       desc: "Ingeniero en Sistemas Informáticos y Maestría en Teología. Con amplia trayectoria en la educación cristiana y docencia teológica, fue ordenado como pastor de la iglesia en agosto de 2024.",
-      image: "/pastores/Pr-Santiago-Peralta-Sept-2024.jpg",
+      image: getImageUrl("/pastores/Pr-Santiago-Peralta-Sept-2024.jpg"),
       initials: "SP"
     }
   ];
@@ -149,7 +150,7 @@ const Home = () => {
     '/alfredo/7.jpeg',
     '/alfredo/8.jpeg',
     '/alfredo/9.jpeg'
-  ];
+  ].map(getImageUrl);
 
   // Comunidad Grid Data
   const comunidadImages = [
@@ -160,7 +161,7 @@ const Home = () => {
     '/comunidad/5.jpg',
     '/comunidad/6.jpg',
     '/comunidad/7.jpg'
-  ];
+  ].map(getImageUrl);
   
   const [activeAlfredoSlide, setActiveAlfredoSlide] = useState(0);
   const [lightboxIndex, setLightboxIndex] = useState(null);
@@ -212,10 +213,10 @@ const Home = () => {
                 >
                   <div className="poster-carousel-track">
                     <div className={`poster-carousel-item ${activePosterIndex === 0 ? 'active' : ''}`}>
-                      <img src="/sin-filtro-poster.jpeg" alt="Afiche Conferencia Sin Filtro 2026 - Opción 1" className="featured-card-poster" />
+                      <img src={posterImages[0]} alt="Afiche Conferencia Sin Filtro 2026 - Opción 1" className="featured-card-poster" />
                     </div>
                     <div className={`poster-carousel-item ${activePosterIndex === 1 ? 'active' : ''}`}>
-                      <img src="/sin-filtros-theme.jpeg" alt="Afiche Conferencia Sin Filtro 2026 - Opción 2" className="featured-card-poster" />
+                      <img src={posterImages[1]} alt="Afiche Conferencia Sin Filtro 2026 - Opción 2" className="featured-card-poster" />
                     </div>
                   </div>
                   <div className="featured-card-badge">PRÓXIMO EVENTO</div>
@@ -363,7 +364,7 @@ const Home = () => {
                       rel="noopener noreferrer" 
                       className="instagram-avatar"
                     >
-                      <img src="/logo-121.png" alt="121 Logo" className="instagram-avatar-img" />
+                      <img src={getImageUrl("/logo-121.png")} alt="121 Logo" className="instagram-avatar-img" />
                     </a>
                     <div className="instagram-meta">
                       <a 
@@ -711,7 +712,7 @@ const Home = () => {
                     }}
                   >
                     <img 
-                      src="/sin-filtro-poster.jpeg" 
+                      src={posterImages[0]} 
                       alt="Afiche Conferencia Sin Filtro - Opción 1" 
                       style={{ width: '100%', display: 'block', height: 'auto', objectFit: 'cover' }} 
                     />
@@ -727,7 +728,7 @@ const Home = () => {
                     }}
                   >
                     <img 
-                      src="/sin-filtros-theme.jpeg" 
+                      src={posterImages[1]} 
                       alt="Afiche Conferencia Sin Filtro - Opción 2" 
                       style={{ width: '100%', display: 'block', height: 'auto', objectFit: 'cover' }} 
                     />
