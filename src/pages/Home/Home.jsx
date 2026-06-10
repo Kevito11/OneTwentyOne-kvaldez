@@ -5,43 +5,58 @@ import { getImageUrl } from '../../config/images';
 import './Home.css';
 
 const Home = () => {
-  // Countdown Logic (Target: August 28 - Youth Conference)
+  // Countdown Logic (Target: August 29 - Youth Conference)
   const [timeLeft, setTimeLeft] = useState({
     days: 0,
     hours: 0,
     minutes: 0,
-    seconds: 0
+    seconds: 0,
+    isExpired: false
   });
 
   useEffect(() => {
-    const targetDate = new Date();
-    targetDate.setMonth(7); // August (0-indexed is 7)
-    targetDate.setDate(29);
-    targetDate.setHours(8, 30, 0, 0); // Saturday 8:30 AM opening
+    const currentYear = new Date().getFullYear();
+    let targetDate = new Date(currentYear, 7, 29, 15, 0, 0, 0); // 29 de Agosto, 03:00 PM
     
-    // If we are already past August 28 this year, set for next year
+    // Si ya pasó la fecha de este año, apuntamos al año siguiente
     if (new Date() > targetDate) {
       targetDate.setFullYear(targetDate.getFullYear() + 1);
     }
 
-    const interval = setInterval(() => {
+    const calculateTimeLeft = () => {
       const now = new Date().getTime();
       const distance = targetDate.getTime() - now;
 
       if (distance < 0) {
-        clearInterval(interval);
-        return;
+        setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0, isExpired: true });
+        return false;
       }
 
       setTimeLeft({
         days: Math.floor(distance / (1000 * 60 * 60 * 24)),
         hours: Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
         minutes: Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60)),
-        seconds: Math.floor((distance % (1000 * 60)) / 1000)
+        seconds: Math.floor((distance % (1000 * 60)) / 1000),
+        isExpired: false
       });
-    }, 1000);
+      return true;
+    };
 
-    return () => clearInterval(interval);
+    const isActive = calculateTimeLeft();
+
+    let interval;
+    if (isActive) {
+      interval = setInterval(() => {
+        const shouldContinue = calculateTimeLeft();
+        if (!shouldContinue) {
+          clearInterval(interval);
+        }
+      }, 1000);
+    }
+
+    return () => {
+      if (interval) clearInterval(interval);
+    };
   }, []);
 
   // Poster Carousel Logic
@@ -282,7 +297,11 @@ const Home = () => {
       <section className="countdown-section">
         <div className="container">
           <div className="countdown-wrapper glass-panel">
-            <h2 className="countdown-title">¡La conferencia "Sin Filtro" está por comenzar!</h2>
+            <h2 className="countdown-title">
+              {timeLeft.isExpired 
+                ? "¡La conferencia 'Sin Filtro' ya ha comenzado!" 
+                : "¡La conferencia 'Sin Filtro' está por comenzar!"}
+            </h2>
             <div className="countdown-timer">
               <div className="time-block">
                 <span className="time-value text-gradient">{timeLeft.days}</span>
@@ -742,56 +761,12 @@ const Home = () => {
                 <div className="timeline-container">
                   <div className="timeline-item glass-panel">
                     <div className="timeline-time">
-                      <span className="time-hour">8:30 AM</span>
+                      <span className="time-hour">03:00 PM</span>
                       <span className="time-type">Registro</span>
                     </div>
                     <div className="timeline-details">
-                      <h3>Registro & Bienvenida</h3>
-                      <p>Entrega de credenciales y materiales oficiales de la conferencia.</p>
-                    </div>
-                  </div>
-
-                  <div className="timeline-item glass-panel">
-                    <div className="timeline-time">
-                      <span className="time-hour">9:00 AM</span>
-                      <span className="time-type">Apertura</span>
-                    </div>
-                    <div className="timeline-details">
-                      <h3>Plenaria 1: Cimientos Firmes</h3>
-                      <p>Tiempo de alabanza y adoración con OneTwentyOne Worship, seguido de la primera plenaria de exposición doctrinal.</p>
-                    </div>
-                  </div>
-
-                  <div className="timeline-item glass-panel">
-                    <div className="timeline-time">
-                      <span className="time-hour">10:30 AM</span>
-                      <span className="time-type">Receso</span>
-                    </div>
-                    <div className="timeline-details">
-                      <h3>Receso & Comunión</h3>
-                      <p>Espacio para compartir con otros jóvenes y disfrutar de un tiempo de comunión y refrigerio ligero.</p>
-                    </div>
-                  </div>
-
-                  <div className="timeline-item glass-panel">
-                    <div className="timeline-time">
-                      <span className="time-hour">11:00 AM</span>
-                      <span className="time-type">Plenaria</span>
-                    </div>
-                    <div className="timeline-details">
-                      <h3>Plenaria 2: En la Brecha</h3>
-                      <p>Exposición bíblica enfocada en el testimonio y la firmeza del carácter cristiano frente a la cultura actual.</p>
-                    </div>
-                  </div>
-
-                  <div className="timeline-item glass-panel">
-                    <div className="timeline-time">
-                      <span className="time-hour">12:30 PM</span>
-                      <span className="time-type">Cierre</span>
-                    </div>
-                    <div className="timeline-details">
-                      <h3>Plenaria 3: Envío & Sesión de Q&A</h3>
-                      <p>Plenaria final de consagración seguida de un bloque interactivo de preguntas y respuestas con nuestros expositores pastorales.</p>
+                      <h3>Apertura & Registro</h3>
+                      <p>El registro de participantes inicia a las 03:00 PM. Los detalles del programa completo se anunciarán próximamente.</p>
                     </div>
                   </div>
                 </div>

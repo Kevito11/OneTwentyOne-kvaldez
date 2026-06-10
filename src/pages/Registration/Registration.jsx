@@ -9,10 +9,10 @@ const MockQRCode = () => (
     {/* Outer borders */}
     <rect x="0" y="0" width="25" height="25" fill="none" stroke="currentColor" strokeWidth="4" />
     <rect x="5" y="5" width="15" height="15" />
-    
+
     <rect x="75" y="0" width="25" height="25" fill="none" stroke="currentColor" strokeWidth="4" />
     <rect x="80" y="5" width="15" height="15" />
-    
+
     <rect x="0" y="75" width="25" height="25" fill="none" stroke="currentColor" strokeWidth="4" />
     <rect x="5" y="80" width="15" height="15" />
 
@@ -20,21 +20,21 @@ const MockQRCode = () => (
     <rect x="35" y="5" width="8" height="8" />
     <rect x="48" y="10" width="8" height="18" />
     <rect x="60" y="5" width="8" height="8" />
-    
+
     <rect x="5" y="35" width="18" height="8" />
     <rect x="30" y="30" width="8" height="8" />
     <rect x="42" y="35" width="15" height="8" />
     <rect x="70" y="35" width="8" height="20" />
-    
+
     <rect x="5" y="50" width="8" height="15" />
     <rect x="25" y="48" width="12" height="8" />
     <rect x="45" y="50" width="8" height="8" />
     <rect x="85" y="45" width="10" height="15" />
-    
+
     <rect x="35" y="65" width="8" height="8" />
     <rect x="50" y="60" width="15" height="8" />
     <rect x="80" y="70" width="15" height="8" />
-    
+
     <rect x="30" y="80" width="18" height="12" />
     <rect x="60" y="85" width="10" height="8" />
     <rect x="55" y="75" width="8" height="8" />
@@ -171,10 +171,10 @@ const Registration = () => {
   return (
     <div className="registration-page animate-fade-in section-padding">
       <div className="container">
-        
+
         {!isRegistered ? (
           <div className="registration-layout">
-            
+
             {/* Info Column */}
             <div className="registration-info">
               <span className="subtitle">
@@ -183,9 +183,9 @@ const Registration = () => {
               </span>
               <h1 className="title">Asegura tu <span className="text-gradient">Lugar</span></h1>
               <p className="description">
-                Únete a nosotros el <strong>29 de Agosto</strong> en la conferencia de jóvenes <strong>"Sin Filtro"</strong>. Vive un día intensivo lleno de adoración, instrucción expositiva de la Palabra y comunión. 
+                Únete a nosotros el <strong>29 de Agosto</strong> en la conferencia de jóvenes <strong>"Sin Filtro"</strong>. Vive un día intensivo lleno de adoración, instrucción expositiva de la Palabra y comunión.
               </p>
-              
+
               <div className="ticket-perks">
                 <div className="perk-item">
                   <div className="perk-icon"><Ticket size={24} /></div>
@@ -194,7 +194,7 @@ const Registration = () => {
                     <p>Entrada libre a todas las conferencias plenarias y dinámicas de grupo.</p>
                   </div>
                 </div>
-                
+
                 <div className="perk-item">
                   <div className="perk-icon"><Star size={24} /></div>
                   <div>
@@ -203,7 +203,7 @@ const Registration = () => {
                   </div>
                 </div>
               </div>
-              
+
               <div className="free-pass-badge">
                 <span className="badge-title">Tipo de Entrada</span>
                 <span className="badge-price">GRATIS</span>
@@ -221,8 +221,8 @@ const Registration = () => {
 
                 <div className="registration-poster-dots">
                   {posterImages.map((_, idx) => (
-                    <button 
-                      key={idx} 
+                    <button
+                      key={idx}
                       className={`poster-dot ${activePosterIndex === idx ? 'active' : ''}`}
                       onClick={(e) => {
                         e.stopPropagation();
@@ -239,26 +239,26 @@ const Registration = () => {
             {/* Form Column */}
             <div className="registration-form-container glass-panel">
               <h2 className="form-title">Formulario de Registro</h2>
-              
+
               {submitError && (
                 <div className="submit-error-alert">
                   <span>⚠️ {submitError}</span>
                 </div>
               )}
-              
+
               <form onSubmit={handleSubmit} className="registration-form">
                 <div className="form-row">
                   <div className="form-group">
                     <label>Nombre</label>
                     <div className="input-with-icon">
                       <User size={18} className="input-icon" />
-                      <input 
-                        type="text" 
-                        name="firstName" 
-                        value={formData.firstName} 
-                        onChange={handleChange} 
-                        required 
-                        placeholder="Tu nombre" 
+                      <input
+                        type="text"
+                        name="firstName"
+                        value={formData.firstName}
+                        onChange={handleChange}
+                        required
+                        placeholder="Tu nombre"
                       />
                     </div>
                   </div>
@@ -266,13 +266,13 @@ const Registration = () => {
                     <label>Apellido</label>
                     <div className="input-with-icon">
                       <User size={18} className="input-icon" />
-                      <input 
-                        type="text" 
-                        name="lastName" 
-                        value={formData.lastName} 
-                        onChange={handleChange} 
-                        required 
-                        placeholder="Tu apellido" 
+                      <input
+                        type="text"
+                        name="lastName"
+                        value={formData.lastName}
+                        onChange={handleChange}
+                        required
+                        placeholder="Tu apellido"
                       />
                     </div>
                   </div>
@@ -282,13 +282,13 @@ const Registration = () => {
                   <label>Correo Electrónico</label>
                   <div className="input-with-icon">
                     <Mail size={18} className="input-icon" />
-                    <input 
-                      type="email" 
-                      name="email" 
-                      value={formData.email} 
-                      onChange={handleChange} 
-                      required 
-                      placeholder="ejemplo@correo.com" 
+                    <input
+                      type="email"
+                      name="email"
+                      value={formData.email}
+                      onChange={handleChange}
+                      required
+                      placeholder="ejemplo@correo.com"
                     />
                   </div>
                 </div>
@@ -297,13 +297,13 @@ const Registration = () => {
                   <label>Teléfono / WhatsApp</label>
                   <div className="input-with-icon">
                     <Phone size={18} className="input-icon" />
-                    <input 
-                      type="tel" 
-                      name="phone" 
-                      value={formData.phone} 
-                      onChange={handleChange} 
-                      required 
-                      placeholder="(809) 000-0000" 
+                    <input
+                      type="tel"
+                      name="phone"
+                      value={formData.phone}
+                      onChange={handleChange}
+                      required
+                      placeholder="(809) 000-0000"
                     />
                   </div>
                 </div>
@@ -312,21 +312,21 @@ const Registration = () => {
                   <label>Iglesia que visitas (Opcional)</label>
                   <div className="input-with-icon">
                     <Home size={18} className="input-icon" />
-                    <input 
-                      type="text" 
-                      name="church" 
-                      value={formData.church} 
-                      onChange={handleChange} 
-                      placeholder="Iglesia Convertidos a Cristo" 
+                    <input
+                      type="text"
+                      name="church"
+                      value={formData.church}
+                      onChange={handleChange}
+                      placeholder="Iglesia Convertidos a Cristo"
                     />
                   </div>
                 </div>
 
                 <div className="form-group">
                   <label>Rango de Edad</label>
-                  <select 
-                    name="ageGroup" 
-                    value={formData.ageGroup} 
+                  <select
+                    name="ageGroup"
+                    value={formData.ageGroup}
                     onChange={handleChange}
                   >
                     <option value="12-17">12 - 17 años</option>
@@ -346,12 +346,12 @@ const Registration = () => {
         ) : (
           /* Success Screen & Digital Ticket */
           <div className="ticket-success-container" onClick={handleOutsideClick}>
-            <button 
+            <button
               onClick={(e) => {
                 e.stopPropagation();
                 handleExitAttempt();
               }}
-              className="ticket-close-btn" 
+              className="ticket-close-btn"
               aria-label="Cerrar y volver al registro"
             >
               <X size={20} />
@@ -382,7 +382,7 @@ const Registration = () => {
                     <span className="ticket-info-label">Asistente</span>
                     <span className="ticket-info-value">{formData.firstName} {formData.lastName}</span>
                   </div>
-                  
+
                   <div className="ticket-info-item">
                     <span className="ticket-info-label">Código de Entrada</span>
                     <span className="ticket-info-value" style={{ fontFamily: 'monospace', letterSpacing: '1px', color: 'var(--accent-light)' }}>
@@ -397,7 +397,7 @@ const Registration = () => {
 
                   <div className="ticket-info-item">
                     <span className="ticket-info-label">Hora de Apertura</span>
-                    <span className="ticket-info-value">8:30 AM</span>
+                    <span className="ticket-info-value">03:00 PM</span>
                   </div>
 
                   <div className="ticket-info-item">
@@ -420,7 +420,7 @@ const Registration = () => {
                     C/ Dr. Núñez Domínguez #30, La Julia, Santo Domingo
                   </span>
                 </div>
-                
+
                 <div className="qr-code-box">
                   <MockQRCode />
                 </div>
@@ -433,11 +433,11 @@ const Registration = () => {
                 <Printer size={18} />
                 Imprimir Boleto / PDF
               </button>
-              
-              <a 
-                href="https://maps.app.goo.gl/jRX8PC4S3oVrPMQz6" 
-                target="_blank" 
-                rel="noopener noreferrer" 
+
+              <a
+                href="https://maps.app.goo.gl/jRX8PC4S3oVrPMQz6"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="ticket-action-btn nav"
               >
                 <MapPin size={18} style={{ color: 'var(--accent-color)' }} />

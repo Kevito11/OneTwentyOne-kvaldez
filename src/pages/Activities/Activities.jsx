@@ -11,7 +11,7 @@ const Activities = () => {
       id: 0,
       title: "Conferencia de Jóvenes 'Sin Filtro' 2026",
       date: "29 de Agosto, 2026",
-      time: "Sábado 8:30 AM",
+      time: "Sábado 03:00 PM",
       location: "Salón Principal ICC",
       mapLink: "https://maps.app.goo.gl/jRX8PC4S3oVrPMQz6",
       description: "Nuestra actividad más cercana y esperada. Un día intensivo y sin rodeos para confrontar la cultura con la verdad eterna de las Escrituras. Con la predicación de los pastores Narciso Nadal, Sigfrido Guillén y el Hno. Julián Musa. Alabanza guiada por OneTwentyOne Worship.",
@@ -196,56 +196,12 @@ const Activities = () => {
                     <div className="timeline-container" style={{ maxWidth: '100%' }}>
                       <div className="timeline-item glass-panel">
                         <div className="timeline-time">
-                          <span className="time-hour">8:30 AM</span>
+                          <span className="time-hour">03:00 PM</span>
                           <span className="time-type">Registro</span>
                         </div>
                         <div className="timeline-details">
-                          <h3>Registro & Bienvenida</h3>
-                          <p>Entrega de credenciales y materiales oficiales de la conferencia.</p>
-                        </div>
-                      </div>
-
-                      <div className="timeline-item glass-panel">
-                        <div className="timeline-time">
-                          <span className="time-hour">9:00 AM</span>
-                          <span className="time-type">Apertura</span>
-                        </div>
-                        <div className="timeline-details">
-                          <h3>Plenaria 1: Cimientos Firmes</h3>
-                          <p>Tiempo de alabanza y adoración con OneTwentyOne Worship, seguido de la primera plenaria de exposición doctrinal.</p>
-                        </div>
-                      </div>
-
-                      <div className="timeline-item glass-panel">
-                        <div className="timeline-time">
-                          <span className="time-hour">10:30 AM</span>
-                          <span className="time-type">Receso</span>
-                        </div>
-                        <div className="timeline-details">
-                          <h3>Receso & Comunión</h3>
-                          <p>Espacio para compartir con otros jóvenes y disfrutar de un tiempo de comunión y refrigerio ligero.</p>
-                        </div>
-                      </div>
-
-                      <div className="timeline-item glass-panel">
-                        <div className="timeline-time">
-                          <span className="time-hour">11:00 AM</span>
-                          <span className="time-type">Plenaria</span>
-                        </div>
-                        <div className="timeline-details">
-                          <h3>Plenaria 2: En la Brecha</h3>
-                          <p>Exposición bíblica enfocada en el testimonio y la firmeza del carácter cristiano frente a la cultura actual.</p>
-                        </div>
-                      </div>
-
-                      <div className="timeline-item glass-panel">
-                        <div className="timeline-time">
-                          <span className="time-hour">12:30 PM</span>
-                          <span className="time-type">Cierre</span>
-                        </div>
-                        <div className="timeline-details">
-                          <h3>Plenaria 3: Envío & Sesión de Q&A</h3>
-                          <p>Plenaria final de consagración seguida de un bloque interactivo de preguntas y respuestas con nuestros expositores pastorales.</p>
+                          <h3>Apertura & Registro</h3>
+                          <p>El registro de participantes inicia a las 03:00 PM. Los detalles del programa completo se anunciarán próximamente.</p>
                         </div>
                       </div>
                     </div>
