@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Ticket, User, Mail, Phone, Home, Star, Printer, RotateCcw, MapPin, CheckCircle, X } from 'lucide-react';
+import QRCode from 'qrcode';
 import { getImageUrl } from '../../config/images';
 import './Registration.css';
 
@@ -41,6 +42,22 @@ const MockQRCode = () => (
   </svg>
 );
 
+const CHURCH_OPTIONS = [
+  "Iglesia de Convertidos a Cristo",
+  "Iglesia Bautista Cristiana",
+  "IBSJ",
+  "Iglesia Bautista Internacional",
+  "IBO",
+  "Iglesia Bautista Fundamental",
+  "Iglesia PIEDRA ANGULAR",
+  "Iglesia Ciudad de Gracia",
+  "Iglesia Cristiana de la Comunidad",
+  "Iglesia Bíblica Sola Gracia",
+  "Iglesia Cristiana Oasis",
+  "Iglesia Comunidad de Vida",
+  "Iglesia Bautista Nuevo Pacto"
+];
+
 const Registration = () => {
   // Carousel images
   const posterImages = [getImageUrl('/sin-filtro-poster.jpeg'), getImageUrl('/sin-filtros-theme.jpeg')];
@@ -64,7 +81,53 @@ const Registration = () => {
 
   const [isRegistered, setIsRegistered] = useState(false);
   const [ticketCode, setTicketCode] = useState('');
+  const [qrCodeUrl, setQrCodeUrl] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const [selectedChurch, setSelectedChurch] = useState('');
+  const [customChurch, setCustomChurch] = useState('');
+
+  // Sincronizar el campo 'church' de formData cuando cambian selectedChurch o customChurch
+  useEffect(() => {
+    setFormData(prev => ({
+      ...prev,
+      church: selectedChurch === 'Otra' ? customChurch : selectedChurch
+    }));
+  }, [selectedChurch, customChurch]);
+
+  // Generar QR real cuando se obtiene el ticketCode
+  useEffect(() => {
+    if (ticketCode) {
+      QRCode.toDataURL(ticketCode, {
+        width: 200,
+        margin: 1,
+        color: {
+          dark: '#000000',
+          light: '#ffffff'
+        }
+      })
+        .then(url => {
+          setQrCodeUrl(url);
+        })
+        .catch(err => {
+          console.error('Error generating QR code:', err);
+        });
+    } else {
+      setQrCodeUrl('');
+    }
+  }, [ticketCode]);
+
+  // Cambiar el título del documento para la impresión/descarga del PDF
+  useEffect(() => {
+    if (isRegistered && ticketCode) {
+      const originalTitle = document.title;
+      document.title = `${ticketCode} - Sin Filtros 2026`;
+      return () => {
+        document.title = originalTitle;
+      };
+    }
+  }, [isRegistered, ticketCode]);
+
   const [submitError, setSubmitError] = useState('');
   const [showExitWarning, setShowExitWarning] = useState(false);
 
@@ -159,6 +222,8 @@ const Registration = () => {
       church: '',
       ageGroup: '18-25'
     });
+    setSelectedChurch('');
+    setCustomChurch('');
     setSubmitError('');
     setIsSubmitting(false);
     setIsRegistered(false);
@@ -183,7 +248,7 @@ const Registration = () => {
               </span>
               <h1 className="title">Asegura tu <span className="text-gradient">Lugar</span></h1>
               <p className="description">
-                Únete a nosotros el <strong>29 de Agosto</strong> en la conferencia de jóvenes <strong>"Sin Filtro"</strong>. Vive un día intensivo lleno de adoración, instrucción expositiva de la Palabra y comunión.
+                Únete a nosotros el <strong>29 de Agosto</strong> en la conferencia de jóvenes <strong>"Sin Filtros"</strong>. Vive un día lleno de adoración e instrucción expositiva de la Palabra de Dios y comunión.
               </p>
 
               <div className="ticket-perks">
@@ -212,10 +277,10 @@ const Registration = () => {
               <div className="registration-poster-wrapper glass-panel">
                 <div className="poster-carousel-track">
                   <div className={`poster-carousel-item ${activePosterIndex === 0 ? 'active' : ''}`}>
-                    <img src={posterImages[0]} alt="Afiche Conferencia Sin Filtro 2026 - Opción 1" className="featured-card-poster" />
+                    <img src={posterImages[0]} alt="Afiche Conferencia Sin Filtros 2026 - Opción 1" className="featured-card-poster" />
                   </div>
                   <div className={`poster-carousel-item ${activePosterIndex === 1 ? 'active' : ''}`}>
-                    <img src={posterImages[1]} alt="Afiche Conferencia Sin Filtro 2026 - Opción 2" className="featured-card-poster" />
+                    <img src={posterImages[1]} alt="Afiche Conferencia Sin Filtros 2026 - Opción 2" className="featured-card-poster" />
                   </div>
                 </div>
 
@@ -309,18 +374,40 @@ const Registration = () => {
                 </div>
 
                 <div className="form-group">
-                  <label>Iglesia que visitas (Opcional)</label>
+                  <label>Iglesia a la que perteneces</label>
                   <div className="input-with-icon">
-                    <Home size={18} className="input-icon" />
-                    <input
-                      type="text"
-                      name="church"
-                      value={formData.church}
-                      onChange={handleChange}
-                      placeholder="Iglesia Convertidos a Cristo"
-                    />
+                    <Home size={18} className="input-icon" style={{ pointerEvents: 'none' }} />
+                    <select
+                      name="selectedChurch"
+                      value={selectedChurch}
+                      onChange={(e) => setSelectedChurch(e.target.value)}
+                      required
+                      style={{ paddingLeft: '3.2rem', cursor: 'pointer' }}
+                    >
+                      <option value="" disabled>Selecciona tu iglesia</option>
+                      {CHURCH_OPTIONS.map((church) => (
+                        <option key={church} value={church}>{church}</option>
+                      ))}
+                      <option value="Otra">Otra...</option>
+                    </select>
                   </div>
                 </div>
+
+                {selectedChurch === 'Otra' && (
+                  <div className="form-group animate-fade-in">
+                    <label>Nombre de la iglesia</label>
+                    <div className="input-with-icon">
+                      <Home size={18} className="input-icon" style={{ pointerEvents: 'none' }} />
+                      <input
+                        type="text"
+                        value={customChurch}
+                        onChange={(e) => setCustomChurch(e.target.value)}
+                        required
+                        placeholder="Escribe el nombre de tu iglesia"
+                      />
+                    </div>
+                  </div>
+                )}
 
                 <div className="form-group">
                   <label>Rango de Edad</label>
@@ -368,7 +455,7 @@ const Registration = () => {
                 <div className="ticket-header">
                   <div className="ticket-event-info">
                     <span className="ticket-event-label">Boleto de Entrada</span>
-                    <span className="ticket-event-name text-gradient">SIN FILTRO 2026</span>
+                    <span className="ticket-event-name text-gradient">SIN FILTROS 2026</span>
                     <span className="ticket-event-subtitle">Conferencia de Jóvenes ICC</span>
                   </div>
                   <div className="ticket-logo">
@@ -422,7 +509,15 @@ const Registration = () => {
                 </div>
 
                 <div className="qr-code-box">
-                  <MockQRCode />
+                  {qrCodeUrl ? (
+                    <img
+                      src={qrCodeUrl}
+                      alt={`Código QR para entrada ${ticketCode}`}
+                      style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+                    />
+                  ) : (
+                    <MockQRCode />
+                  )}
                 </div>
               </div>
             </div>

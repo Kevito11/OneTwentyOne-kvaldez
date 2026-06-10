@@ -457,30 +457,85 @@
 
 /* Printable styling */
 @media print {
-  body * {
-    visibility: hidden;
+  /* Ocultar elementos innecesarios */
+  .navbar, nav, .footer, footer, .ticket-close-btn, .success-header, .ticket-actions-bar, .exit-warning-overlay {
+    display: none !important;
   }
-  .ticket-card, .ticket-card * {
-    visibility: visible;
+
+  /* Asegurar que la página no tenga márgenes innecesarios y se adapte */
+  @page {
+    size: portrait;
+    margin: 15mm 10mm;
   }
-  .ticket-card {
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 100%;
-    border: 1px solid #000;
-    box-shadow: none;
+
+  html, body {
     background: white !important;
     color: black !important;
+    height: 100%;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
   }
-  .ticket-top::before, .ticket-top::after {
-    display: none;
+
+  /* El contenedor principal debe resetear su padding y backgrounds oscuros */
+  .app-container, .main-content, .registration-page, .container, .ticket-success-container {
+    background: transparent !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    display: block !important;
+    width: 100% !important;
+    min-height: auto !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
   }
-  .ticket-info-value {
+
+  .ticket-card {
+    background: white !important;
     color: black !important;
+    border: 1.5px solid #000000 !important;
+    box-shadow: none !important;
+    margin: 0 auto !important;
+    width: 100% !important;
+    max-width: 650px !important;
+    page-break-inside: avoid;
+    break-inside: avoid;
+    display: flex !important;
+    flex-direction: column !important;
+    position: relative !important;
+    top: 0 !important;
+    left: 0 !important;
   }
-  .ticket-actions-bar {
-    display: none;
+
+  /* Ocultar cortes laterales circulares del ticket en impresión física */
+  .ticket-top::before, .ticket-top::after {
+    display: none !important;
+  }
+
+  /* Ajustar colores del texto en impresión */
+  .ticket-info-value {
+    color: #000000 !important;
+  }
+
+  .ticket-info-value.free-badge {
+    color: #000000 !important;
+  }
+
+  .ticket-event-name {
+    color: #000000 !important;
+    background: none !important;
+    -webkit-text-fill-color: initial !important;
+  }
+
+  .ticket-bottom {
+    background: rgba(0, 0, 0, 0.05) !important;
+    border-top: 1px solid #000000 !important;
+  }
+
+  .qr-code-box {
+    background: white !important;
+    border: 1px solid #000000 !important;
+    box-shadow: none !important;
   }
 }
 

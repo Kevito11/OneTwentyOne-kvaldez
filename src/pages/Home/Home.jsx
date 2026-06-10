@@ -228,10 +228,10 @@ const Home = () => {
                 >
                   <div className="poster-carousel-track">
                     <div className={`poster-carousel-item ${activePosterIndex === 0 ? 'active' : ''}`}>
-                      <img src={posterImages[0]} alt="Afiche Conferencia Sin Filtro 2026 - Opción 1" className="featured-card-poster" />
+                      <img src={posterImages[0]} alt="Afiche Conferencia Sin Filtros 2026 - Opción 1" className="featured-card-poster" />
                     </div>
                     <div className={`poster-carousel-item ${activePosterIndex === 1 ? 'active' : ''}`}>
-                      <img src={posterImages[1]} alt="Afiche Conferencia Sin Filtro 2026 - Opción 2" className="featured-card-poster" />
+                      <img src={posterImages[1]} alt="Afiche Conferencia Sin Filtros 2026 - Opción 2" className="featured-card-poster" />
                     </div>
                   </div>
                   <div className="featured-card-badge">PRÓXIMO EVENTO</div>
@@ -251,7 +251,7 @@ const Home = () => {
                   </div>
                 </div>
                 <div className="featured-card-details">
-                  <h3>Conferencia "Sin Filtro" 2026</h3>
+                  <h3>Conferencia "Sin Filtros" 2026</h3>
 
 
                   <div className="featured-card-meta">
@@ -299,8 +299,8 @@ const Home = () => {
           <div className="countdown-wrapper glass-panel">
             <h2 className="countdown-title">
               {timeLeft.isExpired 
-                ? "¡La conferencia 'Sin Filtro' ya ha comenzado!" 
-                : "¡La conferencia 'Sin Filtro' está por comenzar!"}
+                ? "¡La conferencia 'Sin Filtros' ya ha comenzado!" 
+                : "¡La conferencia 'Sin Filtros' está por comenzar!"}
             </h2>
             <div className="countdown-timer">
               <div className="time-block">
@@ -488,7 +488,7 @@ const Home = () => {
                   </div>
 
                   <div className="instagram-hashtags">
-                    <span>#OneTwentyOne #ICC #Alfredo #SinFiltro2026 #NuevoServidor</span>
+                    <span>#OneTwentyOne #ICC #Alfredo #SinFiltros2026 #NuevoServidor</span>
                   </div>
                   
                   <span className="instagram-date">Hace 2 horas</span>
@@ -703,7 +703,7 @@ const Home = () => {
             </button>
             
             <div className="modal-header">
-              <span className="modal-subtitle">Conferencia "Sin Filtro" 2026</span>
+              <span className="modal-subtitle">Conferencia "Sin Filtros" 2026</span>
               <h2 className="modal-title text-gradient">Detalles del Evento</h2>
             </div>
             
@@ -732,7 +732,7 @@ const Home = () => {
                   >
                     <img 
                       src={posterImages[0]} 
-                      alt="Afiche Conferencia Sin Filtro - Opción 1" 
+                      alt="Afiche Conferencia Sin Filtros - Opción 1" 
                       style={{ width: '100%', display: 'block', height: 'auto', objectFit: 'cover' }} 
                     />
                   </div>
@@ -748,7 +748,7 @@ const Home = () => {
                   >
                     <img 
                       src={posterImages[1]} 
-                      alt="Afiche Conferencia Sin Filtro - Opción 2" 
+                      alt="Afiche Conferencia Sin Filtros - Opción 2" 
                       style={{ width: '100%', display: 'block', height: 'auto', objectFit: 'cover' }} 
                     />
                   </div>

@@ -9,7 +9,7 @@ const Activities = () => {
   const activities = [
     {
       id: 0,
-      title: "Conferencia de Jóvenes 'Sin Filtro' 2026",
+      title: "Conferencia de Jóvenes 'Sin Filtros' 2026",
       date: "29 de Agosto, 2026",
       time: "Sábado 03:00 PM",
       location: "Salón Principal ICC",
@@ -168,7 +168,7 @@ const Activities = () => {
                       >
                         <img 
                           src={getImageUrl("/sin-filtro-poster.jpeg")} 
-                          alt="Afiche Conferencia Sin Filtro - Opción 1" 
+                          alt="Afiche Conferencia Sin Filtros - Opción 1" 
                           style={{ width: '100%', display: 'block', height: 'auto', objectFit: 'cover' }} 
                         />
                       </div>
@@ -184,7 +184,7 @@ const Activities = () => {
                       >
                         <img 
                           src={getImageUrl("/sin-filtros-theme.jpeg")} 
-                          alt="Afiche Conferencia Sin Filtro - Opción 2" 
+                          alt="Afiche Conferencia Sin Filtros - Opción 2" 
                           style={{ width: '100%', display: 'block', height: 'auto', objectFit: 'cover' }} 
                         />
                       </div>
