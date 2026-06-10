@@ -1270,11 +1270,12 @@
   align-items: center;
   justify-content: center;
   animation: fadeIn 0.25s ease-out;
+  touch-action: none;
 }
 
 .lightbox-close-btn {
   position: absolute;
-  top: 2rem;
+  top: 6.5rem;
   right: 2rem;
   background: rgba(255, 255, 255, 0.08);
   border: 1px solid rgba(255, 255, 255, 0.15);
@@ -1407,10 +1408,52 @@
     padding: 0 0.5rem;
   }
   .lightbox-close-btn {
-    top: 1rem;
-    right: 1rem;
+    top: 6.5rem;
+    right: 1.5rem;
     width: 40px;
     height: 40px;
+    background: rgba(10, 10, 10, 0.8) !important;
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  }
+  .lightbox-content {
+    width: 95vw;
+    height: 70vh;
+  }
+  .lightbox-nav-btn {
+    width: 42px;
+    height: 42px;
+  }
+  .lightbox-nav-btn.prev {
+    left: 0.8rem;
+  }
+  .lightbox-nav-btn.next {
+    right: 0.8rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .lightbox-content {
+    width: 100vw;
+    height: 65vh;
+  }
+  .lightbox-image {
+    border-radius: 0;
+  }
+  .lightbox-nav-btn {
+    width: 36px;
+    height: 36px;
+    background: rgba(10, 10, 10, 0.8) !important;
+  }
+  .lightbox-nav-btn.prev {
+    left: 0.4rem;
+  }
+  .lightbox-nav-btn.next {
+    right: 0.4rem;
+  }
+  .lightbox-counter {
+    bottom: -1.8rem;
+    font-size: 0.78rem;
+    padding: 0.25rem 0.8rem;
   }
 }
 

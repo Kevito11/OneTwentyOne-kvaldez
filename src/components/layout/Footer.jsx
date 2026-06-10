@@ -41,10 +41,10 @@ const Footer = () => {
               <a href="https://www.instagram.com/onetwentyoneicc/" target="_blank" rel="noopener noreferrer" className="social-icon">
                 <InstagramIcon size={20} />
               </a>
-              <a href="#" className="social-icon">
+              <a href="https://www.facebook.com/convertidosacristo" target="_blank" rel="noopener noreferrer" className="social-icon">
                 <FacebookIcon size={20} />
               </a>
-              <a href="#" className="social-icon">
+              <a href="https://www.youtube.com/@ICCRD" target="_blank" rel="noopener noreferrer" className="social-icon">
                 <YoutubeIcon size={20} />
               </a>
             </div>

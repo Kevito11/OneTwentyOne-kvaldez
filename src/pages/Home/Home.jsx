@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { Calendar, MapPin, ArrowRight, Clock, Plus, Star, ExternalLink, ChevronLeft, ChevronRight, Heart, MessageCircle, Send, Bookmark, MoreHorizontal, X } from 'lucide-react';
 import { getImageUrl } from '../../config/images';
@@ -181,6 +181,41 @@ const Home = () => {
   const [activeAlfredoSlide, setActiveAlfredoSlide] = useState(0);
   const [lightboxIndex, setLightboxIndex] = useState(null);
   const [comunidadLightboxIndex, setComunidadLightboxIndex] = useState(null);
+
+  const scrollPositionRef = useRef(null);
+
+  // Bloquear el scroll del fondo cuando el lightbox de comunidad está abierto
+  useEffect(() => {
+    const isLightboxOpen = lightboxIndex !== null || comunidadLightboxIndex !== null;
+    
+    if (isLightboxOpen) {
+      const scrollY = window.scrollY;
+      scrollPositionRef.current = scrollY;
+      document.body.style.position = 'fixed';
+      document.body.style.top = `-${scrollY}px`;
+      document.body.style.width = '100%';
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.position = '';
+      document.body.style.top = '';
+      document.body.style.width = '';
+      document.body.style.overflow = '';
+      if (scrollPositionRef.current !== null) {
+        const scrollToY = scrollPositionRef.current;
+        setTimeout(() => {
+          window.scrollTo(0, scrollToY);
+        }, 0);
+        scrollPositionRef.current = null;
+      }
+    }
+
+    return () => {
+      document.body.style.position = '';
+      document.body.style.top = '';
+      document.body.style.width = '';
+      document.body.style.overflow = '';
+    };
+  }, [lightboxIndex, comunidadLightboxIndex]);
 
   return (
     <div className="home-page animate-fade-in">
@@ -579,17 +614,18 @@ const Home = () => {
             <X size={28} />
           </button>
  
-          <div className="lightbox-content" onClick={(e) => e.stopPropagation()}>
+          <div className="lightbox-content">
             <div 
               className="lightbox-slider-track"
               style={{ transform: `translateX(-${lightboxIndex * 100}%)` }}
             >
               {alfredoImages.map((imgUrl, idx) => (
-                <div key={idx} className="lightbox-slide">
+                <div key={idx} className="lightbox-slide" onClick={() => setLightboxIndex(null)}>
                   <img 
                     src={imgUrl} 
                     alt={`Alfredo Servidor - Pantalla completa ${idx + 1}`} 
                     className="lightbox-image" 
+                    onClick={(e) => e.stopPropagation()}
                   />
                 </div>
               ))}
@@ -640,17 +676,18 @@ const Home = () => {
             <X size={28} />
           </button>
  
-          <div className="lightbox-content" onClick={(e) => e.stopPropagation()}>
+          <div className="lightbox-content">
             <div 
               className="lightbox-slider-track"
               style={{ transform: `translateX(-${comunidadLightboxIndex * 100}%)` }}
             >
               {comunidadImages.map((imgUrl, idx) => (
-                <div key={idx} className="lightbox-slide">
+                <div key={idx} className="lightbox-slide" onClick={() => setComunidadLightboxIndex(null)}>
                   <img 
                     src={imgUrl} 
                     alt={`Momento de la Comunidad - Pantalla completa ${idx + 1}`} 
                     className="lightbox-image" 
+                    onClick={(e) => e.stopPropagation()}
                   />
                 </div>
               ))}

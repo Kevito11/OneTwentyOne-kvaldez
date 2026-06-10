@@ -14,7 +14,7 @@ const Activities = () => {
       time: "Sábado 03:00 PM",
       location: "Salón Principal ICC",
       mapLink: "https://maps.app.goo.gl/jRX8PC4S3oVrPMQz6",
-      description: "Nuestra actividad más cercana y esperada. Un día intensivo y sin rodeos para confrontar la cultura con la verdad eterna de las Escrituras. Con la predicación de los pastores Narciso Nadal, Sigfrido Guillén y el Hno. Julián Musa. Alabanza guiada por OneTwentyOne Worship.",
+      description: "Un encuentro diseñado para jóvenes con el propósito de compartir en adoración, profundizar en el estudio de la Palabra de Dios y disfrutar de un tiempo de comunión cristiana.",
       tag: "Próximo Evento",
       featured: true
     },
