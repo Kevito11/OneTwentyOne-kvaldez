@@ -162,28 +162,15 @@ const Registration = () => {
     setIsSubmitting(true);
     setSubmitError('');
 
-    // Obtener la secuencia inicial local
-    let sequence = parseInt(localStorage.getItem('last_registered_sequence') || '0') + 1;
-    let usedTickets = JSON.parse(localStorage.getItem('used_tickets') || '[]');
-    let candidateCode = `121-ICC-${String(sequence).padStart(4, '0')}`;
-
-    // Validación local: Evitar duplicidad e incrementar en caso de que pueda ser duplicado
-    while (usedTickets.includes(candidateCode)) {
-      sequence++;
-      candidateCode = `121-ICC-${String(sequence).padStart(4, '0')}`;
-    }
-
+    const randomCode = Math.floor(1000 + Math.random() * 9000);
+    const generatedCode = `121-ICC-${randomCode}`;
     const sheetUrl = import.meta.env.VITE_SHEETS_API_URL;
 
     // Si la URL de la API no está configurada, simulamos localmente para desarrollo
     if (!sheetUrl || sheetUrl.trim() === '') {
       console.warn("VITE_SHEETS_API_URL no está configurada en .env.local. Se simulará el registro localmente.");
       setTimeout(() => {
-        localStorage.setItem('last_registered_sequence', String(sequence));
-        usedTickets.push(candidateCode);
-        localStorage.setItem('used_tickets', JSON.stringify(usedTickets));
-
-        setTicketCode(candidateCode);
+        setTicketCode(generatedCode);
         setIsRegistered(true);
         setIsSubmitting(false);
       }, 1000);
@@ -206,27 +193,14 @@ const Registration = () => {
           church: formData.church || 'Iglesia de Convertidos a Cristo',
           ageGroup: formData.ageGroup,
           participateTalleres: 'No',
-          ticketCode: candidateCode
+          ticketCode: generatedCode
         })
       });
 
       const result = await response.json();
 
       if (result.status === 'success') {
-        // Si el script de Google Sheets genera un código secuencial más preciso, lo usamos
-        const finalCode = result.ticketCode || candidateCode;
-
-        // Guardar la numeración final en localStorage para evitar duplicados en este navegador
-        const finalSeqMatch = finalCode.match(/\d+$/);
-        const finalSeq = finalSeqMatch ? parseInt(finalSeqMatch[0], 10) : sequence;
-        
-        localStorage.setItem('last_registered_sequence', String(finalSeq));
-        if (!usedTickets.includes(finalCode)) {
-          usedTickets.push(finalCode);
-          localStorage.setItem('used_tickets', JSON.stringify(usedTickets));
-        }
-
-        setTicketCode(finalCode);
+        setTicketCode(generatedCode);
         setIsRegistered(true);
       } else {
         throw new Error(result.message || 'Error del servidor al guardar los datos.');
