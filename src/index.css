@@ -145,3 +145,218 @@ ul {
     padding: 5rem 0;
   }
 }
+
+/* Payment Instructions Card Styles */
+.merch-payment-card {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--glass-border);
+  border-radius: 16px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(4px);
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.merch-payment-header {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  padding-bottom: 0.6rem;
+}
+
+.merch-payment-header h3 {
+  font-size: 1.1rem;
+  font-weight: 800;
+  margin: 0;
+  color: white;
+}
+
+.merch-payment-desc {
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.merch-accounts-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  margin: 0.5rem 0;
+}
+
+.merch-account-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  padding: 0.75rem 1rem;
+  transition: background-color 0.25s ease, border-color 0.25s ease;
+}
+
+.merch-account-item:hover {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.merch-bank-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.merch-bank-name {
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.merch-bank-name.banreservas {
+  color: #60a5fa; /* Modern Blue */
+}
+
+.merch-bank-name.popular {
+  color: #34d399; /* Modern Green */
+}
+
+.merch-account-type {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.merch-account-number-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.merch-account-number-row code {
+  font-family: monospace;
+  font-size: 1.05rem;
+  color: white;
+  background: rgba(0, 0, 0, 0.3);
+  padding: 0.25rem 0.5rem;
+  border-radius: 6px;
+  letter-spacing: 0.5px;
+}
+
+.copy-btn {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--text-secondary);
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.copy-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: white;
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.copy-btn svg.copied {
+  color: #34d399;
+}
+
+.merch-beneficiary-info {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  padding-top: 0.8rem;
+}
+
+.merch-beneficiary-info strong {
+  color: var(--text-secondary);
+}
+
+.merch-payment-footer-note {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  background: rgba(245, 158, 11, 0.05);
+  border: 1px solid rgba(245, 158, 11, 0.15);
+  padding: 0.75rem 1rem;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  color: #fbd590;
+  line-height: 1.4;
+  margin-top: 0.2rem;
+}
+
+/* WhatsApp Link interaction */
+.merch-payment-footer-note.wa-link {
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+}
+
+.merch-payment-footer-note.wa-link:hover {
+  background: rgba(245, 158, 11, 0.1);
+  border-color: rgba(245, 158, 11, 0.35);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(245, 158, 11, 0.05);
+}
+
+.copy-btn.mini {
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+.rnc-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.rnc-row code {
+  font-family: monospace;
+  font-size: 0.85rem;
+  color: white;
+  background: rgba(0, 0, 0, 0.3);
+  padding: 0.1rem 0.3rem;
+  border-radius: 4px;
+}
+
+.ticket-merch-note {
+  line-height: 1.4;
+  color: var(--text-muted);
+}
+
+.ticket-action-btn.wa-send-proof {
+  background: #25d366 !important; /* WhatsApp Green */
+  color: white !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  box-shadow: 0 4px 15px rgba(37, 211, 102, 0.25) !important;
+}
+
+.ticket-action-btn.wa-send-proof:hover {
+  background: #20ba5a !important;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(37, 211, 102, 0.45) !important;
+}
+
+@media print {
+  .ticket-action-btn.wa-send-proof {
+    display: none !important;
+  }
+}

@@ -21,6 +21,7 @@ const Navbar = () => {
     { name: 'Inicio', path: '/' },
     { name: 'Actividades', path: '/actividades' },
     { name: 'Nosotros', path: '/nosotros' },
+    { name: 'Merch', path: '/merch' },
   ];
 
   return (

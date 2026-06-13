@@ -1,8 +1,50 @@
 import { useState, useEffect } from 'react';
-import { Ticket, User, Mail, Phone, Home, Star, Printer, RotateCcw, MapPin, CheckCircle, X } from 'lucide-react';
+import { Ticket, User, Mail, Phone, Home, Star, Printer, RotateCcw, MapPin, CheckCircle, X, Check, ShoppingBag, Plus, Minus, Copy } from 'lucide-react';
 import QRCode from 'qrcode';
 import { getImageUrl } from '../../config/images';
+import capImg from '../../assets/merch/cap.png';
+import capGreyImg from '../../assets/merch/cap_grey.png';
+import tshirtImg from '../../assets/merch/tshirt.png';
+import tshirtWhiteImg from '../../assets/merch/tshirt_white.png';
+import hoodieImg from '../../assets/merch/hoodie.png';
+import hoodieCharcoalImg from '../../assets/merch/hoodie_charcoal.png';
 import './Registration.css';
+
+const PRODUCTS = [
+  {
+    id: 1,
+    name: "Gorra \"Sin Filtros\"",
+    price: 500,
+    images: {
+      "Negro": capImg,
+      "Gris": capGreyImg
+    },
+    colors: ["Negro", "Gris"],
+    sizes: ["Única"]
+  },
+  {
+    id: 2,
+    name: "Camiseta \"Sin Filtros\"",
+    price: 700,
+    images: {
+      "Negro": tshirtImg,
+      "Blanco Roto": tshirtWhiteImg
+    },
+    colors: ["Negro", "Blanco Roto"],
+    sizes: ["S", "M", "L", "XL"]
+  },
+  {
+    id: 3,
+    name: "Hoodie \"Sin Filtros\"",
+    price: 1200,
+    images: {
+      "Negro": hoodieImg,
+      "Gris Carbón": hoodieCharcoalImg
+    },
+    colors: ["Negro", "Gris Carbón"],
+    sizes: ["S", "M", "L", "XL"]
+  }
+];
 
 // Mock QR Code SVG for visual WOW factor
 const MockQRCode = () => (
@@ -58,6 +100,115 @@ const CHURCH_OPTIONS = [
   "Iglesia Bautista Nuevo Pacto"
 ];
 
+const MerchPaymentInstructions = () => {
+  const [copiedText, setCopiedText] = useState('');
+
+  const handleCopy = (text, label) => {
+    navigator.clipboard.writeText(text);
+    setCopiedText(label);
+    setTimeout(() => setCopiedText(''), 2000);
+  };
+
+  return (
+    <div className="merch-payment-card glass-panel animate-fade-in">
+      <div className="merch-payment-header">
+        <ShoppingBag size={18} className="text-gradient" />
+        <h3>Instrucciones de Reserva</h3>
+      </div>
+      
+      <p className="merch-payment-desc">
+        Para asegurar tus artículos, debes abonar el <strong>50% del total</strong> mediante depósito o transferencia, y realizar el pago restante antes del <strong>5 de Agosto</strong>.
+      </p>
+
+      <div className="payment-tip-box" style={{ background: 'rgba(255,255,255,0.02)', padding: '0.75rem', borderRadius: '8px', fontSize: '0.8rem', borderLeft: '3px solid var(--accent-light, #ffffff)', color: 'var(--text-secondary)' }}>
+        <strong>💡 Concepto de pago:</strong> Al realizar el depósito o transferencia, por favor indica en el concepto o descripción tu <strong>Código de Boleto</strong> (se te dará al finalizar este registro) acompañado de tu nombre para asociarlo más rápido.
+        <span style={{ display: 'block', marginTop: '0.25rem', fontFamily: 'monospace', color: 'white' }}>Estructura: [Código de Boleto] - [Tu Nombre]</span>
+      </div>
+
+      <div className="merch-accounts-container">
+        <div className="merch-account-item">
+          <div className="merch-bank-info">
+            <span className="merch-bank-name banreservas">Banreservas</span>
+            <span className="merch-account-type">Corriente RD$</span>
+          </div>
+          <div className="merch-account-number-row">
+            <code>0102401330</code>
+            <button
+              type="button"
+              className="copy-btn"
+              onClick={() => handleCopy('0102401330', 'banreservas')}
+              title="Copiar cuenta"
+            >
+              {copiedText === 'banreservas' ? <Check size={12} className="copied" /> : <Copy size={12} />}
+            </button>
+          </div>
+        </div>
+
+        <div className="merch-account-item">
+          <div className="merch-bank-info">
+            <span className="merch-bank-name popular">Banco Popular</span>
+            <span className="merch-account-type">Corriente RD$</span>
+          </div>
+          <div className="merch-account-number-row">
+            <code>805943297</code>
+            <button
+              type="button"
+              className="copy-btn"
+              onClick={() => handleCopy('805943297', 'popular_rd')}
+              title="Copiar cuenta"
+            >
+              {copiedText === 'popular_rd' ? <Check size={12} className="copied" /> : <Copy size={12} />}
+            </button>
+          </div>
+        </div>
+
+        <div className="merch-account-item">
+          <div className="merch-bank-info">
+            <span className="merch-bank-name popular">Banco Popular</span>
+            <span className="merch-account-type">Ahorros US$</span>
+          </div>
+          <div className="merch-account-number-row">
+            <code>818318875</code>
+            <button
+              type="button"
+              className="copy-btn"
+              onClick={() => handleCopy('818318875', 'popular_us')}
+              title="Copiar cuenta"
+            >
+              {copiedText === 'popular_us' ? <Check size={12} className="copied" /> : <Copy size={12} />}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div className="merch-beneficiary-info">
+        <div><strong>Beneficiario:</strong> Iglesia de Convertidos a Cristo</div>
+        <div className="rnc-row">
+          <span><strong>RNC:</strong> <code>424-00200-2</code></span>
+          <button
+            type="button"
+            className="copy-btn mini"
+            onClick={() => handleCopy('424-00200-2', 'rnc')}
+            title="Copiar RNC"
+          >
+            {copiedText === 'rnc' ? <Check size={10} className="copied" /> : <Copy size={10} />}
+          </button>
+        </div>
+      </div>
+
+      <a 
+        href="https://wa.me/18498838466"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="merch-payment-footer-note wa-link"
+      >
+        <Phone size={14} style={{ color: 'var(--accent-light)' }} />
+        <span>Envía el comprobante por WhatsApp al <strong>849-883-8466</strong> (Haz clic para chatear).</span>
+      </a>
+    </div>
+  );
+};
+
 const Registration = () => {
   // Carousel images
   const posterImages = [getImageUrl('/sin-filtro-poster.jpeg'), getImageUrl('/sin-filtros-theme.jpeg')];
@@ -76,7 +227,13 @@ const Registration = () => {
     email: '',
     phone: '',
     church: '',
-    ageGroup: '18-25'
+    ageGroup: '18-25',
+    interestedInMerch: false,
+    merchSelections: {
+      1: { selected: false, color: 'Negro', size: 'Única', quantity: 1 },
+      2: { selected: false, color: 'Negro', size: 'M', quantity: 1 },
+      3: { selected: false, color: 'Negro', size: 'L', quantity: 1 }
+    }
   });
 
   const [isRegistered, setIsRegistered] = useState(false);
@@ -98,7 +255,8 @@ const Registration = () => {
   // Generar QR real cuando se obtiene el ticketCode
   useEffect(() => {
     if (ticketCode) {
-      QRCode.toDataURL(ticketCode, {
+      const validationUrl = `${window.location.origin}/ticket/${ticketCode}`;
+      QRCode.toDataURL(validationUrl, {
         width: 200,
         margin: 1,
         color: {
@@ -153,7 +311,50 @@ const Registration = () => {
   const handleChange = (e) => {
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value
+      [e.target.name]: e.target.type === 'checkbox' ? e.target.checked : e.target.value
+    });
+  };
+
+  const handleMerchSelectionToggle = (productId) => {
+    setFormData(prev => ({
+      ...prev,
+      merchSelections: {
+        ...prev.merchSelections,
+        [productId]: {
+          ...prev.merchSelections[productId],
+          selected: !prev.merchSelections[productId].selected
+        }
+      }
+    }));
+  };
+
+  const handleMerchOptionChange = (productId, optionName, value) => {
+    setFormData(prev => ({
+      ...prev,
+      merchSelections: {
+        ...prev.merchSelections,
+        [productId]: {
+          ...prev.merchSelections[productId],
+          [optionName]: value
+        }
+      }
+    }));
+  };
+
+  const handleMerchQuantityChange = (productId, delta) => {
+    setFormData(prev => {
+      const currentQty = prev.merchSelections[productId].quantity;
+      const newQty = Math.max(1, currentQty + delta);
+      return {
+        ...prev,
+        merchSelections: {
+          ...prev.merchSelections,
+          [productId]: {
+            ...prev.merchSelections[productId],
+            quantity: newQty
+          }
+        }
+      };
     });
   };
 
@@ -165,6 +366,20 @@ const Registration = () => {
     const randomCode = Math.floor(1000 + Math.random() * 9000);
     const generatedCode = `121-ICC-${randomCode}`;
     const sheetUrl = import.meta.env.VITE_SHEETS_API_URL;
+
+    // Calcular merch seleccionada
+    const selectedItems = [];
+    let merchTotal = 0;
+    if (formData.interestedInMerch) {
+      PRODUCTS.forEach(p => {
+        const sel = formData.merchSelections[p.id];
+        if (sel.selected) {
+          selectedItems.push(`${sel.quantity}x ${p.name} - ${sel.color} (Talla: ${sel.size})`);
+          merchTotal += p.price * sel.quantity;
+        }
+      });
+    }
+    const merchItems = selectedItems.join(', ') || 'Ninguno';
 
     // Si la URL de la API no está configurada, simulamos localmente para desarrollo
     if (!sheetUrl || sheetUrl.trim() === '') {
@@ -192,8 +407,10 @@ const Registration = () => {
           phone: formData.phone,
           church: formData.church || 'Iglesia de Convertidos a Cristo',
           ageGroup: formData.ageGroup,
-          participateTalleres: 'No',
-          ticketCode: generatedCode
+          ticketCode: generatedCode,
+          interestedInMerch: formData.interestedInMerch ? 'Sí' : 'No',
+          merchItems,
+          merchTotal
         })
       });
 
@@ -220,7 +437,13 @@ const Registration = () => {
       email: '',
       phone: '',
       church: '',
-      ageGroup: '18-25'
+      ageGroup: '18-25',
+      interestedInMerch: false,
+      merchSelections: {
+        1: { selected: false, color: 'Negro', size: 'Única', quantity: 1 },
+        2: { selected: false, color: 'Negro', size: 'M', quantity: 1 },
+        3: { selected: false, color: 'Negro', size: 'L', quantity: 1 }
+      }
     });
     setSelectedChurch('');
     setCustomChurch('');
@@ -423,6 +646,137 @@ const Registration = () => {
                   </select>
                 </div>
 
+                {/* Pregunta sobre Mercancía con diseño premium */}
+                <div className="form-group merch-checkbox-group">
+                  <label className="checkbox-container">
+                    <input
+                      type="checkbox"
+                      name="interestedInMerch"
+                      checked={formData.interestedInMerch}
+                      onChange={handleChange}
+                    />
+                    <span className="checkbox-checkmark"></span>
+                    <span className="checkbox-label-text">¿Te interesa adquirir mercancía oficial de la conferencia?</span>
+                  </label>
+                </div>
+
+                {/* Galería Visual de Mercancía */}
+                {formData.interestedInMerch && (
+                  <div className="registration-merch-selection animate-fade-in">
+                    <span className="merch-section-title">Selecciona tus artículos (Reserva con el 50%):</span>
+                    
+                    <MerchPaymentInstructions />
+                    
+                    <div className="registration-products-list">
+                      {PRODUCTS.map(product => {
+                        const sel = formData.merchSelections[product.id];
+                        return (
+                          <div key={product.id} className={`reg-product-card glass-panel ${sel.selected ? 'selected' : ''}`}>
+                            <div className="reg-product-main" onClick={() => handleMerchSelectionToggle(product.id)}>
+                              <div className="reg-checkbox">
+                                <div className={`custom-chk ${sel.selected ? 'checked' : ''}`}>
+                                  {sel.selected && <Check size={14} />}
+                                </div>
+                              </div>
+                              
+                              <img src={product.images[sel.color] || product.images["Negro"]} alt={product.name} className="reg-product-img" />
+                              
+                              <div className="reg-product-info">
+                                <span className="reg-product-name">{product.name}</span>
+                                <span className="reg-product-price">RD$ {product.price.toLocaleString()}</span>
+                              </div>
+                            </div>
+
+                            {sel.selected && (
+                              <div className="reg-product-options animate-fade-in">
+                                {/* Color selector */}
+                                <div className="reg-option-group">
+                                  <label>Color:</label>
+                                  <div className="reg-color-options">
+                                    {product.colors.map(col => (
+                                      <button
+                                        type="button"
+                                        key={col}
+                                        className={`reg-color-dot ${col === sel.color ? 'active' : ''}`}
+                                        style={{
+                                          backgroundColor: col === 'Negro' ? '#121212' : 
+                                                          col === 'Blanco Roto' ? '#f5f5f5' : 
+                                                          col === 'Gris Carbón' || col === 'Gris' ? '#555555' : '#888888',
+                                          border: col === 'Blanco Roto' ? '1px solid #777' : '1px solid rgba(255,255,255,0.2)'
+                                        }}
+                                        onClick={() => handleMerchOptionChange(product.id, 'color', col)}
+                                        title={col}
+                                      >
+                                        {col === sel.color && <Check size={10} color={col === 'Blanco Roto' ? '#000000' : '#ffffff'} />}
+                                      </button>
+                                    ))}
+                                  </div>
+                                </div>
+
+                                {/* Size selector */}
+                                {product.sizes.length > 1 && (
+                                  <div className="reg-option-group">
+                                    <label>Talla:</label>
+                                    <div className="reg-size-options">
+                                      {product.sizes.map(sz => (
+                                        <button
+                                          type="button"
+                                          key={sz}
+                                          className={`reg-size-chip ${sz === sel.size ? 'active' : ''}`}
+                                          onClick={() => handleMerchOptionChange(product.id, 'size', sz)}
+                                        >
+                                          {sz}
+                                        </button>
+                                      ))}
+                                    </div>
+                                  </div>
+                                )}
+
+                                {/* Quantity selector */}
+                                <div className="reg-option-group qty-row">
+                                  <label>Cantidad:</label>
+                                  <div className="reg-qty-selector">
+                                    <button 
+                                      type="button"
+                                      className="reg-qty-btn"
+                                      onClick={() => handleMerchQuantityChange(product.id, -1)}
+                                    >
+                                      <Minus size={12} />
+                                    </button>
+                                    <span>{sel.quantity}</span>
+                                    <button 
+                                      type="button"
+                                      className="reg-qty-btn"
+                                      onClick={() => handleMerchQuantityChange(product.id, 1)}
+                                    >
+                                      <Plus size={12} />
+                                    </button>
+                                  </div>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+
+                    {/* Summary badge */}
+                    {(() => {
+                      let total = 0;
+                      PRODUCTS.forEach(p => {
+                        const sel = formData.merchSelections[p.id];
+                        if (sel.selected) total += p.price * sel.quantity;
+                      });
+                      return total > 0 ? (
+                        <div className="reg-merch-summary">
+                          <span>Subtotal mercancía:</span>
+                          <strong>RD$ {total.toLocaleString()}</strong>
+                        </div>
+                      ) : null;
+                    })()}
+                  </div>
+                )}
+
                 <button type="submit" className="submit-btn" disabled={isSubmitting}>
                   {isSubmitting ? 'Registrando...' : 'Completar Registro Gratis'}
                 </button>
@@ -446,7 +800,7 @@ const Registration = () => {
             <div className="success-header">
               <CheckCircle size={64} style={{ color: '#10b981', margin: '0 auto 1rem auto' }} />
               <h2>¡Registro Exitoso!</h2>
-              <p>Tu boleto de entrada gratuito ha sido generado. Por favor, tómale una captura o imprímelo para presentarlo en la entrada.</p>
+              <p>Tu boleto de entrada gratuito ha sido generado. Por favor, tómale una captura o imprímelo para presentarlo en la entrada. También te hemos enviado una copia a tu correo (si no lo recibes, revisa la carpeta de Spam).</p>
             </div>
 
             {/* Virtual Ticket Card */}
@@ -497,6 +851,69 @@ const Registration = () => {
                     <span className="ticket-info-value">{formData.church || 'Iglesia de Convertidos a Cristo'}</span>
                   </div>
                 </div>
+
+                {/* Visualizing reserved merch inside the ticket if present */}
+                {formData.interestedInMerch && (() => {
+                  const selectedItems = [];
+                  let merchTotal = 0;
+                  PRODUCTS.forEach(p => {
+                    const sel = formData.merchSelections[p.id];
+                    if (sel.selected) {
+                      selectedItems.push(`${sel.quantity}x ${p.name} (${sel.color}${sel.size !== 'Única' ? `, Talla: ${sel.size}` : ''})`);
+                      merchTotal += p.price * sel.quantity;
+                    }
+                  });
+                  return selectedItems.length > 0 ? (
+                    <div className="ticket-merch-summary-box">
+                      <div className="ticket-merch-title-row">
+                        <ShoppingBag size={14} style={{ color: 'var(--text-primary)' }} />
+                        <span>Mercancía Reservada (Abono del 50% Requerido)</span>
+                      </div>
+                      <div className="ticket-merch-items-text">
+                        {selectedItems.map((item, idx) => (
+                          <span key={idx} className="ticket-merch-item-chip">{item}</span>
+                        ))}
+                      </div>
+                      <div className="ticket-merch-total-row">
+                        <span>Abono requerido (50%):</span>
+                        <strong>RD$ {(merchTotal / 2).toLocaleString()}</strong>
+                      </div>
+                      <div className="ticket-merch-total-row" style={{ borderTop: 'none', paddingTop: 0 }}>
+                        <span>Total de venta:</span>
+                        <strong>RD$ {merchTotal.toLocaleString()}</strong>
+                      </div>
+                      <div className="ticket-merch-note" style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.6rem', borderTop: '1px dashed rgba(255,255,255,0.06)', paddingTop: '0.6rem', lineHeight: '1.4' }}>
+                        <div style={{ marginBottom: '0.4rem', color: 'var(--text-secondary)' }}>
+                          <strong>📌 Confirmación de Reserva (Abono 50%):</strong>
+                        </div>
+                        <div>1. Realiza el depósito/transferencia del 50% a cualquiera de las cuentas indicadas.</div>
+                        <div style={{ margin: '0.2rem 0' }}>
+                          2. En el concepto de tu banco, indica la siguiente estructura para asociarlo fácilmente:
+                          <div style={{ background: 'rgba(255,255,255,0.04)', padding: '0.3rem 0.5rem', borderRadius: '4px', margin: '0.25rem 0', fontFamily: 'monospace', color: 'white', display: 'block', width: 'fit-content' }}>
+                            {ticketCode} - {formData.firstName} {formData.lastName}
+                          </div>
+                        </div>
+                        <div style={{ color: '#fbd590', marginBottom: '0.4rem' }}>
+                          * El pago restante (50%) debe completarse antes del <strong>5 de Agosto</strong>.
+                        </div>
+
+                        {/* Botón idéntico al del registro para enviar comprobante */}
+                        <a 
+                          href={`https://wa.me/18498838466?text=${encodeURIComponent(
+                            `*COMPROBANTE DE ABONO - REGISTRO CONFERENCIA*\n\n*Asistente:* ${formData.firstName} ${formData.lastName}\n*Código de Boleto:* ${ticketCode}\n\nAdjunto el comprobante del depósito del 50% para confirmar la reserva de mi mercancía.`
+                          )}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="merch-payment-footer-note wa-link"
+                          style={{ textDecoration: 'none', display: 'flex', marginTop: '0.6rem', padding: '0.6rem 0.8rem' }}
+                        >
+                          <Phone size={14} style={{ color: 'var(--accent-light)' }} />
+                          <span>Envía el comprobante por WhatsApp al <strong>849-883-8466</strong> (Haz clic para chatear).</span>
+                        </a>
+                      </div>
+                    </div>
+                  ) : null;
+                })()}
               </div>
 
               <div className="ticket-bottom">

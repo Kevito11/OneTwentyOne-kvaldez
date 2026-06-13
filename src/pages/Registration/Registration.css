@@ -839,3 +839,402 @@
   to { transform: scale(1); opacity: 1; }
 }
 
+/* ==========================================================================
+   Merchandise Selection in Registration Form Styles
+   ========================================================================== */
+
+.merch-checkbox-group {
+  margin: 1.5rem 0 0.5rem 0;
+  display: flex;
+  align-items: center;
+}
+
+.checkbox-container {
+  display: flex;
+  align-items: center;
+  position: relative;
+  cursor: pointer;
+  font-size: 0.95rem !important;
+  color: var(--text-primary) !important;
+  user-select: none;
+  gap: 0.8rem;
+}
+
+.checkbox-container input {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+  height: 0;
+  width: 0;
+}
+
+.checkbox-checkmark {
+  width: 22px;
+  height: 22px;
+  background-color: rgba(255, 255, 255, 0.04);
+  border: 1.5px solid var(--glass-border);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.checkbox-container:hover input ~ .checkbox-checkmark {
+  border-color: rgba(255, 255, 255, 0.4);
+  background-color: rgba(255, 255, 255, 0.08);
+}
+
+.checkbox-container input:checked ~ .checkbox-checkmark {
+  background-color: var(--text-primary);
+  border-color: var(--text-primary);
+}
+
+.checkbox-checkmark::after {
+  content: "";
+  display: none;
+  width: 5px;
+  height: 10px;
+  border: solid var(--bg-primary);
+  border-width: 0 2.5px 2.5px 0;
+  transform: rotate(45deg);
+  margin-bottom: 2px;
+}
+
+.checkbox-container input:checked ~ .checkbox-checkmark::after {
+  display: block;
+}
+
+.checkbox-label-text {
+  font-weight: 600 !important;
+  line-height: 1.4;
+}
+
+/* Merch Selection Box Container */
+.registration-merch-selection {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px dashed var(--glass-border);
+  border-radius: 18px;
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+.merch-section-title {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.registration-products-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.reg-product-card {
+  border-radius: 16px;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1px solid var(--glass-border);
+}
+
+.reg-product-card.selected {
+  border-color: rgba(255, 255, 255, 0.25);
+  box-shadow: 0 0 15px rgba(255, 255, 255, 0.03);
+}
+
+.reg-product-main {
+  display: flex;
+  align-items: center;
+  padding: 1rem;
+  cursor: pointer;
+  gap: 1rem;
+  user-select: none;
+}
+
+.reg-checkbox {
+  flex-shrink: 0;
+}
+
+.custom-chk {
+  width: 20px;
+  height: 20px;
+  border-radius: 5px;
+  border: 1.5px solid var(--glass-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.25s ease;
+  background: rgba(255,255,255,0.02);
+}
+
+.custom-chk.checked {
+  background: var(--text-primary);
+  border-color: var(--text-primary);
+  color: var(--bg-primary);
+}
+
+.reg-product-img {
+  width: 50px;
+  height: 50px;
+  object-fit: cover;
+  border-radius: 8px;
+  background: #080808;
+  border: 1px solid var(--border-color);
+  flex-shrink: 0;
+}
+
+.reg-product-info {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+.reg-product-name {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.reg-product-price {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+
+/* Product Options Panel (Slide down when selected) */
+.reg-product-options {
+  padding: 1.2rem;
+  background: rgba(0, 0, 0, 0.25);
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.reg-option-group {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.reg-option-group label {
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  width: 70px;
+  margin-bottom: 0;
+}
+
+.reg-color-options {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.reg-color-dot {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s ease;
+  outline: none;
+}
+
+.reg-color-dot:hover {
+  transform: scale(1.1);
+}
+
+.reg-color-dot.active {
+  box-shadow: 0 0 0 2.5px var(--text-primary);
+}
+
+.reg-size-options {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.reg-size-chip {
+  background: transparent;
+  border: 1px solid var(--glass-border);
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+  font-weight: 700;
+  padding: 0.3rem 0.6rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 32px;
+}
+
+.reg-size-chip:hover {
+  border-color: rgba(255,255,255,0.3);
+  color: var(--text-primary);
+}
+
+.reg-size-chip.active {
+  background: var(--text-primary);
+  border-color: var(--text-primary);
+  color: var(--bg-primary);
+}
+
+/* Quantity selector inside options */
+.qty-row {
+  justify-content: space-between;
+}
+
+.reg-qty-selector {
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--glass-border);
+  border-radius: 10px;
+  padding: 0.2rem;
+  background: rgba(0, 0, 0, 0.4);
+}
+
+.reg-qty-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.reg-qty-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text-primary);
+}
+
+.reg-qty-selector span {
+  font-size: 0.9rem;
+  font-weight: 700;
+  width: 26px;
+  text-align: center;
+  color: var(--text-primary);
+}
+
+/* Subtotal Summary */
+.reg-merch-summary {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 1rem;
+  border-top: 1px solid var(--glass-border);
+  margin-top: 0.5rem;
+}
+
+.reg-merch-summary span {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+
+.reg-merch-summary strong {
+  font-size: 1.15rem;
+  color: var(--text-primary);
+  font-weight: 800;
+}
+
+/* ==========================================================================
+   Ticket Merchandise Reservation Box Styles
+   ========================================================================== */
+
+.ticket-merch-summary-box {
+  margin-top: 1.8rem;
+  padding: 1.2rem;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.ticket-merch-title-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-weight: 700;
+}
+
+.ticket-merch-items-text {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.ticket-merch-item-chip {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  padding: 0.35rem 0.75rem;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.ticket-merch-total-row {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  border-top: 1px dashed rgba(255, 255, 255, 0.06);
+  padding-top: 0.6rem;
+  margin-top: 0.2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.ticket-merch-total-row strong {
+  font-size: 1.05rem;
+  color: var(--text-primary);
+  font-weight: 800;
+}
+
+/* Print Overrides for Merchandise Summary Box */
+@media print {
+  .ticket-merch-summary-box {
+    background: transparent !important;
+    border: 1px solid #000000 !important;
+    margin-top: 1.2rem !important;
+    padding: 0.8rem !important;
+  }
+  
+  .ticket-merch-item-chip {
+    background: transparent !important;
+    border: 1px solid #555555 !important;
+    color: #000000 !important;
+  }
+  
+  .ticket-merch-total-row {
+    border-top: 1px dashed #555555 !important;
+    color: #000000 !important;
+  }
+  
+  .ticket-merch-total-row strong {
+    color: #000000 !important;
+  }
+
+  .ticket-merch-title-row {
+    color: #555555 !important;
+  }
+}
+
+

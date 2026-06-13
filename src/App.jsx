@@ -7,6 +7,8 @@ import Home from './pages/Home/Home';
 import Registration from './pages/Registration/Registration';
 import Activities from './pages/Activities/Activities';
 import About from './pages/About/About';
+import Merch from './pages/Merch/Merch';
+import TicketVerification from './pages/TicketVerification/TicketVerification';
 
 function App() {
   return (
@@ -19,6 +21,8 @@ function App() {
             <Route path="/actividades" element={<Activities />} />
             <Route path="/registro" element={<Registration />} />
             <Route path="/nosotros" element={<About />} />
+            <Route path="/merch" element={<Merch />} />
+            <Route path="/ticket/:code" element={<TicketVerification />} />
           </Routes>
         </main>
         <Footer />
