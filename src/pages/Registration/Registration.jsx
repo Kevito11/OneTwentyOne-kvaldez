@@ -660,120 +660,14 @@ const Registration = () => {
                   </label>
                 </div>
 
-                {/* Galería Visual de Mercancía */}
+                {/* Galería Visual de Mercancía -> Reemplazado por Próximamente */}
                 {formData.interestedInMerch && (
-                  <div className="registration-merch-selection animate-fade-in">
-                    <span className="merch-section-title">Selecciona tus artículos (Reserva con el 50%):</span>
-                    
-                    <MerchPaymentInstructions />
-                    
-                    <div className="registration-products-list">
-                      {PRODUCTS.map(product => {
-                        const sel = formData.merchSelections[product.id];
-                        return (
-                          <div key={product.id} className={`reg-product-card glass-panel ${sel.selected ? 'selected' : ''}`}>
-                            <div className="reg-product-main" onClick={() => handleMerchSelectionToggle(product.id)}>
-                              <div className="reg-checkbox">
-                                <div className={`custom-chk ${sel.selected ? 'checked' : ''}`}>
-                                  {sel.selected && <Check size={14} />}
-                                </div>
-                              </div>
-                              
-                              <img src={product.images[sel.color] || product.images["Negro"]} alt={product.name} className="reg-product-img" />
-                              
-                              <div className="reg-product-info">
-                                <span className="reg-product-name">{product.name}</span>
-                                <span className="reg-product-price">RD$ {product.price.toLocaleString()}</span>
-                              </div>
-                            </div>
-
-                            {sel.selected && (
-                              <div className="reg-product-options animate-fade-in">
-                                {/* Color selector */}
-                                <div className="reg-option-group">
-                                  <label>Color:</label>
-                                  <div className="reg-color-options">
-                                    {product.colors.map(col => (
-                                      <button
-                                        type="button"
-                                        key={col}
-                                        className={`reg-color-dot ${col === sel.color ? 'active' : ''}`}
-                                        style={{
-                                          backgroundColor: col === 'Negro' ? '#121212' : 
-                                                          col === 'Blanco Roto' ? '#f5f5f5' : 
-                                                          col === 'Gris Carbón' || col === 'Gris' ? '#555555' : '#888888',
-                                          border: col === 'Blanco Roto' ? '1px solid #777' : '1px solid rgba(255,255,255,0.2)'
-                                        }}
-                                        onClick={() => handleMerchOptionChange(product.id, 'color', col)}
-                                        title={col}
-                                      >
-                                        {col === sel.color && <Check size={10} color={col === 'Blanco Roto' ? '#000000' : '#ffffff'} />}
-                                      </button>
-                                    ))}
-                                  </div>
-                                </div>
-
-                                {/* Size selector */}
-                                {product.sizes.length > 1 && (
-                                  <div className="reg-option-group">
-                                    <label>Talla:</label>
-                                    <div className="reg-size-options">
-                                      {product.sizes.map(sz => (
-                                        <button
-                                          type="button"
-                                          key={sz}
-                                          className={`reg-size-chip ${sz === sel.size ? 'active' : ''}`}
-                                          onClick={() => handleMerchOptionChange(product.id, 'size', sz)}
-                                        >
-                                          {sz}
-                                        </button>
-                                      ))}
-                                    </div>
-                                  </div>
-                                )}
-
-                                {/* Quantity selector */}
-                                <div className="reg-option-group qty-row">
-                                  <label>Cantidad:</label>
-                                  <div className="reg-qty-selector">
-                                    <button 
-                                      type="button"
-                                      className="reg-qty-btn"
-                                      onClick={() => handleMerchQuantityChange(product.id, -1)}
-                                    >
-                                      <Minus size={12} />
-                                    </button>
-                                    <span>{sel.quantity}</span>
-                                    <button 
-                                      type="button"
-                                      className="reg-qty-btn"
-                                      onClick={() => handleMerchQuantityChange(product.id, 1)}
-                                    >
-                                      <Plus size={12} />
-                                    </button>
-                                  </div>
-                                </div>
-                              </div>
-                            )}
-                          </div>
-                        );
-                      })}
-                    </div>
-
-                    {/* Summary badge */}
-                    {(() => {
-                      let total = 0;
-                      PRODUCTS.forEach(p => {
-                        const sel = formData.merchSelections[p.id];
-                        if (sel.selected) total += p.price * sel.quantity;
-                      });
-                      return total > 0 ? (
-                        <div className="reg-merch-summary">
-                          <span>Subtotal mercancía:</span>
-                          <strong>RD$ {total.toLocaleString()}</strong>
-                        </div>
-                      ) : null;
-                    })()}
+                  <div className="registration-merch-selection animate-fade-in" style={{ padding: '2rem 1.5rem', textAlign: 'center', background: 'rgba(255, 255, 255, 0.01)', borderRadius: '16px', border: '1px dashed rgba(255, 255, 255, 0.12)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.8rem', margin: '1.5rem 0' }}>
+                    <ShoppingBag size={40} style={{ color: 'var(--text-secondary)', opacity: 0.8 }} />
+                    <h3 style={{ fontSize: '1.1rem', fontWeight: '800', margin: 0, color: 'white' }}>Mercancía Oficial</h3>
+                    <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', lineHeight: '1.5', margin: 0, maxWidth: '380px' }}>
+                      <strong>¡Próximamente!</strong> Estamos preparando la colección oficial de artículos "Sin Filtros" 2026. Podrás verla y adquirirla muy pronto. Mantente atento.
+                    </p>
                   </div>
                 )}
 
