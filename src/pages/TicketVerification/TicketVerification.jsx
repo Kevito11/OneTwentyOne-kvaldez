@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { CheckCircle, XCircle, Calendar, MapPin, User, Phone, Home, ShoppingBag, Loader, ShieldCheck, AlertTriangle } from 'lucide-react';
+import { CheckCircle, XCircle, Calendar, MapPin, User, Phone, Home, ShoppingBag, Loader, ShieldCheck, AlertTriangle, Printer, RotateCcw } from 'lucide-react';
+import QRCode from 'qrcode';
 import './TicketVerification.css';
 
 const TicketVerification = () => {
@@ -8,6 +9,33 @@ const TicketVerification = () => {
   const [ticketData, setTicketData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [qrCodeUrl, setQrCodeUrl] = useState('');
+
+  const handlePrint = () => {
+    window.print();
+  };
+
+  useEffect(() => {
+    if (ticketData && ticketData.ticketCode) {
+      const validationUrl = `${window.location.origin}/ticket/${ticketData.ticketCode}`;
+      QRCode.toDataURL(validationUrl, {
+        width: 200,
+        margin: 1,
+        color: {
+          dark: '#000000',
+          light: '#ffffff'
+        }
+      })
+        .then(url => {
+          setQrCodeUrl(url);
+        })
+        .catch(err => {
+          console.error('Error generating QR code:', err);
+        });
+    } else {
+      setQrCodeUrl('');
+    }
+  }, [ticketData]);
 
   useEffect(() => {
     const fetchTicketData = async () => {
@@ -97,85 +125,163 @@ const TicketVerification = () => {
               </div>
             </div>
 
-            {/* Tarjeta de Entrada de Cristal */}
-            <div className="verification-ticket">
-              <div className="v-ticket-header">
-                <div>
-                  <span className="v-event-title">SIN FILTROS 2026</span>
-                  <span className="v-event-sub">Conferencia de Jóvenes ICC</span>
+            {/* Tarjeta de Entrada de Cristal (Idéntica a la de registro) */}
+            <div className="ticket-card animate-fade-in" style={{ textAlign: 'left' }}>
+              <div className="ticket-top">
+                <div className="ticket-header">
+                  <div className="ticket-event-info">
+                    <span className="ticket-event-label">Boleto de Entrada</span>
+                    <span className="ticket-event-name text-gradient">SIN FILTROS 2026</span>
+                    <span className="ticket-event-subtitle">Conferencia de Jóvenes ICC</span>
+                  </div>
+                  <div className="ticket-logo">
+                    <span className="t-logo-text">OneTwentyOne</span>
+                    <div className="t-logo-sub">I C C</div>
+                  </div>
                 </div>
-                <div className="v-ticket-logo">
-                  <span>121</span>
+
+                <div className="ticket-body-grid">
+                  <div className="ticket-info-item">
+                    <span className="ticket-info-label">Asistente</span>
+                    <span className="ticket-info-value">{ticketData.firstName} {ticketData.lastName}</span>
+                  </div>
+
+                  <div className="ticket-info-item">
+                    <span className="ticket-info-label">Código de Entrada</span>
+                    <span className="ticket-info-value" style={{ fontFamily: 'monospace', letterSpacing: '1px', color: 'var(--accent-light)' }}>
+                      {ticketData.ticketCode}
+                    </span>
+                  </div>
+
+                  <div className="ticket-info-item">
+                    <span className="ticket-info-label">Fecha del Evento</span>
+                    <span className="ticket-info-value">Sábado 29 Agosto, 2026</span>
+                  </div>
+
+                  <div className="ticket-info-item">
+                    <span className="ticket-info-label">Hora de Apertura</span>
+                    <span className="ticket-info-value">03:00 PM</span>
+                  </div>
+
+                  <div className="ticket-info-item">
+                    <span className="ticket-info-label">Costo</span>
+                    <span className="ticket-info-value free-badge">TOTALMENTE GRATIS</span>
+                  </div>
+
+                  <div className="ticket-info-item">
+                    <span className="ticket-info-label">Iglesia</span>
+                    <span className="ticket-info-value">{ticketData.church || 'Iglesia de Convertidos a Cristo'}</span>
+                  </div>
                 </div>
+
+                {/* Visualizing reserved merch inside the ticket if present */}
+                {ticketData.interestedInMerch === 'Sí' && ticketData.merchItems && ticketData.merchItems !== 'Ninguno' && (() => {
+                  const items = ticketData.merchItems.split(',').map(i => i.trim()).filter(Boolean);
+                  const merchTotal = Number(ticketData.merchTotal) || 0;
+                  return items.length > 0 ? (
+                    <div className="ticket-merch-summary-box">
+                      <div className="ticket-merch-title-row">
+                        <ShoppingBag size={14} style={{ color: 'var(--text-primary)' }} />
+                        <span>Mercancía Reservada (Abono del 50% Requerido)</span>
+                      </div>
+                      <div className="ticket-merch-items-text">
+                        {items.map((item, idx) => (
+                          <span key={idx} className="ticket-merch-item-chip">{item}</span>
+                        ))}
+                      </div>
+                      <div className="ticket-merch-total-row">
+                        <span>Abono requerido (50%):</span>
+                        <strong>RD$ {(merchTotal / 2).toLocaleString()}</strong>
+                      </div>
+                      <div className="ticket-merch-total-row" style={{ borderTop: 'none', paddingTop: 0 }}>
+                        <span>Total de venta:</span>
+                        <strong>RD$ {merchTotal.toLocaleString()}</strong>
+                      </div>
+                      <div className="ticket-merch-note" style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.6rem', borderTop: '1px dashed rgba(255,255,255,0.06)', paddingTop: '0.6rem', lineHeight: '1.4' }}>
+                        <div style={{ marginBottom: '0.4rem', color: 'var(--text-secondary)' }}>
+                          <strong>📌 Confirmación de Reserva (Abono 50%):</strong>
+                        </div>
+                        <div>1. Realiza el depósito/transferencia del 50% a cualquiera de las cuentas indicadas en la web.</div>
+                        <div style={{ margin: '0.2rem 0' }}>
+                          2. En el concepto de tu banco, indica la siguiente estructura para asociarlo fácilmente:
+                          <div style={{ background: 'rgba(255,255,255,0.04)', padding: '0.3rem 0.5rem', borderRadius: '4px', margin: '0.25rem 0', fontFamily: 'monospace', color: 'white', display: 'block', width: 'fit-content' }}>
+                            {ticketData.ticketCode} - {ticketData.firstName} {ticketData.lastName}
+                          </div>
+                        </div>
+                        <div style={{ color: '#fbd590', marginBottom: '0.4rem' }}>
+                          * El pago restante (50%) debe completarse antes del <strong>5 de Agosto</strong>.
+                        </div>
+
+                        {/* Botón para enviar comprobante */}
+                        <a 
+                          href={`https://wa.me/18498838466?text=${encodeURIComponent(
+                            `*COMPROBANTE DE ABONO - REGISTRO CONFERENCIA*\n\n*Asistente:* ${ticketData.firstName} ${ticketData.lastName}\n*Código de Boleto:* ${ticketData.ticketCode}\n\nAdjunto el comprobante del depósito del 50% para confirmar la reserva de mi mercancía.`
+                          )}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="merch-payment-footer-note wa-link"
+                          style={{ textDecoration: 'none', display: 'flex', marginTop: '0.6rem', padding: '0.6rem 0.8rem' }}
+                        >
+                          <Phone size={14} style={{ color: 'var(--accent-light)' }} />
+                          <span>Envía el comprobante por WhatsApp al <strong>849-883-8466</strong> (Haz clic para chatear).</span>
+                        </a>
+                      </div>
+                    </div>
+                  ) : null;
+                })()}
               </div>
 
-              <div className="v-ticket-body">
-                <div className="v-field">
-                  <span className="v-label">Asistente</span>
-                  <span className="v-value">{ticketData.firstName} {ticketData.lastName}</span>
+              <div className="ticket-bottom">
+                <div className="ticket-info-item" style={{ maxWidth: '70%' }}>
+                  <span className="ticket-info-label">Ubicación / Lugar</span>
+                  <span className="ticket-info-value" style={{ fontSize: '0.9rem', fontWeight: '500' }}>
+                    Iglesia de Convertidos a Cristo (ICC)<br />
+                    C/ Dr. Núñez Domínguez #30, La Julia, Santo Domingo
+                  </span>
                 </div>
 
-                <div className="v-field">
-                  <span className="v-label">Código de Entrada</span>
-                  <span className="v-value monospace-code">{ticketData.ticketCode}</span>
-                </div>
-
-                <div className="v-grid-fields">
-                  <div className="v-field">
-                    <span className="v-label">Iglesia</span>
-                    <span className="v-value">{ticketData.church || 'Iglesia de Convertidos a Cristo'}</span>
-                  </div>
-                  <div className="v-field">
-                    <span className="v-label">Rango de Edad</span>
-                    <span className="v-value">{ticketData.ageGroup} años</span>
-                  </div>
-                </div>
-
-                <div className="v-grid-fields">
-                  <div className="v-field">
-                    <span className="v-label">Contacto</span>
-                    <span className="v-value">{ticketData.phone}</span>
-                  </div>
-                  <div className="v-field">
-                    <span className="v-label">Entrada</span>
-                    <span className="v-value free-badge">TOTALMENTE GRATIS</span>
-                  </div>
+                <div className="qr-code-box">
+                  {qrCodeUrl ? (
+                    <a
+                      href={`${window.location.origin}/ticket/${ticketData.ticketCode}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                    >
+                      <img
+                        src={qrCodeUrl}
+                        alt={`Código QR para entrada ${ticketData.ticketCode}`}
+                        style={{ width: '100%', height: '100%', objectFit: 'contain', cursor: 'pointer' }}
+                      />
+                    </a>
+                  ) : (
+                    <div style={{ width: '100%', height: '100%', background: '#fff' }}></div>
+                  )}
                 </div>
               </div>
             </div>
 
-            {/* Mercancía Reservada */}
-            {ticketData.interestedInMerch === 'Sí' && ticketData.merchItems && ticketData.merchItems !== 'Ninguno' && (
-              <div className="v-merch-box">
-                <div className="v-merch-header">
-                  <ShoppingBag size={18} />
-                  <h3>Mercancía Reservada</h3>
-                </div>
-                <div className="v-merch-details">
-                  <p className="v-merch-items">{ticketData.merchItems}</p>
-                  <div className="v-merch-divider"></div>
-                  <div className="v-merch-pricing">
-                    <div className="price-row">
-                      <span>Total de la Compra:</span>
-                      <strong>RD$ {Number(ticketData.merchTotal).toLocaleString()}</strong>
-                    </div>
-                    <div className="price-row highlight">
-                      <span>Abono Requerido (50%):</span>
-                      <strong>RD$ {(Number(ticketData.merchTotal) / 2).toLocaleString()}</strong>
-                    </div>
-                  </div>
-                  <div className="v-payment-alert">
-                    <AlertTriangle size={14} />
-                    <span>Confirmar que se haya enviado el comprobante de pago por WhatsApp.</span>
-                  </div>
-                </div>
-              </div>
-            )}
+            {/* Actions Bar */}
+            <div className="ticket-actions-bar" style={{ marginTop: '2rem', width: '100%' }}>
+              <button onClick={handlePrint} className="ticket-action-btn print">
+                <Printer size={18} />
+                Imprimir Boleto / PDF
+              </button>
 
-            {/* Botón de regreso */}
-            <div className="success-actions">
-              <Link to="/" className="action-btn-primary">
-                Listo, Volver al Inicio
+              <a
+                href="https://maps.app.goo.gl/jRX8PC4S3oVrPMQz6"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="ticket-action-btn nav"
+                style={{ textDecoration: 'none' }}
+              >
+                <MapPin size={18} style={{ color: 'var(--accent-color)' }} />
+                Cómo llegar (Maps)
+              </a>
+
+              <Link to="/" className="ticket-action-btn nav" style={{ textDecoration: 'none' }}>
+                <RotateCcw size={18} />
+                Volver al Inicio
               </Link>
             </div>
 

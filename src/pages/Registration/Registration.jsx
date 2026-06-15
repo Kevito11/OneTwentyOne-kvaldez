@@ -410,7 +410,12 @@ const Registration = () => {
           ticketCode: generatedCode,
           interestedInMerch: formData.interestedInMerch ? 'Sí' : 'No',
           merchItems,
-          merchTotal
+          merchTotal,
+          ticketUrl: `${window.location.origin}/ticket/${generatedCode}`,
+          ticketLink: `${window.location.origin}/ticket/${generatedCode}`,
+          validationUrl: `${window.location.origin}/ticket/${generatedCode}`,
+          qrUrl: `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(`${window.location.origin}/ticket/${generatedCode}`)}`,
+          qrCodeUrl: `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(`${window.location.origin}/ticket/${generatedCode}`)}`
         })
       });
 
@@ -821,11 +826,18 @@ const Registration = () => {
 
                 <div className="qr-code-box">
                   {qrCodeUrl ? (
-                    <img
-                      src={qrCodeUrl}
-                      alt={`Código QR para entrada ${ticketCode}`}
-                      style={{ width: '100%', height: '100%', objectFit: 'contain' }}
-                    />
+                    <a
+                      href={`${window.location.origin}/ticket/${ticketCode}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                    >
+                      <img
+                        src={qrCodeUrl}
+                        alt={`Código QR para entrada ${ticketCode}`}
+                        style={{ width: '100%', height: '100%', objectFit: 'contain', cursor: 'pointer' }}
+                      />
+                    </a>
                   ) : (
                     <MockQRCode />
                   )}
