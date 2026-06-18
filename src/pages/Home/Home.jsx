@@ -229,7 +229,7 @@ const Home = () => {
                 <Star size={16} /> Ministerio de Jóvenes ICC
               </span>
               <h1 className="hero-title">
-                OneTwentyOne <br />
+                Jóvenes ICC <br />
                 <span className="text-gradient">Vivir es Cristo</span>
               </h1>
               <p className="hero-description">
@@ -418,7 +418,7 @@ const Home = () => {
                       rel="noopener noreferrer" 
                       className="instagram-avatar"
                     >
-                      <img src={getImageUrl("/logo-121.png")} alt="121 Logo" className="instagram-avatar-img" />
+                      <img src={getImageUrl("/logo-121.png")} alt="Logo de Jóvenes ICC" className="instagram-avatar-img" />
                     </a>
                     <div className="instagram-meta">
                       <a 

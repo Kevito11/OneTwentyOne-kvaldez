@@ -31,8 +31,8 @@ const Footer = () => {
           
           <div className="footer-col">
             <div className="footer-logo">
-              <span className="logo-text text-gradient">OneTwentyone</span>
-              <span className="logo-subtext">Ministerio de Jóvenes ICC</span>
+              <span className="logo-text text-gradient">Jóvenes</span>
+              <span className="logo-subtext">Ministerio ICC</span>
             </div>
             <p className="footer-description">
               Nuestro anhelo: generaciones con una profunda relación con el Padre, viviendo el propósito de Dios para sus vidas.
@@ -101,7 +101,7 @@ const Footer = () => {
         </div>
         
         <div className="footer-bottom">
-          <p>&copy; {new Date().getFullYear()} OneTwentyOne | Iglesia de Convertidos a Cristo. Todos los derechos reservados.</p>
+          <p>&copy; {new Date().getFullYear()} Ministerio de Jóvenes ICC | Iglesia de Convertidos a Cristo. Todos los derechos reservados.</p>
         </div>
       </div>
     </footer>

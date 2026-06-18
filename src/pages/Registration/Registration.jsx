@@ -712,7 +712,7 @@ const Registration = () => {
                     <span className="ticket-event-subtitle">Conferencia de Jóvenes ICC</span>
                   </div>
                   <div className="ticket-logo">
-                    <span className="t-logo-text">OneTwentyOne</span>
+                    <span className="t-logo-text">Jóvenes</span>
                     <div className="t-logo-sub">I C C</div>
                   </div>
                 </div>

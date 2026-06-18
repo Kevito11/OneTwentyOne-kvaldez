@@ -31,10 +31,13 @@ const About = () => {
         {/* Intro Section */}
         <section className="about-intro text-center">
           <span className="subtitle">Nuestra Identidad</span>
-          <h1 className="title">OneTwenty<span className="text-gradient">One</span></h1>
+          <h1 className="title">Jóvenes <span className="text-gradient">ICC</span></h1>
           <p className="description">
             Somos el ministerio de jóvenes de la <strong>Iglesia de Convertidos a Cristo (ICC)</strong>. 
-            Nuestro nombre está inspirado en <strong>Filipenses 1:21</strong>: <br />
+            Integramos dos grupos enfocados en diferentes etapas de la juventud: 
+            <strong> Jóvenes Para Cristo (JPC)</strong> para adolescentes y 
+            <strong> Siervos Para Cristo (OneTwentyOne)</strong> para jóvenes adultos.
+            Ambos compartimos el anhelo de vivir bajo el lema inspirado en <strong>Filipenses 1:21</strong>: <br />
             <span style={{ color: 'var(--accent-light)', fontStyle: 'italic', display: 'block', marginTop: '1rem', fontSize: '1.4rem', fontWeight: '600' }}>
               "Porque para mí el vivir es Cristo, y el morir es ganancia."
             </span>
@@ -75,7 +78,7 @@ const About = () => {
               Tras la partida del amado pastor Mallén a la presencia del Señor en junio de 2021, la iglesia continúa fielmente administrada por un fiel cuerpo de pastores y diáconos, manteniendo con celo e integridad su compromiso con la **sana doctrina, la predicación expositiva** y la edificación del cuerpo de Cristo.
             </p>
             <p className="highlight-text">
-              Como ministerio "OneTwentyOne" o "Siervos Para Cristo", nuestro firme anhelo es caminar bajo la misma herencia de fidelidad, sirviendo a nuestro Dios bajo la cobertura e instrucción de nuestra amada iglesia local.
+              Como Ministerio de Jóvenes ICC, que reúne a los grupos "JPC" (Jóvenes Para Cristo) y "OneTwentyOne" (Siervos Para Cristo), nuestro firme anhelo es caminar bajo la misma herencia de fidelidad, sirviendo a nuestro Dios bajo la cobertura e instrucción de nuestra amada iglesia local.
             </p>
             <div style={{ display: 'flex', justifyContent: 'center', gap: '1.2rem', marginTop: '2.5rem', flexWrap: 'wrap' }}>
               <a 
