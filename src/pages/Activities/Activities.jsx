@@ -1,10 +1,63 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Calendar, Clock, MapPin, ExternalLink, X } from 'lucide-react';
 import { getImageUrl } from '../../config/images';
 import './Activities.css';
 
 const Activities = () => {
   const [selectedActivity, setSelectedActivity] = useState(null);
+
+  // Countdown Logic (Target: August 29 - Youth Conference)
+  const [timeLeft, setTimeLeft] = useState({
+    days: 0,
+    hours: 0,
+    minutes: 0,
+    seconds: 0,
+    isExpired: false
+  });
+
+  useEffect(() => {
+    const currentYear = new Date().getFullYear();
+    let targetDate = new Date(currentYear, 7, 29, 15, 0, 0, 0); // 29 de Agosto, 03:00 PM
+    
+    if (new Date() > targetDate) {
+      targetDate.setFullYear(targetDate.getFullYear() + 1);
+    }
+
+    const calculateTimeLeft = () => {
+      const now = new Date().getTime();
+      const distance = targetDate.getTime() - now;
+
+      if (distance < 0) {
+        setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0, isExpired: true });
+        return false;
+      }
+
+      setTimeLeft({
+        days: Math.floor(distance / (1000 * 60 * 60 * 24)),
+        hours: Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
+        minutes: Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60)),
+        seconds: Math.floor((distance % (1000 * 60)) / 1000),
+        isExpired: false
+      });
+      return true;
+    };
+
+    const isActive = calculateTimeLeft();
+
+    let interval;
+    if (isActive) {
+      interval = setInterval(() => {
+        const shouldContinue = calculateTimeLeft();
+        if (!shouldContinue) {
+          clearInterval(interval);
+        }
+      }, 1000);
+    }
+
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, []);
 
   const activities = [
     {
@@ -64,6 +117,35 @@ const Activities = () => {
               <div className="activity-tag">{activity.tag}</div>
               <h3 className="activity-title">{activity.title}</h3>
               <p className="activity-desc">{activity.description}</p>
+              
+              {activity.id === 0 && (
+                <div className="card-countdown-wrapper" style={{ margin: '1.5rem 0 2rem 0', background: 'rgba(255, 255, 255, 0.02)', padding: '1.2rem', borderRadius: '16px', border: '1px solid rgba(255, 255, 255, 0.08)' }}>
+                  <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: '700', marginBottom: '0.8rem', textAlign: 'center' }}>
+                    {timeLeft.isExpired ? "¡El evento ya ha comenzado!" : "Faltan para el Evento:"}
+                  </div>
+                  <div className="card-countdown-timer" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '1.2rem' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', minWidth: '50px' }}>
+                      <span className="text-gradient" style={{ fontSize: '1.8rem', fontWeight: '900', fontFamily: 'var(--font-heading)' }}>{timeLeft.days}</span>
+                      <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px', marginTop: '0.2rem' }}>Días</span>
+                    </div>
+                    <span style={{ fontSize: '1.5rem', fontWeight: '900', color: 'rgba(255, 255, 255, 0.2)', marginTop: '-0.8rem' }}>:</span>
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', minWidth: '50px' }}>
+                      <span className="text-gradient" style={{ fontSize: '1.8rem', fontWeight: '900', fontFamily: 'var(--font-heading)' }}>{timeLeft.hours.toString().padStart(2, '0')}</span>
+                      <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px', marginTop: '0.2rem' }}>Horas</span>
+                    </div>
+                    <span style={{ fontSize: '1.5rem', fontWeight: '900', color: 'rgba(255, 255, 255, 0.2)', marginTop: '-0.8rem' }}>:</span>
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', minWidth: '50px' }}>
+                      <span className="text-gradient" style={{ fontSize: '1.8rem', fontWeight: '900', fontFamily: 'var(--font-heading)' }}>{timeLeft.minutes.toString().padStart(2, '0')}</span>
+                      <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px', marginTop: '0.2rem' }}>Mins</span>
+                    </div>
+                    <span style={{ fontSize: '1.5rem', fontWeight: '900', color: 'rgba(255, 255, 255, 0.2)', marginTop: '-0.8rem' }}>:</span>
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', minWidth: '50px' }}>
+                      <span className="text-gradient" style={{ fontSize: '1.8rem', fontWeight: '900', fontFamily: 'var(--font-heading)' }}>{timeLeft.seconds.toString().padStart(2, '0')}</span>
+                      <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px', marginTop: '0.2rem' }}>Segs</span>
+                    </div>
+                  </div>
+                </div>
+              )}
               
               <div className="activity-details">
                 <div className="detail-item">
@@ -125,6 +207,35 @@ const Activities = () => {
                 <p style={{ fontSize: '1.1rem', lineHeight: '1.7', color: 'var(--text-secondary)', marginBottom: '2rem' }}>
                   {selectedActivity.description}
                 </p>
+                
+                {selectedActivity.id === 0 && (
+                  <div className="modal-countdown-wrapper" style={{ margin: '-0.5rem 0 2rem 0', background: 'rgba(255, 255, 255, 0.03)', padding: '1.5rem', borderRadius: '16px', border: '1px solid rgba(255, 255, 255, 0.08)', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                    <div style={{ fontSize: '0.85rem', color: 'var(--accent-light)', textTransform: 'uppercase', letterSpacing: '1.5px', fontWeight: '700', marginBottom: '1rem' }}>
+                      {timeLeft.isExpired ? "¡El evento ya ha comenzado!" : "Tiempo restante para la Conferencia:"}
+                    </div>
+                    <div style={{ display: 'flex', gap: '1.5rem', alignItems: 'center' }}>
+                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', minWidth: '70px' }}>
+                        <span className="text-gradient" style={{ fontSize: '2.5rem', fontWeight: '900', fontFamily: 'var(--font-heading)', lineHeight: '1' }}>{timeLeft.days}</span>
+                        <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '1px', marginTop: '0.4rem', fontWeight: '600' }}>Días</span>
+                      </div>
+                      <span style={{ fontSize: '2rem', fontWeight: '900', color: 'rgba(255, 255, 255, 0.25)', marginTop: '-1rem' }}>:</span>
+                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', minWidth: '70px' }}>
+                        <span className="text-gradient" style={{ fontSize: '2.5rem', fontWeight: '900', fontFamily: 'var(--font-heading)', lineHeight: '1' }}>{timeLeft.hours.toString().padStart(2, '0')}</span>
+                        <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '1px', marginTop: '0.4rem', fontWeight: '600' }}>Horas</span>
+                      </div>
+                      <span style={{ fontSize: '2rem', fontWeight: '900', color: 'rgba(255, 255, 255, 0.25)', marginTop: '-1rem' }}>:</span>
+                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', minWidth: '70px' }}>
+                        <span className="text-gradient" style={{ fontSize: '2.5rem', fontWeight: '900', fontFamily: 'var(--font-heading)', lineHeight: '1' }}>{timeLeft.minutes.toString().padStart(2, '0')}</span>
+                        <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '1px', marginTop: '0.4rem', fontWeight: '600' }}>Minutos</span>
+                      </div>
+                      <span style={{ fontSize: '2rem', fontWeight: '900', color: 'rgba(255, 255, 255, 0.25)', marginTop: '-1rem' }}>:</span>
+                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', minWidth: '70px' }}>
+                        <span className="text-gradient" style={{ fontSize: '2.5rem', fontWeight: '900', fontFamily: 'var(--font-heading)', lineHeight: '1' }}>{timeLeft.seconds.toString().padStart(2, '0')}</span>
+                        <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '1px', marginTop: '0.4rem', fontWeight: '600' }}>Segundos</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
                 
                 <div className="activity-details" style={{ borderTop: 'none', padding: 0, gap: '1.5rem', marginBottom: '2.5rem' }}>
                   <div className="detail-item" style={{ fontSize: '1.05rem' }}>
