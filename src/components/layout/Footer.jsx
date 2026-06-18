@@ -63,6 +63,9 @@ const Footer = () => {
               </a>
               
               <div style={{ display: 'flex', gap: '0.8rem', marginTop: '0.6rem' }}>
+                <a href="https://www.instagram.com/iccrd/" target="_blank" rel="noopener noreferrer" className="social-icon" title="Instagram ICC">
+                  <InstagramIcon size={18} />
+                </a>
                 <a href="https://www.facebook.com/convertidosacristo" target="_blank" rel="noopener noreferrer" className="social-icon" title="Facebook ICC">
                   <FacebookIcon size={18} />
                 </a>
