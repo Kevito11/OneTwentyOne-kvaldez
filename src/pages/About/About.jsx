@@ -75,7 +75,7 @@ const About = () => {
               La <strong>Iglesia de Convertidos a Cristo (ICC)</strong> fue fundada el domingo <strong>19 de septiembre de 1982</strong> por el pastor **Arq. José R. Mallén Malla**, quien por gracia de Dios dejó su profesión para dedicarse enteramente al pastoreo y la proclamación del Evangelio. Iniciando en la sala de su propio hogar, la obra creció por la gracia divina y en 1988 se estableció en su local actual en el sector La Julia, en Santo Domingo, República Dominicana.
             </p>
             <p>
-              Tras la partida del amado pastor Mallén a la presencia del Señor en junio de 2021, la iglesia continúa fielmente administrada por un fiel cuerpo de pastores y diáconos, manteniendo con celo e integridad su compromiso con la **sana doctrina, la predicación expositiva** y la edificación del cuerpo de Cristo.
+              Tras la partida del amado pastor Mallén a la presencia del Señor en junio de 2021, la iglesia continúa fielmente administrada por un fiel cuerpo de pastores y diáconos, manteniendo con celo e integridad su compromiso con la **sana doctrina, la predicación expositiva** y la edificación del cuerpo de Cristo. Todas las prédicas de los domingos se suben a nuestro canal oficial de YouTube para la edificación de la iglesia.
             </p>
             <p className="highlight-text">
               Como Ministerio de Jóvenes ICC, que reúne a los grupos "JPC" (Jóvenes Para Cristo) y "OneTwentyOne" (Siervos Para Cristo), nuestro firme anhelo es caminar bajo la misma herencia de fidelidad, sirviendo a nuestro Dios bajo la cobertura e instrucción de nuestra amada iglesia local.
@@ -90,6 +90,21 @@ const About = () => {
               >
                 Sitio Web Oficial de ICC
                 <ExternalLink size={16} />
+              </a>
+              <a 
+                href="https://www.youtube.com/@ICCRD" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="btn-secondary"
+                style={{ fontSize: '0.95rem', padding: '0.8rem 1.8rem', display: 'flex', alignItems: 'center', gap: '0.5rem', border: '1px solid rgba(239, 68, 68, 0.25)', background: 'rgba(239, 68, 68, 0.05)' }}
+              >
+                <span style={{ color: '#ef4444', display: 'flex', alignItems: 'center' }}>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33A2.78 2.78 0 0 0 3.4 19c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2 29 29 0 0 0 .46-5.25 29 29 0 0 0-.46-5.33z"/>
+                    <polygon points="9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02"/>
+                  </svg>
+                </span>
+                Prédicas en YouTube
               </a>
               <a 
                 href="https://maps.app.goo.gl/jRX8PC4S3oVrPMQz6" 
