@@ -401,6 +401,52 @@ const Home = () => {
           <div className="section-header">
             <h2>Nuestra <span className="text-gradient">Comunidad</span></h2>
             <p>Conoce de cerca la vida, comunión y servicio de los jóvenes de la ICC en Santo Domingo.</p>
+            <div style={{ display: 'flex', justifyContent: 'center', gap: '1.2rem', marginTop: '1.5rem', flexWrap: 'wrap' }}>
+              <a 
+                href="https://www.instagram.com/jovenes_icc/" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="btn-secondary-sm"
+                style={{ 
+                  display: 'inline-flex', 
+                  alignItems: 'center', 
+                  gap: '0.5rem', 
+                  textDecoration: 'none', 
+                  padding: '0.65rem 1.3rem', 
+                  borderRadius: '50px',
+                  fontSize: '0.85rem',
+                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                  background: 'rgba(255, 255, 255, 0.03)',
+                  color: 'var(--text-secondary)',
+                  cursor: 'pointer',
+                  fontWeight: '600'
+                }}
+              >
+                <span>Instagram JPC (12-17 años): <strong>@jovenes_icc</strong></span>
+              </a>
+              <a 
+                href="https://www.instagram.com/onetwentyoneicc/" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="btn-secondary-sm"
+                style={{ 
+                  display: 'inline-flex', 
+                  alignItems: 'center', 
+                  gap: '0.5rem', 
+                  textDecoration: 'none', 
+                  padding: '0.65rem 1.3rem', 
+                  borderRadius: '50px',
+                  fontSize: '0.85rem',
+                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                  background: 'rgba(255, 255, 255, 0.03)',
+                  color: 'var(--text-secondary)',
+                  cursor: 'pointer',
+                  fontWeight: '600'
+                }}
+              >
+                <span>Instagram OneTwentyOne (18+): <strong>@onetwentyoneicc</strong></span>
+              </a>
+            </div>
           </div>
 
           <div className="instagram-profile-layout">

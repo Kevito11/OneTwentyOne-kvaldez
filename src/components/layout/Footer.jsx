@@ -37,16 +37,39 @@ const Footer = () => {
             <p className="footer-description">
               Nuestro anhelo: generaciones con una profunda relación con el Padre, viviendo el propósito de Dios para sus vidas.
             </p>
-            <div className="social-links">
-              <a href="https://www.instagram.com/onetwentyoneicc/" target="_blank" rel="noopener noreferrer" className="social-icon">
-                <InstagramIcon size={20} />
+            <div className="social-links" style={{ flexDirection: 'column', gap: '0.8rem', alignItems: 'flex-start' }}>
+              <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '0.2rem' }}>
+                Instagram por Grupo:
+              </div>
+              <a 
+                href="https://www.instagram.com/jovenes_icc/" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="contact-link"
+                style={{ fontSize: '0.9rem', display: 'flex', alignItems: 'center' }}
+              >
+                <InstagramIcon size={18} className="contact-icon" />
+                <span>JPC (12-17 años): <strong style={{ color: 'var(--text-primary)' }}>@jovenes_icc</strong></span>
               </a>
-              <a href="https://www.facebook.com/convertidosacristo" target="_blank" rel="noopener noreferrer" className="social-icon">
-                <FacebookIcon size={20} />
+              <a 
+                href="https://www.instagram.com/onetwentyoneicc/" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="contact-link"
+                style={{ fontSize: '0.9rem', display: 'flex', alignItems: 'center' }}
+              >
+                <InstagramIcon size={18} className="contact-icon" style={{ color: 'var(--accent-blue)', filter: 'drop-shadow(0 0 5px rgba(6, 182, 212, 0.4))' }} />
+                <span>OneTwentyOne (18+): <strong style={{ color: 'var(--text-primary)' }}>@onetwentyoneicc</strong></span>
               </a>
-              <a href="https://www.youtube.com/@ICCRD" target="_blank" rel="noopener noreferrer" className="social-icon">
-                <YoutubeIcon size={20} />
-              </a>
+              
+              <div style={{ display: 'flex', gap: '0.8rem', marginTop: '0.6rem' }}>
+                <a href="https://www.facebook.com/convertidosacristo" target="_blank" rel="noopener noreferrer" className="social-icon" title="Facebook ICC">
+                  <FacebookIcon size={18} />
+                </a>
+                <a href="https://www.youtube.com/@ICCRD" target="_blank" rel="noopener noreferrer" className="social-icon" title="YouTube ICC">
+                  <YoutubeIcon size={18} />
+                </a>
+              </div>
             </div>
           </div>
 
