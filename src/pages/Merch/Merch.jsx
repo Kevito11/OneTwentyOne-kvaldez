@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, Check, Ticket, HelpCircle, X } from 'lucide-react';
+import { ArrowLeft, Check, Ticket, HelpCircle, X, ChevronLeft, ChevronRight } from 'lucide-react';
 import { getImageUrl } from '../../config/images';
 import './Merch.css';
 
@@ -49,6 +49,16 @@ const PRODUCTS = [
     },
     sizes: ["S", "M", "L", "XL", "XXL"]
   }
+];
+
+// Lista de combinaciones de imágenes de camiseta para navegación secuencial
+const tshirtImagesList = [
+  { color: "Negro", view: "front" },
+  { color: "Negro", view: "back" },
+  { color: "Gris", view: "front" },
+  { color: "Gris", view: "back" },
+  { color: "Blanco", view: "front" },
+  { color: "Blanco", view: "back" }
 ];
 
 // Componente para manejar imágenes con fallback local
@@ -121,14 +131,22 @@ const Merch = () => {
   const [dragStart, setDragStart] = useState(null);
   const isDragging = useRef(false);
 
-  const handleSwipe = () => {
+  const handleSwipe = (isNext) => {
     if (lightboxImage && lightboxImage.type === 'tshirt') {
-      setLightboxImage(prev => {
-        const nextView = prev.view === 'front' ? 'back' : 'front';
-        // Sincronizar también con la vista del catálogo principal
-        setActiveView(nextView);
-        return { ...prev, view: nextView };
-      });
+      const currentIndex = tshirtImagesList.findIndex(
+        item => item.color === lightboxImage.color && item.view === lightboxImage.view
+      );
+      if (isNext && currentIndex < tshirtImagesList.length - 1) {
+        const nextItem = tshirtImagesList[currentIndex + 1];
+        setLightboxImage({ type: 'tshirt', color: nextItem.color, view: nextItem.view });
+        setActiveColor(nextItem.color);
+        setActiveView(nextItem.view);
+      } else if (!isNext && currentIndex > 0) {
+        const prevItem = tshirtImagesList[currentIndex - 1];
+        setLightboxImage({ type: 'tshirt', color: prevItem.color, view: prevItem.view });
+        setActiveColor(prevItem.color);
+        setActiveView(prevItem.view);
+      }
     }
   };
 
@@ -148,7 +166,7 @@ const Merch = () => {
     if (!touchStart || !touchEnd) return;
     const distance = touchStart - touchEnd;
     if (Math.abs(distance) > 50) {
-      handleSwipe();
+      handleSwipe(distance > 0); // distance > 0 means swiped left (Next)
     }
     setTouchStart(null);
     setTouchEnd(null);
@@ -166,21 +184,64 @@ const Merch = () => {
       isDragging.current = true;
     }
     if (Math.abs(distance) > 50) {
-      handleSwipe();
+      handleSwipe(distance > 0); // distance > 0 means swiped left (Next)
     }
     setDragStart(null);
   };
 
 
-  // Bloquear scroll cuando el lightbox está abierto
+  // Bloquear scroll cuando el lightbox está abierto y escuchar teclado
   useEffect(() => {
     if (lightboxImage) {
       document.body.style.overflow = 'hidden';
+      // Desenfocar cualquier elemento activo para evitar conflictos con el teclado al abrir el lightbox
+      if (document.activeElement && typeof document.activeElement.blur === 'function') {
+        document.activeElement.blur();
+      }
     } else {
       document.body.style.overflow = '';
     }
+
+    const handleKeyDown = (e) => {
+      if (!lightboxImage) return;
+
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        setLightboxImage(null);
+      } else if (e.key === 'ArrowRight') {
+        if (lightboxImage.type === 'tshirt') {
+          const currentIndex = tshirtImagesList.findIndex(
+            item => item.color === lightboxImage.color && item.view === lightboxImage.view
+          );
+          if (currentIndex < tshirtImagesList.length - 1) {
+            e.preventDefault();
+            const nextItem = tshirtImagesList[currentIndex + 1];
+            setLightboxImage({ type: 'tshirt', color: nextItem.color, view: nextItem.view });
+            setActiveColor(nextItem.color);
+            setActiveView(nextItem.view);
+          }
+        }
+      } else if (e.key === 'ArrowLeft') {
+        if (lightboxImage.type === 'tshirt') {
+          const currentIndex = tshirtImagesList.findIndex(
+            item => item.color === lightboxImage.color && item.view === lightboxImage.view
+          );
+          if (currentIndex > 0) {
+            e.preventDefault();
+            const prevItem = tshirtImagesList[currentIndex - 1];
+            setLightboxImage({ type: 'tshirt', color: prevItem.color, view: prevItem.view });
+            setActiveColor(prevItem.color);
+            setActiveView(prevItem.view);
+          }
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+
     return () => {
       document.body.style.overflow = '';
+      window.removeEventListener('keydown', handleKeyDown);
     };
   }, [lightboxImage]);
 
@@ -383,6 +444,10 @@ const Merch = () => {
           zoomedImgSrc = PRODUCTS[0].images['Negro'];
         }
         
+        const currentIndex = lightboxImage.type === 'tshirt'
+          ? tshirtImagesList.findIndex(item => item.color === lightboxImage.color && item.view === lightboxImage.view)
+          : 0;
+        
         return (
           <div 
             className="lightbox-overlay" 
@@ -420,14 +485,50 @@ const Merch = () => {
             </div>
             
             {lightboxImage.type === 'tshirt' && (
-              <div 
-                className="lightbox-counter" 
-                onClick={(e) => e.stopPropagation()}
-                style={{ position: 'absolute', bottom: '2.5rem', left: '50%', transform: 'translateX(-50%)', background: 'rgba(255, 255, 255, 0.1)', color: 'white', padding: '0.35rem 1rem', borderRadius: '50px', fontSize: '0.85rem', fontWeight: '700', border: '1px solid rgba(255, 255, 255, 0.1)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.2rem', userSelect: 'none' }}
-              >
-                <span>Desliza para ver {lightboxImage.view === 'front' ? 'Espalda' : 'Frente'}</span>
-                <span style={{ fontSize: '0.7rem', opacity: 0.6 }}>({lightboxImage.view === 'front' ? 'Frente' : 'Espalda'})</span>
-              </div>
+              <>
+                {currentIndex > 0 && (
+                  <button 
+                    className="lightbox-nav-btn prev" 
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      const prevItem = tshirtImagesList[currentIndex - 1];
+                      setLightboxImage({ type: 'tshirt', color: prevItem.color, view: prevItem.view });
+                      setActiveColor(prevItem.color);
+                      setActiveView(prevItem.view);
+                    }}
+                    aria-label="Imagen anterior"
+                  >
+                    <ChevronLeft size={36} />
+                  </button>
+                )}
+                {currentIndex < tshirtImagesList.length - 1 && (
+                  <button 
+                    className="lightbox-nav-btn next" 
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      const nextItem = tshirtImagesList[currentIndex + 1];
+                      setLightboxImage({ type: 'tshirt', color: nextItem.color, view: nextItem.view });
+                      setActiveColor(nextItem.color);
+                      setActiveView(nextItem.view);
+                    }}
+                    aria-label="Imagen siguiente"
+                  >
+                    <ChevronRight size={36} />
+                  </button>
+                )}
+                <div 
+                  className="lightbox-counter" 
+                  onClick={(e) => e.stopPropagation()}
+                  style={{ position: 'absolute', bottom: '2.5rem', left: '50%', transform: 'translateX(-50%)', background: 'rgba(255, 255, 255, 0.1)', color: 'white', padding: '0.35rem 1rem', borderRadius: '50px', fontSize: '0.85rem', fontWeight: '700', border: '1px solid rgba(255, 255, 255, 0.1)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.2rem', userSelect: 'none', backdropFilter: 'blur(10px)', zIndex: '20' }}
+                >
+                  <span style={{ fontSize: '0.8rem' }}>
+                    {lightboxImage.color} - {lightboxImage.view === 'front' ? 'Frente' : 'Espalda'}
+                  </span>
+                  <span style={{ fontSize: '0.7rem', opacity: 0.6 }}>
+                    ({currentIndex + 1} / {tshirtImagesList.length})
+                  </span>
+                </div>
+              </>
             )}
           </div>
         );

@@ -280,16 +280,50 @@ const Home = () => {
     setIndex(null);
   };
 
-  // Bloquear el scroll del fondo cuando el lightbox está abierto (sin visual jumps)
+  // Bloquear el scroll del fondo cuando el lightbox está abierto (sin visual jumps) y escuchar teclado
   useEffect(() => {
     const isLightboxOpen = lightboxIndex !== null || comunidadLightboxIndex !== null;
     if (isLightboxOpen) {
       document.body.style.overflow = 'hidden';
+      // Desenfocar cualquier elemento activo para evitar conflictos con el teclado al abrir el lightbox
+      if (document.activeElement && typeof document.activeElement.blur === 'function') {
+        document.activeElement.blur();
+      }
     } else {
       document.body.style.overflow = '';
     }
+
+    const handleKeyDown = (e) => {
+      if (!isLightboxOpen) return;
+
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        setLightboxIndex(null);
+        setComunidadLightboxIndex(null);
+      } else if (e.key === 'ArrowRight') {
+        if (comunidadLightboxIndex !== null && comunidadLightboxIndex < comunidadImages.length - 1) {
+          e.preventDefault();
+          setComunidadLightboxIndex(prev => prev + 1);
+        } else if (lightboxIndex !== null && lightboxIndex < alfredoImages.length - 1) {
+          e.preventDefault();
+          setLightboxIndex(prev => prev + 1);
+        }
+      } else if (e.key === 'ArrowLeft') {
+        if (comunidadLightboxIndex !== null && comunidadLightboxIndex > 0) {
+          e.preventDefault();
+          setComunidadLightboxIndex(prev => prev - 1);
+        } else if (lightboxIndex !== null && lightboxIndex > 0) {
+          e.preventDefault();
+          setLightboxIndex(prev => prev - 1);
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+
     return () => {
       document.body.style.overflow = '';
+      window.removeEventListener('keydown', handleKeyDown);
     };
   }, [lightboxIndex, comunidadLightboxIndex]);
 
