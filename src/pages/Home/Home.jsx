@@ -4,6 +4,30 @@ import { Calendar, MapPin, ArrowRight, Clock, Plus, Star, ExternalLink, ChevronL
 import { getImageUrl } from '../../config/images';
 import './Home.css';
 
+// Componente para imágenes del Lightbox con animación fluida onLoad
+const LightboxImage = ({ src, alt }) => {
+  const [loaded, setLoaded] = useState(false);
+
+  useEffect(() => {
+    setLoaded(false);
+  }, [src]);
+
+  return (
+    <img 
+      src={src} 
+      alt={alt} 
+      onLoad={() => setLoaded(true)}
+      className="lightbox-image" 
+      onClick={(e) => e.stopPropagation()}
+      style={{
+        transition: 'opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1), transform 0.35s cubic-bezier(0.4, 0, 0.2, 1)',
+        opacity: loaded ? 1 : 0,
+        transform: loaded ? 'scale(1)' : 'scale(0.97)'
+      }}
+    />
+  );
+};
+
 const Home = () => {
   // Countdown Logic (Target: August 29 - Youth Conference)
   const [timeLeft, setTimeLeft] = useState({
@@ -178,41 +202,93 @@ const Home = () => {
     '/comunidad/7.jpg'
   ].map(getImageUrl);
   
+  
   const [activeAlfredoSlide, setActiveAlfredoSlide] = useState(0);
   const [lightboxIndex, setLightboxIndex] = useState(null);
   const [comunidadLightboxIndex, setComunidadLightboxIndex] = useState(null);
 
   const scrollPositionRef = useRef(null);
 
-  // Bloquear el scroll del fondo cuando el lightbox de comunidad está abierto
-  useEffect(() => {
-    const isLightboxOpen = lightboxIndex !== null || comunidadLightboxIndex !== null;
-    
-    if (isLightboxOpen) {
-      const scrollY = window.scrollY;
-      scrollPositionRef.current = scrollY;
-      document.body.style.position = 'fixed';
-      document.body.style.top = `-${scrollY}px`;
-      document.body.style.width = '100%';
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.position = '';
-      document.body.style.top = '';
-      document.body.style.width = '';
-      document.body.style.overflow = '';
-      if (scrollPositionRef.current !== null) {
-        const scrollToY = scrollPositionRef.current;
-        setTimeout(() => {
-          window.scrollTo(0, scrollToY);
-        }, 0);
-        scrollPositionRef.current = null;
+
+
+  // Lógica de Deslizamiento (Swipe) y Navegación para los Lightboxes de Home
+  const [touchStart, setTouchStart] = useState(null);
+  const [touchEnd, setTouchEnd] = useState(null);
+  const [dragStart, setDragStart] = useState(null);
+  const isDragging = useRef(false);
+
+  const handleSwipe = (type, isNext) => {
+    if (type === 'comunidad') {
+      if (isNext && comunidadLightboxIndex < comunidadImages.length - 1) {
+        setComunidadLightboxIndex(prev => prev + 1);
+      } else if (!isNext && comunidadLightboxIndex > 0) {
+        setComunidadLightboxIndex(prev => prev - 1);
+      }
+    } else if (type === 'speaker') {
+      if (isNext && lightboxIndex < alfredoImages.length - 1) {
+        setLightboxIndex(prev => prev + 1);
+      } else if (!isNext && lightboxIndex > 0) {
+        setLightboxIndex(prev => prev - 1);
       }
     }
+  };
 
+  const getSwipeHandlers = (type) => {
+    return {
+      onTouchStart: (e) => {
+        setTouchStart(e.targetTouches[0].clientX);
+        isDragging.current = false;
+      },
+      onTouchMove: (e) => {
+        setTouchEnd(e.targetTouches[0].clientX);
+        if (touchStart && Math.abs(touchStart - e.targetTouches[0].clientX) > 10) {
+          isDragging.current = true;
+        }
+      },
+      onTouchEnd: () => {
+        if (!touchStart || !touchEnd) return;
+        const distance = touchStart - touchEnd;
+        if (Math.abs(distance) > 50) {
+          handleSwipe(type, distance > 0);
+        }
+        setTouchStart(null);
+        setTouchEnd(null);
+      },
+      onMouseDown: (e) => {
+        setDragStart(e.clientX);
+        isDragging.current = false;
+      },
+      onMouseUp: (e) => {
+        if (!dragStart) return;
+        const distance = dragStart - e.clientX;
+        if (Math.abs(distance) > 10) {
+          isDragging.current = true;
+        }
+        if (Math.abs(distance) > 50) {
+          handleSwipe(type, distance > 0);
+        }
+        setDragStart(null);
+      }
+    };
+  };
+
+  const handleOverlayClick = (e, setIndex) => {
+    if (isDragging.current) {
+      e.stopPropagation();
+      return;
+    }
+    setIndex(null);
+  };
+
+  // Bloquear el scroll del fondo cuando el lightbox está abierto (sin visual jumps)
+  useEffect(() => {
+    const isLightboxOpen = lightboxIndex !== null || comunidadLightboxIndex !== null;
+    if (isLightboxOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
     return () => {
-      document.body.style.position = '';
-      document.body.style.top = '';
-      document.body.style.width = '';
       document.body.style.overflow = '';
     };
   }, [lightboxIndex, comunidadLightboxIndex]);
@@ -651,34 +727,30 @@ const Home = () => {
       </section>
 
       {lightboxIndex !== null && (
-        <div className="lightbox-overlay" onClick={() => setLightboxIndex(null)}>
+        <div 
+          className="lightbox-overlay" 
+          onClick={(e) => handleOverlayClick(e, setLightboxIndex)}
+          {...getSwipeHandlers('speaker')}
+        >
           <button 
             className="lightbox-close-btn" 
-            onClick={() => setLightboxIndex(null)}
+            onClick={(e) => {
+              e.stopPropagation();
+              setLightboxIndex(null);
+            }}
             aria-label="Cerrar vista completa"
           >
             <X size={28} />
           </button>
  
           <div className="lightbox-content">
-            <div 
-              className="lightbox-slider-track"
-              style={{ transform: `translateX(-${lightboxIndex * 100}%)` }}
-            >
-              {alfredoImages.map((imgUrl, idx) => (
-                <div key={idx} className="lightbox-slide" onClick={() => setLightboxIndex(null)}>
-                  <img 
-                    src={imgUrl} 
-                    alt={`Alfredo Servidor - Pantalla completa ${idx + 1}`} 
-                    className="lightbox-image" 
-                    onClick={(e) => e.stopPropagation()}
-                  />
-                </div>
-              ))}
-            </div>
+            <LightboxImage 
+              src={alfredoImages[lightboxIndex]} 
+              alt="Expositor - Pantalla completa" 
+            />
           </div>
 
-          {/* Lightbox navigation outside overflow:hidden wrapper */}
+          {/* Lightbox navigation buttons */}
           {lightboxIndex > 0 && (
             <button 
               className="lightbox-nav-btn prev" 
@@ -704,7 +776,7 @@ const Home = () => {
             </button>
           )}
 
-          {/* Counter pill outside */}
+          {/* Counter pill */}
           <div className="lightbox-counter" onClick={(e) => e.stopPropagation()}>
             {lightboxIndex + 1} / {alfredoImages.length}
           </div>
@@ -713,34 +785,30 @@ const Home = () => {
 
       {/* Comunidad Lightbox Overlay */}
       {comunidadLightboxIndex !== null && (
-        <div className="lightbox-overlay" onClick={() => setComunidadLightboxIndex(null)}>
+        <div 
+          className="lightbox-overlay" 
+          onClick={(e) => handleOverlayClick(e, setComunidadLightboxIndex)}
+          {...getSwipeHandlers('comunidad')}
+        >
           <button 
             className="lightbox-close-btn" 
-            onClick={() => setComunidadLightboxIndex(null)}
+            onClick={(e) => {
+              e.stopPropagation();
+              setComunidadLightboxIndex(null);
+            }}
             aria-label="Cerrar vista completa"
           >
             <X size={28} />
           </button>
  
           <div className="lightbox-content">
-            <div 
-              className="lightbox-slider-track"
-              style={{ transform: `translateX(-${comunidadLightboxIndex * 100}%)` }}
-            >
-              {comunidadImages.map((imgUrl, idx) => (
-                <div key={idx} className="lightbox-slide" onClick={() => setComunidadLightboxIndex(null)}>
-                  <img 
-                    src={imgUrl} 
-                    alt={`Momento de la Comunidad - Pantalla completa ${idx + 1}`} 
-                    className="lightbox-image" 
-                    onClick={(e) => e.stopPropagation()}
-                  />
-                </div>
-              ))}
-            </div>
+            <LightboxImage 
+              src={comunidadImages[comunidadLightboxIndex]} 
+              alt="Momento de la Comunidad - Pantalla completa" 
+            />
           </div>
 
-          {/* Lightbox navigation outside overflow:hidden wrapper */}
+          {/* Lightbox navigation buttons */}
           {comunidadLightboxIndex > 0 && (
             <button 
               className="lightbox-nav-btn prev" 
@@ -766,7 +834,7 @@ const Home = () => {
             </button>
           )}
 
-          {/* Counter pill outside */}
+          {/* Counter pill */}
           <div className="lightbox-counter" onClick={(e) => e.stopPropagation()}>
             {comunidadLightboxIndex + 1} / {comunidadImages.length}
           </div>

@@ -24,6 +24,11 @@ export const getImageUrl = (path) => {
   // Normalizar la barra inicial en la ruta
   const cleanPath = path.startsWith("/") ? path : `/${path}`;
 
+  // Si la ruta pertenece a merch, resolverla directamente desde la raíz del bucket
+  if (cleanPath.startsWith("/merch/")) {
+    return `${BUCKET_URL}${cleanPath}`;
+  }
+
   if (CONTAINS_PUBLIC_FOLDER) {
     return `${BUCKET_URL}/public${cleanPath}`;
   }

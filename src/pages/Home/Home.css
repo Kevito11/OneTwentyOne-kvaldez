@@ -1275,7 +1275,7 @@
 
 .lightbox-close-btn {
   position: absolute;
-  top: 6.5rem;
+  top: 2rem;
   right: 2rem;
   background: rgba(255, 255, 255, 0.08);
   border: 1px solid rgba(255, 255, 255, 0.15);
@@ -1323,6 +1323,8 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  padding: 0 4rem;
+  box-sizing: border-box;
 }
 
 .lightbox-image {
@@ -1368,7 +1370,7 @@
 
 .lightbox-counter {
   position: absolute;
-  bottom: -2.5rem;
+  bottom: 2.5rem;
   left: 50%;
   transform: translateX(-50%);
   background: rgba(255, 255, 255, 0.1);
@@ -1408,7 +1410,7 @@
     padding: 0 0.5rem;
   }
   .lightbox-close-btn {
-    top: 6.5rem;
+    top: 7.5rem;
     right: 1.5rem;
     width: 40px;
     height: 40px;
@@ -1418,6 +1420,9 @@
   .lightbox-content {
     width: 95vw;
     height: 70vh;
+  }
+  .lightbox-slide {
+    padding: 0 1.5rem;
   }
   .lightbox-nav-btn {
     width: 42px;
@@ -1451,7 +1456,7 @@
     right: 0.4rem;
   }
   .lightbox-counter {
-    bottom: -1.8rem;
+    bottom: 2.5rem;
     font-size: 0.78rem;
     padding: 0.25rem 0.8rem;
   }

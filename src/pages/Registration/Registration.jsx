@@ -2,47 +2,103 @@ import { useState, useEffect } from 'react';
 import { Ticket, User, Mail, Phone, Home, Star, Printer, RotateCcw, MapPin, CheckCircle, X, Check, ShoppingBag, Plus, Minus, Copy } from 'lucide-react';
 import QRCode from 'qrcode';
 import { getImageUrl } from '../../config/images';
-import capImg from '../../assets/merch/cap.png';
-import capGreyImg from '../../assets/merch/cap_grey.png';
-import tshirtImg from '../../assets/merch/tshirt.png';
-import tshirtWhiteImg from '../../assets/merch/tshirt_white.png';
-import hoodieImg from '../../assets/merch/hoodie.png';
-import hoodieCharcoalImg from '../../assets/merch/hoodie_charcoal.png';
 import './Registration.css';
+
+// Componente para manejar imágenes con fallback local
+const ImageWithFallback = ({ src, localPath, alt, className, style, onLoad }) => {
+  const [currentSrc, setCurrentSrc] = useState(src);
+
+  useEffect(() => {
+    setCurrentSrc(src);
+  }, [src]);
+
+  return (
+    <img
+      src={currentSrc}
+      alt={alt}
+      className={className}
+      style={style}
+      onLoad={onLoad}
+      onError={() => {
+        if (currentSrc !== localPath) {
+          setCurrentSrc(localPath);
+        }
+      }}
+    />
+  );
+};
+
+// Componente para previsualización premium con transición suave al cambiar de imagen/color
+const PremiumImageDisplay = ({ src, localPath, alt, className, style }) => {
+  const [loaded, setLoaded] = useState(false);
+
+  useEffect(() => {
+    setLoaded(false);
+  }, [src]);
+
+  return (
+    <div style={{ width: '100%', height: '100%', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
+      <ImageWithFallback
+        src={getImageUrl(src)}
+        localPath={src}
+        alt={alt}
+        className={className}
+        onLoad={() => setLoaded(true)}
+        style={{
+          ...style,
+          transition: 'opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1), transform 0.35s cubic-bezier(0.4, 0, 0.2, 1)',
+          opacity: loaded ? 1 : 0,
+          transform: loaded ? 'scale(1)' : 'scale(0.97)',
+          width: '100%',
+          height: '100%',
+          objectFit: 'cover'
+        }}
+      />
+    </div>
+  );
+};
 
 const PRODUCTS = [
   {
     id: 1,
     name: "Gorra \"Sin Filtros\"",
-    price: 500,
+    price: 750,
+    type: "cap",
     images: {
-      "Negro": capImg,
-      "Gris": capGreyImg
+      "Negro": "/merch/Merch SIN FILTROS gorra 1.png"
     },
-    colors: ["Negro", "Gris"],
+    colors: ["Negro"],
+    colorHex: {
+      "Negro": "#000000"
+    },
     sizes: ["Única"]
   },
   {
     id: 2,
     name: "Camiseta \"Sin Filtros\"",
-    price: 700,
-    images: {
-      "Negro": tshirtImg,
-      "Blanco Roto": tshirtWhiteImg
-    },
-    colors: ["Negro", "Blanco Roto"],
-    sizes: ["S", "M", "L", "XL"]
-  },
-  {
-    id: 3,
-    name: "Hoodie \"Sin Filtros\"",
     price: 1200,
+    type: "tshirt",
     images: {
-      "Negro": hoodieImg,
-      "Gris Carbón": hoodieCharcoalImg
+      "Negro": {
+        front: "/merch/Merch SIN FILTROS Tshirt frontal 6.png",
+        back: "/merch/Merch SIN FILTROS Tshirt atrs 6.png"
+      },
+      "Gris": {
+        front: "/merch/Merch SIN FILTROS Tshirt frontal 4.png",
+        back: "/merch/Merch SIN FILTROS Tshirt atrs 4.png"
+      },
+      "Blanco": {
+        front: "/merch/Merch SIN FILTROS Tshirt frontal 3.png",
+        back: "/merch/Merch SIN FILTROS Tshirt atrs 3.png"
+      }
     },
-    colors: ["Negro", "Gris Carbón"],
-    sizes: ["S", "M", "L", "XL"]
+    colors: ["Negro", "Gris", "Blanco"],
+    colorHex: {
+      "Negro": "#121212",
+      "Gris": "#8A8A8A",
+      "Blanco": "#FFFFFF"
+    },
+    sizes: ["S", "M", "L", "XL", "XXL"]
   }
 ];
 
@@ -221,6 +277,9 @@ const Registration = () => {
     return () => clearInterval(timer);
   }, [posterImages.length]);
 
+  const [regTshirtView, setRegTshirtView] = useState('front');
+
+
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -231,8 +290,7 @@ const Registration = () => {
     interestedInMerch: false,
     merchSelections: {
       1: { selected: false, color: 'Negro', size: 'Única', quantity: 1 },
-      2: { selected: false, color: 'Negro', size: 'M', quantity: 1 },
-      3: { selected: false, color: 'Negro', size: 'L', quantity: 1 }
+      2: { selected: false, color: 'Negro', size: 'M', quantity: 1 }
     }
   });
 
@@ -446,8 +504,7 @@ const Registration = () => {
       interestedInMerch: false,
       merchSelections: {
         1: { selected: false, color: 'Negro', size: 'Única', quantity: 1 },
-        2: { selected: false, color: 'Negro', size: 'M', quantity: 1 },
-        3: { selected: false, color: 'Negro', size: 'L', quantity: 1 }
+        2: { selected: false, color: 'Negro', size: 'M', quantity: 1 }
       }
     });
     setSelectedChurch('');
@@ -665,14 +722,171 @@ const Registration = () => {
                   </label>
                 </div>
 
-                {/* Galería Visual de Mercancía -> Reemplazado por Próximamente */}
+                {/* Galería Visual de Mercancía Interactiva */}
                 {formData.interestedInMerch && (
-                  <div className="registration-merch-selection animate-fade-in" style={{ padding: '2rem 1.5rem', textAlign: 'center', background: 'rgba(255, 255, 255, 0.01)', borderRadius: '16px', border: '1px dashed rgba(255, 255, 255, 0.12)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.8rem', margin: '1.5rem 0' }}>
-                    <ShoppingBag size={40} style={{ color: 'var(--text-secondary)', opacity: 0.8 }} />
-                    <h3 style={{ fontSize: '1.1rem', fontWeight: '800', margin: 0, color: 'white' }}>Mercancía Oficial</h3>
-                    <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', lineHeight: '1.5', margin: 0, maxWidth: '380px' }}>
-                      <strong>¡Próximamente!</strong> Estamos preparando la colección oficial de artículos "Sin Filtros" 2026. Podrás verla y adquirirla muy pronto. Mantente atento.
-                    </p>
+                  <div className="registration-merch-selection animate-fade-in">
+                    <span className="merch-section-title">Selección de Artículos</span>
+                    
+                    <div className="registration-products-list">
+                      {PRODUCTS.map(p => {
+                        const isSel = formData.merchSelections[p.id]?.selected;
+                        
+                        // Determinar imagen para previsualizar
+                        let previewImg = "";
+                        if (p.type === "tshirt" || p.id === 2) {
+                          const activeCol = formData.merchSelections[p.id]?.color || "Negro";
+                          previewImg = regTshirtView === "front" ? p.images[activeCol].front : p.images[activeCol].back;
+                        } else {
+                          previewImg = p.images["Negro"];
+                        }
+
+                        return (
+                          <div key={p.id} className={`reg-product-card ${isSel ? 'selected' : ''}`}>
+                            <div className="reg-product-main" onClick={() => handleMerchSelectionToggle(p.id)}>
+                              <div className="reg-checkbox">
+                                <div className={`custom-chk ${isSel ? 'checked' : ''}`}>
+                                  {isSel && <Check size={14} />}
+                                </div>
+                              </div>
+                              
+                              <div style={{ width: '50px', height: '50px', flexShrink: 0 }}>
+                                <PremiumImageDisplay 
+                                  src={previewImg} 
+                                  localPath={previewImg} 
+                                  alt={p.name} 
+                                  className="reg-product-img"
+                                />
+                              </div>
+                              
+                              <div className="reg-product-info">
+                                <span className="reg-product-name">{p.name}</span>
+                                <span className="reg-product-price">RD$ {p.price.toLocaleString()}</span>
+                              </div>
+                            </div>
+                            
+                            {isSel && (
+                              <div className="reg-product-options animate-fade-in">
+                                {/* Si es camiseta, mostrar selector de color y vista */}
+                                {(p.type === "tshirt" || p.id === 2) && (
+                                  <>
+                                    {/* Selector de Vista en miniatura */}
+                                    <div className="reg-option-group">
+                                      <label>Vista</label>
+                                      <div style={{ display: 'flex', gap: '0.4rem', background: 'rgba(0,0,0,0.4)', padding: '0.2rem', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.06)' }}>
+                                        <button 
+                                          type="button"
+                                          onClick={(e) => { e.stopPropagation(); setRegTshirtView("front"); }}
+                                          className={`reg-size-chip ${regTshirtView === "front" ? 'active' : ''}`}
+                                          style={{ padding: '0.25rem 0.6rem', fontSize: '0.75rem', minWidth: 'auto' }}
+                                        >
+                                          Frente
+                                        </button>
+                                        <button 
+                                          type="button"
+                                          onClick={(e) => { e.stopPropagation(); setRegTshirtView("back"); }}
+                                          className={`reg-size-chip ${regTshirtView === "back" ? 'active' : ''}`}
+                                          style={{ padding: '0.25rem 0.6rem', fontSize: '0.75rem', minWidth: 'auto' }}
+                                        >
+                                          Espalda
+                                        </button>
+                                      </div>
+                                    </div>
+
+                                    <div className="reg-option-group">
+                                      <label>Color</label>
+                                      <div className="reg-color-options">
+                                        {p.colors.map(col => (
+                                          <button
+                                            key={col}
+                                            type="button"
+                                            onClick={(e) => { 
+                                              e.stopPropagation(); 
+                                              handleMerchOptionChange(p.id, 'color', col); 
+                                            }}
+                                            className={`reg-color-dot ${formData.merchSelections[p.id].color === col ? 'active' : ''}`}
+                                            style={{ 
+                                              backgroundColor: p.colorHex[col],
+                                              border: col === 'Blanco' ? '1px solid rgba(255,255,255,0.2)' : 'none'
+                                            }}
+                                            aria-label={`Color ${col}`}
+                                          />
+                                        ))}
+                                      </div>
+                                    </div>
+
+                                    <div className="reg-option-group">
+                                      <label>Talla</label>
+                                      <div className="reg-size-options">
+                                        {p.sizes.map(sz => (
+                                          <button
+                                            key={sz}
+                                            type="button"
+                                            onClick={(e) => { 
+                                              e.stopPropagation(); 
+                                              handleMerchOptionChange(p.id, 'size', sz); 
+                                            }}
+                                            className={`reg-size-chip ${formData.merchSelections[p.id].size === sz ? 'active' : ''}`}
+                                          >
+                                            {sz}
+                                          </button>
+                                        ))}
+                                      </div>
+                                    </div>
+                                  </>
+                                )}
+
+                                {/* Selector de Cantidad para ambos */}
+                                <div className="reg-option-group qty-row">
+                                  <label>Cantidad</label>
+                                  <div className="reg-qty-selector">
+                                    <button 
+                                      type="button"
+                                      className="reg-qty-btn" 
+                                      onClick={(e) => { 
+                                        e.stopPropagation(); 
+                                        handleMerchQuantityChange(p.id, -1); 
+                                      }}
+                                      aria-label="Reducir cantidad"
+                                    >
+                                      <Minus size={12} />
+                                    </button>
+                                    <span>{formData.merchSelections[p.id].quantity}</span>
+                                    <button 
+                                      type="button"
+                                      className="reg-qty-btn" 
+                                      onClick={(e) => { 
+                                        e.stopPropagation(); 
+                                        handleMerchQuantityChange(p.id, 1); 
+                                      }}
+                                      aria-label="Aumentar cantidad"
+                                    >
+                                      <Plus size={12} />
+                                    </button>
+                                  </div>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                    
+                    {/* Resumen de Subtotal */}
+                    {(() => {
+                      let total = 0;
+                      PRODUCTS.forEach(p => {
+                        const sel = formData.merchSelections[p.id];
+                        if (sel?.selected) {
+                          total += p.price * sel.quantity;
+                        }
+                      });
+                      return total > 0 ? (
+                        <div className="reg-merch-summary">
+                          <span>Total de Mercancía:</span>
+                          <strong>RD$ {total.toLocaleString()}</strong>
+                        </div>
+                      ) : null;
+                    })()}
                   </div>
                 )}
 
