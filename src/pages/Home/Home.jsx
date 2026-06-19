@@ -285,12 +285,14 @@ const Home = () => {
     const isLightboxOpen = lightboxIndex !== null || comunidadLightboxIndex !== null;
     if (isLightboxOpen) {
       document.body.style.overflow = 'hidden';
+      document.body.classList.add('lightbox-active');
       // Desenfocar cualquier elemento activo para evitar conflictos con el teclado al abrir el lightbox
       if (document.activeElement && typeof document.activeElement.blur === 'function') {
         document.activeElement.blur();
       }
     } else {
       document.body.style.overflow = '';
+      document.body.classList.remove('lightbox-active');
     }
 
     const handleKeyDown = (e) => {
@@ -323,6 +325,7 @@ const Home = () => {
 
     return () => {
       document.body.style.overflow = '';
+      document.body.classList.remove('lightbox-active');
       window.removeEventListener('keydown', handleKeyDown);
     };
   }, [lightboxIndex, comunidadLightboxIndex]);

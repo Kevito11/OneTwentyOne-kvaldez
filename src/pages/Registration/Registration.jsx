@@ -98,7 +98,7 @@ const PRODUCTS = [
       "Gris": "#8A8A8A",
       "Blanco": "#FFFFFF"
     },
-    sizes: ["S", "M", "L", "XL", "XXL"]
+    sizes: ["S", "M", "L", "XL"]
   }
 ];
 

@@ -10,7 +10,7 @@ const PRODUCTS = [
     id: 1,
     name: "Gorra \"Sin Filtros\"",
     price: 750,
-    description: "Gorra oficial de la conferencia. Diseño minimalista con visera curva, logo bordado y ajuste graduable en la parte posterior para un calce perfecto.",
+    description: "Gorra oficial de la conferencia.",
     type: "cap",
     images: {
       "Negro": "/merch/Merch SIN FILTROS gorra 1.png"
@@ -25,7 +25,7 @@ const PRODUCTS = [
     id: 2,
     name: "Camiseta \"Sin Filtros\"",
     price: 1200,
-    description: "Camiseta oficial de la conferencia de jóvenes \"Sin Filtros\" 2026. Confeccionada con algodón de alta calidad, tacto suave y un corte moderno y cómodo.",
+    description: "Camiseta oficial de la conferencia.",
     type: "tshirt",
     images: {
       "Negro": {
@@ -47,7 +47,7 @@ const PRODUCTS = [
       "Gris": "#8A8A8A",
       "Blanco": "#FFFFFF"
     },
-    sizes: ["S", "M", "L", "XL", "XXL"]
+    sizes: ["S", "M", "L", "XL"]
   }
 ];
 
@@ -194,12 +194,14 @@ const Merch = () => {
   useEffect(() => {
     if (lightboxImage) {
       document.body.style.overflow = 'hidden';
+      document.body.classList.add('lightbox-active');
       // Desenfocar cualquier elemento activo para evitar conflictos con el teclado al abrir el lightbox
       if (document.activeElement && typeof document.activeElement.blur === 'function') {
         document.activeElement.blur();
       }
     } else {
       document.body.style.overflow = '';
+      document.body.classList.remove('lightbox-active');
     }
 
     const handleKeyDown = (e) => {
@@ -241,6 +243,7 @@ const Merch = () => {
 
     return () => {
       document.body.style.overflow = '';
+      document.body.classList.remove('lightbox-active');
       window.removeEventListener('keydown', handleKeyDown);
     };
   }, [lightboxImage]);
