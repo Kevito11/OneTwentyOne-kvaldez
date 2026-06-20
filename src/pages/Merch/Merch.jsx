@@ -13,7 +13,7 @@ const PRODUCTS = [
     description: "Gorra oficial de la conferencia.",
     type: "cap",
     images: {
-      "Negro": "/merch/Merch SIN FILTROS gorra 1.png"
+      "Negro": "/merch/Merch SIN FILTROS gorra 1.jpeg"
     },
     colors: ["Negro"],
     colorHex: {
@@ -29,16 +29,16 @@ const PRODUCTS = [
     type: "tshirt",
     images: {
       "Negro": {
-        front: "/merch/Merch SIN FILTROS Tshirt frontal 6.png",
-        back: "/merch/Merch SIN FILTROS Tshirt atrs 6.png"
+        front: "/merch/Merch SIN FILTROS Tshirt frontal 6.jpeg",
+        back: "/merch/Merch SIN FILTROS Tshirt atrs 6.jpeg"
       },
       "Gris": {
-        front: "/merch/Merch SIN FILTROS Tshirt frontal 4.png",
-        back: "/merch/Merch SIN FILTROS Tshirt atrs 4.png"
+        front: "/merch/Merch SIN FILTROS Tshirt frontal 4.jpeg",
+        back: "/merch/Merch SIN FILTROS Tshirt atrs 4.jpeg"
       },
       "Blanco": {
-        front: "/merch/Merch SIN FILTROS Tshirt frontal 3.png",
-        back: "/merch/Merch SIN FILTROS Tshirt atrs 3.png"
+        front: "/merch/Merch SIN FILTROS Tshirt frontal 3.jpeg",
+        back: "/merch/Merch SIN FILTROS Tshirt atrs 3.jpeg"
       }
     },
     colors: ["Negro", "Gris", "Blanco"],
