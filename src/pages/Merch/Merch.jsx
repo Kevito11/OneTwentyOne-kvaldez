@@ -265,6 +265,8 @@ const Merch = () => {
           
           <p className="description" style={{ color: 'var(--text-secondary)', fontSize: '1rem', lineHeight: '1.6', margin: '0 0 1rem 0' }}>
             Estamos diseñando y preparando la mercancía oficial de la conferencia de jóvenes <strong>"Sin Filtros" 2026</strong>. Muy pronto podrás ver y reservar tus gorras, camisetas y hoodies aquí.
+            <br />
+            Mantente atento a nuestro Instagram <a href="https://instagram.com/onetwentyone.icc" target="_blank" rel="noopener noreferrer" style={{ color: 'white', fontWeight: 'bold', textDecoration: 'underline' }}>@onetwentyone.icc</a> para saber cuándo estarán disponibles.
           </p>
           
           <Link to="/" className="btn-primary-back" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.6rem', background: 'white', color: 'black', border: '1px solid white', padding: '0.9rem 1.75rem', borderRadius: '12px', fontWeight: '700', textDecoration: 'none', transition: 'all 0.3s ease' }}>

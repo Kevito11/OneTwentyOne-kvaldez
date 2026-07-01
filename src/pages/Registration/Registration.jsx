@@ -764,7 +764,7 @@ const Registration = () => {
                     <ShoppingBag size={40} style={{ color: 'var(--text-secondary)', opacity: 0.8 }} />
                     <h3 style={{ fontSize: '1.1rem', fontWeight: '800', margin: 0, color: 'white' }}>Mercancía Oficial</h3>
                     <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', lineHeight: '1.5', margin: 0, maxWidth: '380px' }}>
-                      <strong>¡Próximamente!</strong> Estamos preparando la colección oficial de artículos "Sin Filtros" 2026. Podrás verla y adquirirla muy pronto. Mantente atento.
+                      <strong>¡Próximamente!</strong> Estamos preparando la colección oficial de artículos "Sin Filtros" 2026. Podrás verla y adquirirla muy pronto. Mantente atento a nuestro Instagram <a href="https://instagram.com/onetwentyone.icc" target="_blank" rel="noopener noreferrer" style={{ color: 'white', fontWeight: 'bold', textDecoration: 'underline' }}>@onetwentyone.icc</a> para saber cuándo estarán disponibles.
                     </p>
                   </div>
                 )}
