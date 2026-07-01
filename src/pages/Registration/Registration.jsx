@@ -286,6 +286,7 @@ const Registration = () => {
     email: '',
     phone: '',
     church: '',
+    isGuest: false,
     ageGroup: '18-25',
     interestedInMerch: false,
     merchSelections: {
@@ -302,13 +303,20 @@ const Registration = () => {
   const [selectedChurch, setSelectedChurch] = useState('');
   const [customChurch, setCustomChurch] = useState('');
 
-  // Sincronizar el campo 'church' de formData cuando cambian selectedChurch o customChurch
+  // Sincronizar el campo 'church' de formData cuando cambian selectedChurch, customChurch o isGuest
   useEffect(() => {
-    setFormData(prev => ({
-      ...prev,
-      church: selectedChurch === 'Otra' ? customChurch : selectedChurch
-    }));
-  }, [selectedChurch, customChurch]);
+    if (formData.isGuest) {
+      setFormData(prev => ({
+        ...prev,
+        church: 'Invitado'
+      }));
+    } else {
+      setFormData(prev => ({
+        ...prev,
+        church: selectedChurch === 'Otra' ? customChurch : selectedChurch
+      }));
+    }
+  }, [selectedChurch, customChurch, formData.isGuest]);
 
   // Generar QR real cuando se obtiene el ticketCode
   useEffect(() => {
@@ -500,6 +508,7 @@ const Registration = () => {
       email: '',
       phone: '',
       church: '',
+      isGuest: false,
       ageGroup: '18-25',
       interestedInMerch: false,
       merchSelections: {
@@ -658,40 +667,67 @@ const Registration = () => {
                   </div>
                 </div>
 
-                <div className="form-group">
-                  <label>Iglesia a la que perteneces</label>
-                  <div className="input-with-icon">
-                    <Home size={18} className="input-icon" style={{ pointerEvents: 'none' }} />
-                    <select
-                      name="selectedChurch"
-                      value={selectedChurch}
-                      onChange={(e) => setSelectedChurch(e.target.value)}
-                      required
-                      style={{ paddingLeft: '3.2rem', cursor: 'pointer' }}
-                    >
-                      <option value="" disabled>Selecciona tu iglesia</option>
-                      {CHURCH_OPTIONS.map((church) => (
-                        <option key={church} value={church}>{church}</option>
-                      ))}
-                      <option value="Otra">Otra...</option>
-                    </select>
-                  </div>
+                <div className="form-group guest-checkbox-group">
+                  <label className="checkbox-container">
+                    <input
+                      type="checkbox"
+                      name="isGuest"
+                      checked={formData.isGuest}
+                      onChange={handleChange}
+                    />
+                    <span className="checkbox-checkmark"></span>
+                    <span className="checkbox-label-text">Soy un invitado (No pertenezco a ninguna iglesia)</span>
+                  </label>
                 </div>
 
-                {selectedChurch === 'Otra' && (
-                  <div className="form-group animate-fade-in">
-                    <label>Nombre de la iglesia</label>
-                    <div className="input-with-icon">
-                      <Home size={18} className="input-icon" style={{ pointerEvents: 'none' }} />
-                      <input
-                        type="text"
-                        value={customChurch}
-                        onChange={(e) => setCustomChurch(e.target.value)}
-                        required
-                        placeholder="Escribe el nombre de tu iglesia"
-                      />
-                    </div>
+                {formData.isGuest ? (
+                  <div className="guest-welcome-message animate-fade-in">
+                    <p className="welcome-text">
+                      ¡Nos alegra muchísimo que nos acompañes! Agradecemos profundamente tu registro y tu asistencia a la conferencia. Creemos que Dios tiene un propósito especial para ti en este día.
+                    </p>
+                    <blockquote className="welcome-verse">
+                      "Por tanto, recibíos los unos a los otros, como también Cristo nos recibió, para gloria de Dios."
+                      <cite>— Romanos 15:7</cite>
+                    </blockquote>
                   </div>
+                ) : (
+                  <>
+                    <div className="form-group">
+                      <label>Iglesia a la que perteneces</label>
+                      <div className="input-with-icon">
+                        <Home size={18} className="input-icon" style={{ pointerEvents: 'none' }} />
+                        <select
+                          name="selectedChurch"
+                          value={selectedChurch}
+                          onChange={(e) => setSelectedChurch(e.target.value)}
+                          required
+                          style={{ paddingLeft: '3.2rem', cursor: 'pointer' }}
+                        >
+                          <option value="" disabled>Selecciona tu iglesia</option>
+                          {CHURCH_OPTIONS.map((church) => (
+                            <option key={church} value={church}>{church}</option>
+                          ))}
+                          <option value="Otra">Otra...</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    {selectedChurch === 'Otra' && (
+                      <div className="form-group animate-fade-in">
+                        <label>Nombre de la iglesia</label>
+                        <div className="input-with-icon">
+                          <Home size={18} className="input-icon" style={{ pointerEvents: 'none' }} />
+                          <input
+                            type="text"
+                            value={customChurch}
+                            onChange={(e) => setCustomChurch(e.target.value)}
+                            required
+                            placeholder="Escribe el nombre de tu iglesia"
+                          />
+                        </div>
+                      </div>
+                    )}
+                  </>
                 )}
 
                 <div className="form-group">
@@ -722,171 +758,14 @@ const Registration = () => {
                   </label>
                 </div>
 
-                {/* Galería Visual de Mercancía Interactiva */}
+                {/* Galería Visual de Mercancía -> Reemplazado por Próximamente */}
                 {formData.interestedInMerch && (
-                  <div className="registration-merch-selection animate-fade-in">
-                    <span className="merch-section-title">Selección de Artículos</span>
-                    
-                    <div className="registration-products-list">
-                      {PRODUCTS.map(p => {
-                        const isSel = formData.merchSelections[p.id]?.selected;
-                        
-                        // Determinar imagen para previsualizar
-                        let previewImg = "";
-                        if (p.type === "tshirt" || p.id === 2) {
-                          const activeCol = formData.merchSelections[p.id]?.color || "Negro";
-                          previewImg = regTshirtView === "front" ? p.images[activeCol].front : p.images[activeCol].back;
-                        } else {
-                          previewImg = p.images["Negro"];
-                        }
-
-                        return (
-                          <div key={p.id} className={`reg-product-card ${isSel ? 'selected' : ''}`}>
-                            <div className="reg-product-main" onClick={() => handleMerchSelectionToggle(p.id)}>
-                              <div className="reg-checkbox">
-                                <div className={`custom-chk ${isSel ? 'checked' : ''}`}>
-                                  {isSel && <Check size={14} />}
-                                </div>
-                              </div>
-                              
-                              <div style={{ width: '50px', height: '50px', flexShrink: 0 }}>
-                                <PremiumImageDisplay 
-                                  src={previewImg} 
-                                  localPath={previewImg} 
-                                  alt={p.name} 
-                                  className="reg-product-img"
-                                />
-                              </div>
-                              
-                              <div className="reg-product-info">
-                                <span className="reg-product-name">{p.name}</span>
-                                <span className="reg-product-price">RD$ {p.price.toLocaleString()}</span>
-                              </div>
-                            </div>
-                            
-                            {isSel && (
-                              <div className="reg-product-options animate-fade-in">
-                                {/* Si es camiseta, mostrar selector de color y vista */}
-                                {(p.type === "tshirt" || p.id === 2) && (
-                                  <>
-                                    {/* Selector de Vista en miniatura */}
-                                    <div className="reg-option-group">
-                                      <label>Vista</label>
-                                      <div style={{ display: 'flex', gap: '0.4rem', background: 'rgba(0,0,0,0.4)', padding: '0.2rem', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.06)' }}>
-                                        <button 
-                                          type="button"
-                                          onClick={(e) => { e.stopPropagation(); setRegTshirtView("front"); }}
-                                          className={`reg-size-chip ${regTshirtView === "front" ? 'active' : ''}`}
-                                          style={{ padding: '0.25rem 0.6rem', fontSize: '0.75rem', minWidth: 'auto' }}
-                                        >
-                                          Frente
-                                        </button>
-                                        <button 
-                                          type="button"
-                                          onClick={(e) => { e.stopPropagation(); setRegTshirtView("back"); }}
-                                          className={`reg-size-chip ${regTshirtView === "back" ? 'active' : ''}`}
-                                          style={{ padding: '0.25rem 0.6rem', fontSize: '0.75rem', minWidth: 'auto' }}
-                                        >
-                                          Espalda
-                                        </button>
-                                      </div>
-                                    </div>
-
-                                    <div className="reg-option-group">
-                                      <label>Color</label>
-                                      <div className="reg-color-options">
-                                        {p.colors.map(col => (
-                                          <button
-                                            key={col}
-                                            type="button"
-                                            onClick={(e) => { 
-                                              e.stopPropagation(); 
-                                              handleMerchOptionChange(p.id, 'color', col); 
-                                            }}
-                                            className={`reg-color-dot ${formData.merchSelections[p.id].color === col ? 'active' : ''}`}
-                                            style={{ 
-                                              backgroundColor: p.colorHex[col],
-                                              border: col === 'Blanco' ? '1px solid rgba(255,255,255,0.2)' : 'none'
-                                            }}
-                                            aria-label={`Color ${col}`}
-                                          />
-                                        ))}
-                                      </div>
-                                    </div>
-
-                                    <div className="reg-option-group">
-                                      <label>Talla</label>
-                                      <div className="reg-size-options">
-                                        {p.sizes.map(sz => (
-                                          <button
-                                            key={sz}
-                                            type="button"
-                                            onClick={(e) => { 
-                                              e.stopPropagation(); 
-                                              handleMerchOptionChange(p.id, 'size', sz); 
-                                            }}
-                                            className={`reg-size-chip ${formData.merchSelections[p.id].size === sz ? 'active' : ''}`}
-                                          >
-                                            {sz}
-                                          </button>
-                                        ))}
-                                      </div>
-                                    </div>
-                                  </>
-                                )}
-
-                                {/* Selector de Cantidad para ambos */}
-                                <div className="reg-option-group qty-row">
-                                  <label>Cantidad</label>
-                                  <div className="reg-qty-selector">
-                                    <button 
-                                      type="button"
-                                      className="reg-qty-btn" 
-                                      onClick={(e) => { 
-                                        e.stopPropagation(); 
-                                        handleMerchQuantityChange(p.id, -1); 
-                                      }}
-                                      aria-label="Reducir cantidad"
-                                    >
-                                      <Minus size={12} />
-                                    </button>
-                                    <span>{formData.merchSelections[p.id].quantity}</span>
-                                    <button 
-                                      type="button"
-                                      className="reg-qty-btn" 
-                                      onClick={(e) => { 
-                                        e.stopPropagation(); 
-                                        handleMerchQuantityChange(p.id, 1); 
-                                      }}
-                                      aria-label="Aumentar cantidad"
-                                    >
-                                      <Plus size={12} />
-                                    </button>
-                                  </div>
-                                </div>
-                              </div>
-                            )}
-                          </div>
-                        );
-                      })}
-                    </div>
-                    
-                    {/* Resumen de Subtotal */}
-                    {(() => {
-                      let total = 0;
-                      PRODUCTS.forEach(p => {
-                        const sel = formData.merchSelections[p.id];
-                        if (sel?.selected) {
-                          total += p.price * sel.quantity;
-                        }
-                      });
-                      return total > 0 ? (
-                        <div className="reg-merch-summary">
-                          <span>Total de Mercancía:</span>
-                          <strong>RD$ {total.toLocaleString()}</strong>
-                        </div>
-                      ) : null;
-                    })()}
+                  <div className="registration-merch-selection animate-fade-in" style={{ padding: '2rem 1.5rem', textAlign: 'center', background: 'rgba(255, 255, 255, 0.01)', borderRadius: '16px', border: '1px dashed rgba(255, 255, 255, 0.12)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.8rem', margin: '1.5rem 0' }}>
+                    <ShoppingBag size={40} style={{ color: 'var(--text-secondary)', opacity: 0.8 }} />
+                    <h3 style={{ fontSize: '1.1rem', fontWeight: '800', margin: 0, color: 'white' }}>Mercancía Oficial</h3>
+                    <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', lineHeight: '1.5', margin: 0, maxWidth: '380px' }}>
+                      <strong>¡Próximamente!</strong> Estamos preparando la colección oficial de artículos "Sin Filtros" 2026. Podrás verla y adquirirla muy pronto. Mantente atento.
+                    </p>
                   </div>
                 )}
 
