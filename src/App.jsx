@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import Navbar from './components/layout/Navbar';
 import Footer from './components/layout/Footer';
 import ScrollToTop from './components/layout/ScrollToTop';
@@ -11,24 +11,33 @@ import About from './pages/About/About';
 import Merch from './pages/Merch/Merch';
 import TicketVerification from './pages/TicketVerification/TicketVerification';
 
+function AppContent() {
+  const location = useLocation();
+  const isTicketPage = location.pathname.startsWith('/ticket/');
+
+  return (
+    <div className="app-container">
+      {!isTicketPage && <Navbar />}
+      <main className="main-content">
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/actividades" element={<Activities />} />
+          <Route path="/registro" element={<Registration />} />
+          <Route path="/nosotros" element={<About />} />
+          <Route path="/merch" element={<Merch />} />
+          <Route path="/ticket/:code" element={<TicketVerification />} />
+        </Routes>
+      </main>
+      {!isTicketPage && <Footer />}
+    </div>
+  );
+}
+
 function App() {
   return (
     <Router>
       <ScrollToTop />
-      <div className="app-container">
-        <Navbar />
-        <main className="main-content">
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/actividades" element={<Activities />} />
-            <Route path="/registro" element={<Registration />} />
-            <Route path="/nosotros" element={<About />} />
-            <Route path="/merch" element={<Merch />} />
-            <Route path="/ticket/:code" element={<TicketVerification />} />
-          </Routes>
-        </main>
-        <Footer />
-      </div>
+      <AppContent />
     </Router>
   );
 }

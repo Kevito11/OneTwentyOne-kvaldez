@@ -2,7 +2,24 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { CheckCircle, XCircle, Calendar, MapPin, User, Phone, Home, ShoppingBag, Loader, ShieldCheck, AlertTriangle, Printer, RotateCcw } from 'lucide-react';
 import QRCode from 'qrcode';
+import { getImageUrl } from '../../config/images';
 import './TicketVerification.css';
+
+const getProductImage = (itemStr) => {
+  if (itemStr.toLowerCase().includes('gorra')) {
+    return "/merch/Merch SIN FILTROS gorra 1.jpeg";
+  }
+  if (itemStr.toLowerCase().includes('camiseta')) {
+    if (itemStr.includes('Gris')) {
+      return "/merch/Merch SIN FILTROS Tshirt frontal 4.jpeg";
+    }
+    if (itemStr.includes('Blanco')) {
+      return "/merch/Merch SIN FILTROS Tshirt frontal 3.jpeg";
+    }
+    return "/merch/Merch SIN FILTROS Tshirt frontal 6.jpeg"; // negro fallback
+  }
+  return "";
+};
 
 const TicketVerification = () => {
   const { code } = useParams();
@@ -84,8 +101,8 @@ const TicketVerification = () => {
   }, [code]);
 
   return (
-    <div className="verification-page animate-fade-in section-padding">
-      <div className="container mini-container">
+    <div className="verification-page animate-fade-in section-padding" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '2rem 0' }}>
+      <div className="container" style={{ maxWidth: '550px', margin: '0 auto', width: '100%', padding: '0 1.5rem', boxSizing: 'border-box' }}>
         
         {loading && (
           <div className="verification-loading-card glass-panel">
@@ -115,13 +132,14 @@ const TicketVerification = () => {
         )}
 
         {!loading && !error && ticketData && (
-          <div className="verification-success-card glass-panel animate-fade-in">
+          <div className="verification-success-wrapper animate-fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '2rem', width: '100%', boxSizing: 'border-box' }}>
+            
             {/* Cabecera de Estatus */}
-            <div className="status-header">
-              <ShieldCheck className="success-icon" size={32} />
-              <div>
-                <span className="status-label">Boleto Verificado</span>
-                <span className="status-badge">ACCESO VÁLIDO</span>
+            <div className="status-header glass-panel" style={{ display: 'flex', alignItems: 'center', gap: '1rem', width: '100%', padding: '1.2rem 1.5rem', border: '1px solid rgba(16, 185, 129, 0.35)', background: 'rgba(16, 185, 129, 0.05)', borderRadius: '16px', boxSizing: 'border-box' }}>
+              <ShieldCheck className="success-icon" size={32} style={{ color: '#10b981' }} />
+              <div style={{ display: 'flex', flexDirection: 'column', textAlign: 'left' }}>
+                <span className="status-label" style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '1.5px' }}>Boleto Verificado</span>
+                <span className="status-badge" style={{ fontSize: '1.25rem', fontWeight: '900', color: '#10b981', letterSpacing: '0.5px' }}>ACCESO VÁLIDO</span>
               </div>
             </div>
 
@@ -184,16 +202,54 @@ const TicketVerification = () => {
                         <ShoppingBag size={14} style={{ color: 'var(--text-primary)' }} />
                         <span>Mercancía Reservada (Pago del 100% Requerido)</span>
                       </div>
-                      <div className="ticket-merch-items-text">
-                        {items.map((item, idx) => (
-                          <span key={idx} className="ticket-merch-item-chip">{item}</span>
-                        ))}
+                      
+                      {/* Visual List of Items with Images */}
+                      <div className="ticket-merch-items-list" style={{ marginTop: '0.8rem', display: 'flex', flexDirection: 'column', gap: '0.6rem', marginBottom: '0.8rem' }}>
+                        {items.map((item, idx) => {
+                          const imgPath = getProductImage(item);
+                          const parts = item.split(' - ');
+                          const mainInfo = parts[0] || item;
+                          const details = parts[1] || '';
+                          
+                          return (
+                            <div key={idx} className="ticket-merch-item-card" style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', background: 'rgba(255,255,255,0.03)', padding: '0.5rem', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                              {imgPath && (
+                                <div style={{ width: '48px', height: '48px', borderRadius: '6px', overflow: 'hidden', background: '#090909', border: '1px solid rgba(255,255,255,0.08)', flexShrink: 0 }}>
+                                  <img 
+                                    src={encodeURI(decodeURI(getImageUrl(imgPath)))} 
+                                    alt={mainInfo} 
+                                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                                    onError={(e) => {
+                                      if (e.target.src !== imgPath) {
+                                        e.target.src = imgPath;
+                                      }
+                                    }}
+                                  />
+                                </div>
+                              )}
+                              <div style={{ flexGrow: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: '0.1rem', textAlign: 'left' }}>
+                                <div style={{ fontWeight: '700', fontSize: '0.85rem', color: 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                  {mainInfo}
+                                </div>
+                                {details && (
+                                  <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
+                                    {details}
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          );
+                        })}
                       </div>
+
                       <div className="ticket-merch-total-row">
                         <span>Pago requerido (100%):</span>
                         <strong>RD$ {merchTotal.toLocaleString()}</strong>
                       </div>
                       <div className="ticket-merch-note" style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.6rem', borderTop: '1px dashed rgba(255,255,255,0.06)', paddingTop: '0.6rem', lineHeight: '1.4' }}>
+                        <div style={{ background: 'rgba(239,68,68,0.12)', border: '1px solid rgba(239,68,68,0.35)', borderRadius: '6px', padding: '0.5rem 0.7rem', marginBottom: '0.8rem', color: '#f87171', fontWeight: '600', fontSize: '0.78rem', lineHeight: '1.4', textAlign: 'left' }}>
+                          ⚠️ Fecha límite de pago: <strong style={{ color: '#fca5a5' }}>01 de agosto de 2026</strong>. Por favor, completa tu pago a tiempo. Pasada esta fecha, las reservas no pagadas se cancelarán automáticamente y no podremos garantizar la disponibilidad de tus artículos.
+                        </div>
                         <div style={{ marginBottom: '0.4rem', color: 'var(--text-secondary)' }}>
                           <strong>📌 Confirmación de Reserva (Pago 100%):</strong>
                         </div>
@@ -258,7 +314,7 @@ const TicketVerification = () => {
             </div>
 
             {/* Actions Bar */}
-            <div className="ticket-actions-bar" style={{ marginTop: '2rem', width: '100%' }}>
+            <div className="ticket-actions-bar" style={{ width: '100%' }}>
               <button onClick={handlePrint} className="ticket-action-btn print">
                 <Printer size={18} />
                 Imprimir Boleto / PDF
