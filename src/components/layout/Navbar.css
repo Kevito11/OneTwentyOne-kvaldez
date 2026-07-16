@@ -220,3 +220,8 @@
   color: var(--accent-blue);
   transform: scale(1.08) rotate(90deg);
 }
+
+/* Ocultar navbar cuando el registro exitoso está activo */
+body.success-overlay-active .navbar {
+  display: none !important;
+}

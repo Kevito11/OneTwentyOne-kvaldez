@@ -8,13 +8,11 @@ function doPost(e) {
     
     var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
     
-    // Obtener y formatear fecha y hora por separado
     var now = new Date();
     var timezone = Session.getScriptTimeZone();
     var dateFormatted = Utilities.formatDate(now, timezone, "dd/MM/yyyy");
-    var timeFormatted = Utilities.formatDate(now, timezone, "hh:mm:ss a"); // Formato 12 horas (AM/PM)
+    var timeFormatted = Utilities.formatDate(now, timezone, "hh:mm:ss a");
     
-    // FILA MAPEADA EXACTAMENTE A TU ORDEN DE COLUMNAS:
     var rowData = [
       dateFormatted,                // Fecha (Columna A)
       timeFormatted,                // Hora (Columna B)
@@ -32,7 +30,6 @@ function doPost(e) {
     
     sheet.appendRow(rowData);
     
-    // Enviar correo de confirmación de forma segura (try/catch para no interrumpir el registro)
     try {
       enviarCorreoConfirmacion(data);
     } catch (emailError) {
@@ -61,23 +58,22 @@ function doGet(e) {
     var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
     var data = sheet.getDataRange().getValues();
     
-    // Buscar en la columna C (índice 2 de la fila)
     for (var i = 1; i < data.length; i++) {
       if (data[i][2] === codeToFind) {
         var result = {
           status: 'success',
-          date: data[i][0],             // Fecha (Columna A)
-          time: data[i][1],             // Hora (Columna B)
-          ticketCode: data[i][2],       // Código de Boleto (Columna C)
-          firstName: data[i][3],        // Nombre (Columna D)
-          lastName: data[i][4],         // Apellido (Columna E)
-          email: data[i][5],            // Correo (Columna F)
-          phone: data[i][6],            // Teléfono (Columna G)
-          church: data[i][7],           // Iglesia (Columna H)
-          ageGroup: data[i][8],         // Rango de Edad (Columna I)
-          interestedInMerch: data[i][9],// Interés en Mercancía (Columna J)
-          merchItems: data[i][10],      // Artículos de Mercancía (Columna K)
-          merchTotal: data[i][11]       // Total de Venta (Columna L)
+          date: data[i][0],
+          time: data[i][1],
+          ticketCode: data[i][2],
+          firstName: data[i][3],
+          lastName: data[i][4],
+          email: data[i][5],
+          phone: data[i][6],
+          church: data[i][7],
+          ageGroup: data[i][8],
+          interestedInMerch: data[i][9],
+          merchItems: data[i][10],
+          merchTotal: data[i][11]
         };
         
         return ContentService.createTextOutput(JSON.stringify(result))
@@ -103,21 +99,31 @@ function enviarCorreoConfirmacion(data) {
   
   var subject = "🎫 Tu Boleto de Entrada - Sin Filtros 2026";
   
-  // Obtener URL del ticket (enviada desde el frontend)
   var ticketUrl = data.ticketUrl;
-  
-  // Fallback en caso de que no venga la URL (p. ej., desarrollo o versión anterior)
   if (!ticketUrl) {
     ticketUrl = "https://onetwentyone-icc.vercel.app/ticket/" + data.ticketCode;
   }
   
-  // Generar código QR que apunta a la URL completa de la ventana del ticket
   var qrCodeUrl = "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=" + encodeURIComponent(ticketUrl);
   
   var merchHtml = "";
   if (data.interestedInMerch === "Sí" && data.merchTotal > 0) {
-    var totalVal = "RD$ " + Number(data.merchTotal).toFixed(2);
-    var abono50 = "RD$ " + (Number(data.merchTotal) / 2).toFixed(2);
+    var totalVal = "RD$ " + Number(data.merchTotal).toLocaleString();
+    
+    // Generar bloque HTML de imágenes si vienen en data
+    var imagesHtml = "";
+    if (data.merchImageUrls) {
+      var urls = data.merchImageUrls.split(",");
+      imagesHtml = '<div style="margin-top: 12px; font-size: 0;">';
+      for (var u = 0; u < urls.length; u++) {
+        var url = urls[u].trim();
+        if (url) {
+          var safeUrl = encodeURI(decodeURI(url));
+          imagesHtml += '<img src="' + safeUrl + '" alt="Producto reservado" width="80" height="80" style="width: 80px; height: 80px; object-fit: cover; border-radius: 8px; border: 1px solid #333333; margin-right: 8px; margin-bottom: 8px; display: inline-block;" />';
+        }
+      }
+      imagesHtml += '</div>';
+    }
     
     merchHtml = `
       <tr>
@@ -131,18 +137,15 @@ function enviarCorreoConfirmacion(data) {
             <tr>
               <td style="font-size: 13px; color: #aaaaaa; padding-bottom: 12px; line-height: 1.4;">
                 ${data.merchItems}
+                ${imagesHtml}
               </td>
             </tr>
             <tr>
               <td style="border-top: 1px solid #222222; padding-top: 10px;">
                 <table width="100%" border="0" cellspacing="0" cellpadding="0" style="font-size: 13px; color: #cccccc;">
                   <tr>
-                    <td>Total de Venta:</td>
+                    <td>Pago Requerido (100%):</td>
                     <td align="right" style="color: #ffffff; font-weight: bold;">${totalVal}</td>
-                  </tr>
-                  <tr>
-                    <td style="padding-top: 4px;">Abono Requerido (50%):</td>
-                    <td align="right" style="color: #ffffff; font-weight: bold; padding-top: 4px;">${abono50}</td>
                   </tr>
                 </table>
               </td>
@@ -150,12 +153,13 @@ function enviarCorreoConfirmacion(data) {
             <tr>
               <td style="font-size: 11px; color: #888888; padding-top: 12px; line-height: 1.4;">
                 <strong>Instrucciones de Pago:</strong><br>
-                Deposita o transfiere el abono e indica como concepto: <strong>${data.ticketCode} - ${data.firstName} ${data.lastName}</strong>.<br><br>
-                • <strong>Banreservas:</strong> Cta Corriente <code>0102401330</code><br>
-                • <strong>Banco Popular RD$:</strong> Cta Corriente <code>805943297</code><br>
-                • <strong>Banco Popular US$:</strong> Cta Ahorros <code>818318875</code><br>
-                • <strong>RNC:</strong> 424-00200-2 (Beneficiario: Iglesia de Convertidos a Cristo)<br><br>
-                <a href="https://wa.me/18498838466?text=COMPROBANTE%20DE%20ABONO%20-%20REGISTRO%20CONFERENCIA%0A%0AAsistente%3A%20${encodeURIComponent(data.firstName + ' ' + data.lastName)}%0ACódigo%20de%20Boleto%3A%20${encodeURIComponent(data.ticketCode)}" target="_blank" style="color: #ffffff; font-weight: bold; text-decoration: underline;">Enviar comprobante por WhatsApp al 849-883-8466</a>
+                Deposita o transfiere el monto total e indica como concepto: <strong>${data.ticketCode} - ${data.firstName} ${data.lastName}</strong>.<br><br>
+                • <strong>Banreservas (Ahorro):</strong> <code>9607274318</code> &mdash; Joelmary Hernandez &mdash; Cédula: 402-3603056-1<br>
+                • <strong>Banco Popular (Corriente):</strong> <code>836288449</code> &mdash; David J. Chez &mdash; Cédula: 402-0037969-7<br><br>
+                Una vez recibido el pago, estaremos contactando cuando esté listo y disponible para retirar en la iglesia.<br><br>
+                <strong style="color: #f87171;">⚠️ Fecha límite de pago: 01 de agosto de 2026.</strong><br>
+                Por favor, completa tu pago a tiempo. Pasada esta fecha, las reservas no pagadas se cancelarán automáticamente y no podremos garantizar la disponibilidad de tus artículos.<br><br>
+                <a href="https://wa.me/18096299236?text=COMPROBANTE%20DE%20PAGO%20-%20REGISTRO%20CONFERENCIA%0A%0AAsistente%3A%20${encodeURIComponent(data.firstName + ' ' + data.lastName)}%0ACódigo%20de%20Boleto%3A%20${encodeURIComponent(data.ticketCode)}" target="_blank" style="color: #ffffff; font-weight: bold; text-decoration: underline;">Enviar comprobante por WhatsApp al (809) 629-9236</a>
               </td>
             </tr>
           </table>
@@ -250,7 +254,6 @@ function enviarCorreoConfirmacion(data) {
     </html>
   `;
 
-  // === ENVÍO SEGURO USANDO MAILAPP ===
   MailApp.sendEmail({
     to: email,
     subject: subject,

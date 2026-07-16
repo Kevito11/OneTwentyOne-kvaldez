@@ -182,7 +182,7 @@ const TicketVerification = () => {
                     <div className="ticket-merch-summary-box">
                       <div className="ticket-merch-title-row">
                         <ShoppingBag size={14} style={{ color: 'var(--text-primary)' }} />
-                        <span>Mercancía Reservada (Abono del 50% Requerido)</span>
+                        <span>Mercancía Reservada (Pago del 100% Requerido)</span>
                       </div>
                       <div className="ticket-merch-items-text">
                         {items.map((item, idx) => (
@@ -190,18 +190,14 @@ const TicketVerification = () => {
                         ))}
                       </div>
                       <div className="ticket-merch-total-row">
-                        <span>Abono requerido (50%):</span>
-                        <strong>RD$ {(merchTotal / 2).toLocaleString()}</strong>
-                      </div>
-                      <div className="ticket-merch-total-row" style={{ borderTop: 'none', paddingTop: 0 }}>
-                        <span>Total de venta:</span>
+                        <span>Pago requerido (100%):</span>
                         <strong>RD$ {merchTotal.toLocaleString()}</strong>
                       </div>
                       <div className="ticket-merch-note" style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.6rem', borderTop: '1px dashed rgba(255,255,255,0.06)', paddingTop: '0.6rem', lineHeight: '1.4' }}>
                         <div style={{ marginBottom: '0.4rem', color: 'var(--text-secondary)' }}>
-                          <strong>📌 Confirmación de Reserva (Abono 50%):</strong>
+                          <strong>📌 Confirmación de Reserva (Pago 100%):</strong>
                         </div>
-                        <div>1. Realiza el depósito/transferencia del 50% a cualquiera de las cuentas indicadas en la web.</div>
+                        <div>1. Realiza el depósito/transferencia del 100% a cualquiera de las cuentas indicadas en la web.</div>
                         <div style={{ margin: '0.2rem 0' }}>
                           2. En el concepto de tu banco, indica la siguiente estructura para asociarlo fácilmente:
                           <div style={{ background: 'rgba(255,255,255,0.04)', padding: '0.3rem 0.5rem', borderRadius: '4px', margin: '0.25rem 0', fontFamily: 'monospace', color: 'white', display: 'block', width: 'fit-content' }}>
@@ -209,13 +205,13 @@ const TicketVerification = () => {
                           </div>
                         </div>
                         <div style={{ color: '#fbd590', marginBottom: '0.4rem' }}>
-                          * El pago restante (50%) debe completarse antes del <strong>5 de Agosto</strong>.
+                          * Estaremos contactando una vez esté listo y disponible para retirar en la iglesia.
                         </div>
 
                         {/* Botón para enviar comprobante */}
                         <a 
-                          href={`https://wa.me/18498838466?text=${encodeURIComponent(
-                            `*COMPROBANTE DE ABONO - REGISTRO CONFERENCIA*\n\n*Asistente:* ${ticketData.firstName} ${ticketData.lastName}\n*Código de Boleto:* ${ticketData.ticketCode}\n\nAdjunto el comprobante del depósito del 50% para confirmar la reserva de mi mercancía.`
+                          href={`https://wa.me/18096299236?text=${encodeURIComponent(
+                            `*COMPROBANTE DE PAGO - REGISTRO CONFERENCIA*\n\n*Asistente:* ${ticketData.firstName} ${ticketData.lastName}\n*Código de Boleto:* ${ticketData.ticketCode}\n\nAdjunto el comprobante del depósito del 100% para confirmar mi mercancía.`
                           )}`}
                           target="_blank"
                           rel="noopener noreferrer"
@@ -223,7 +219,7 @@ const TicketVerification = () => {
                           style={{ textDecoration: 'none', display: 'flex', marginTop: '0.6rem', padding: '0.6rem 0.8rem' }}
                         >
                           <Phone size={14} style={{ color: 'var(--accent-light)' }} />
-                          <span>Envía el comprobante por WhatsApp al <strong>849-883-8466</strong> (Haz clic para chatear).</span>
+                          <span>Envía el comprobante por WhatsApp al <strong>(809) 629-9236</strong> (Haz clic para chatear).</span>
                         </a>
                       </div>
                     </div>
