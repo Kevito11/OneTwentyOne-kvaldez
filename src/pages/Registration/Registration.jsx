@@ -66,7 +66,10 @@ const PRODUCTS = [
     price: 750,
     type: "cap",
     images: {
-      "Negro": "/merch/Merch SIN FILTROS gorra 1.jpeg"
+      "Negro": {
+        front: "/merch/Merch SIN FILTROS gorra 1.jpeg",
+        back: "/merch/Merch SIN FILTROS gorra 2.jpeg"
+      }
     },
     colors: ["Negro"],
     colorHex: {
@@ -251,6 +254,7 @@ const Registration = () => {
   }, [posterImages.length]);
 
   const [regTshirtView, setRegTshirtView] = useState('front');
+  const [regCapView, setRegCapView] = useState('front');
 
 
   const [formData, setFormData] = useState({
@@ -754,7 +758,7 @@ const Registration = () => {
                     <span className="merch-section-title">Selección de Artículos</span>
                     
                     <div className="registration-products-list">
-                      {PRODUCTS.filter(p => p.type !== 'cap').map(p => {
+                      {PRODUCTS.map(p => {
                         const isSel = formData.merchSelections[p.id]?.selected;
                         
                         // Determinar imagen para previsualizar
@@ -762,8 +766,10 @@ const Registration = () => {
                         if (p.type === "tshirt" || p.id === 2) {
                           const activeCol = formData.merchSelections[p.id]?.color || "Negro";
                           previewImg = regTshirtView === "front" ? p.images[activeCol].front : p.images[activeCol].back;
+                        } else if (p.type === "cap" || p.id === 1) {
+                          previewImg = regCapView === "front" ? p.images["Negro"].front : p.images["Negro"].back;
                         } else {
-                          previewImg = p.images["Negro"];
+                          previewImg = typeof p.images["Negro"] === "object" ? p.images["Negro"].front : p.images["Negro"];
                         }
 
                         return (
@@ -792,6 +798,31 @@ const Registration = () => {
                             
                             {isSel && (
                               <div className="reg-product-options animate-fade-in">
+                                {/* Si es gorra, mostrar selector de vista */}
+                                {(p.type === "cap" || p.id === 1) && (
+                                  <div className="reg-option-group">
+                                    <label>Vista</label>
+                                    <div style={{ display: 'flex', gap: '0.4rem', background: 'rgba(0,0,0,0.4)', padding: '0.2rem', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.06)' }}>
+                                      <button 
+                                        type="button"
+                                        onClick={(e) => { e.stopPropagation(); setRegCapView("front"); }}
+                                        className={`reg-size-chip ${regCapView === "front" ? 'active' : ''}`}
+                                        style={{ padding: '0.25rem 0.6rem', fontSize: '0.75rem', minWidth: 'auto' }}
+                                      >
+                                        Frontal
+                                      </button>
+                                      <button 
+                                        type="button"
+                                        onClick={(e) => { e.stopPropagation(); setRegCapView("back"); }}
+                                        className={`reg-size-chip ${regCapView === "back" ? 'active' : ''}`}
+                                        style={{ padding: '0.25rem 0.6rem', fontSize: '0.75rem', minWidth: 'auto' }}
+                                      >
+                                        Trasera
+                                      </button>
+                                    </div>
+                                  </div>
+                                )}
+
                                 {/* Si es camiseta, mostrar selector de color y vista */}
                                 {(p.type === "tshirt" || p.id === 2) && (
                                   <>
@@ -805,7 +836,7 @@ const Registration = () => {
                                           className={`reg-size-chip ${regTshirtView === "front" ? 'active' : ''}`}
                                           style={{ padding: '0.25rem 0.6rem', fontSize: '0.75rem', minWidth: 'auto' }}
                                         >
-                                          Frente
+                                          Frontal
                                         </button>
                                         <button 
                                           type="button"
@@ -813,7 +844,7 @@ const Registration = () => {
                                           className={`reg-size-chip ${regTshirtView === "back" ? 'active' : ''}`}
                                           style={{ padding: '0.25rem 0.6rem', fontSize: '0.75rem', minWidth: 'auto' }}
                                         >
-                                          Espalda
+                                          Trasera
                                         </button>
                                       </div>
                                     </div>

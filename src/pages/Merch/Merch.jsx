@@ -14,7 +14,10 @@ const PRODUCTS = [
     description: "Gorra oficial de la conferencia.",
     type: "cap",
     images: {
-      "Negro": "/merch/Merch SIN FILTROS gorra 1.jpeg"
+      "Negro": {
+        front: "/merch/Merch SIN FILTROS gorra 1.jpeg",
+        back: "/merch/Merch SIN FILTROS gorra 2.jpeg"
+      }
     },
     colors: ["Negro"],
     colorHex: {
@@ -52,7 +55,12 @@ const PRODUCTS = [
   }
 ];
 
-// Lista de combinaciones de imágenes de camiseta para navegación secuencial
+// Lista de combinaciones de imágenes para navegación secuencial
+const capImagesList = [
+  { color: "Negro", view: "front" },
+  { color: "Negro", view: "back" }
+];
+
 const tshirtImagesList = [
   { color: "Negro", view: "front" },
   { color: "Negro", view: "back" },
@@ -123,9 +131,10 @@ const Merch = () => {
   const navigate = useNavigate();
   const [isAddMerchModalOpen, setIsAddMerchModalOpen] = useState(false);
 
-  // Estados para el selector de camiseta
+  // Estados para el selector de producto
   const [activeColor, setActiveColor] = useState("Negro"); // Negro, Gris, Blanco
   const [activeView, setActiveView] = useState("front"); // front, back
+  const [capActiveView, setCapActiveView] = useState("front"); // front, back
   const [tshirtSize, setTshirtSize] = useState("M");
   const [lightboxImage, setLightboxImage] = useState(null);
 
@@ -142,20 +151,29 @@ const Merch = () => {
   const isDragging = useRef(false);
 
   const handleSwipe = (isNext) => {
-    if (lightboxImage && lightboxImage.type === 'tshirt') {
-      const currentIndex = tshirtImagesList.findIndex(
+    if (lightboxImage) {
+      const currentList = lightboxImage.type === 'tshirt' ? tshirtImagesList : capImagesList;
+      const currentIndex = currentList.findIndex(
         item => item.color === lightboxImage.color && item.view === lightboxImage.view
       );
-      if (isNext && currentIndex < tshirtImagesList.length - 1) {
-        const nextItem = tshirtImagesList[currentIndex + 1];
-        setLightboxImage({ type: 'tshirt', color: nextItem.color, view: nextItem.view });
-        setActiveColor(nextItem.color);
-        setActiveView(nextItem.view);
+      if (isNext && currentIndex < currentList.length - 1) {
+        const nextItem = currentList[currentIndex + 1];
+        setLightboxImage({ type: lightboxImage.type, color: nextItem.color, view: nextItem.view });
+        if (lightboxImage.type === 'tshirt') {
+          setActiveColor(nextItem.color);
+          setActiveView(nextItem.view);
+        } else {
+          setCapActiveView(nextItem.view);
+        }
       } else if (!isNext && currentIndex > 0) {
-        const prevItem = tshirtImagesList[currentIndex - 1];
-        setLightboxImage({ type: 'tshirt', color: prevItem.color, view: prevItem.view });
-        setActiveColor(prevItem.color);
-        setActiveView(prevItem.view);
+        const prevItem = currentList[currentIndex - 1];
+        setLightboxImage({ type: lightboxImage.type, color: prevItem.color, view: prevItem.view });
+        if (lightboxImage.type === 'tshirt') {
+          setActiveColor(prevItem.color);
+          setActiveView(prevItem.view);
+        } else {
+          setCapActiveView(prevItem.view);
+        }
       }
     }
   };
@@ -221,29 +239,35 @@ const Merch = () => {
         e.preventDefault();
         setLightboxImage(null);
       } else if (e.key === 'ArrowRight') {
-        if (lightboxImage.type === 'tshirt') {
-          const currentIndex = tshirtImagesList.findIndex(
-            item => item.color === lightboxImage.color && item.view === lightboxImage.view
-          );
-          if (currentIndex < tshirtImagesList.length - 1) {
-            e.preventDefault();
-            const nextItem = tshirtImagesList[currentIndex + 1];
-            setLightboxImage({ type: 'tshirt', color: nextItem.color, view: nextItem.view });
+        const currentList = lightboxImage.type === 'tshirt' ? tshirtImagesList : capImagesList;
+        const currentIndex = currentList.findIndex(
+          item => item.color === lightboxImage.color && item.view === lightboxImage.view
+        );
+        if (currentIndex < currentList.length - 1) {
+          e.preventDefault();
+          const nextItem = currentList[currentIndex + 1];
+          setLightboxImage({ type: lightboxImage.type, color: nextItem.color, view: nextItem.view });
+          if (lightboxImage.type === 'tshirt') {
             setActiveColor(nextItem.color);
             setActiveView(nextItem.view);
+          } else {
+            setCapActiveView(nextItem.view);
           }
         }
       } else if (e.key === 'ArrowLeft') {
-        if (lightboxImage.type === 'tshirt') {
-          const currentIndex = tshirtImagesList.findIndex(
-            item => item.color === lightboxImage.color && item.view === lightboxImage.view
-          );
-          if (currentIndex > 0) {
-            e.preventDefault();
-            const prevItem = tshirtImagesList[currentIndex - 1];
-            setLightboxImage({ type: 'tshirt', color: prevItem.color, view: prevItem.view });
-            setActiveColor(prevItem.color);
-            setActiveView(prevItem.view);
+        const currentList = lightboxImage.type === 'tshirt' ? tshirtImagesList : capImagesList;
+        const currentIndex = currentList.findIndex(
+          item => item.color === lightboxImage.color && item.view === lightboxImage.view
+        );
+        if (currentIndex > 0) {
+          e.preventDefault();
+          const prevItem = currentList[currentIndex - 1];
+          setLightboxImage({ type: lightboxImage.type, color: prevItem.color, view: prevItem.view });
+          if (lightboxImage.type === 'tshirt') {
+            setActiveColor(nextItem.color);
+            setActiveView(nextItem.view);
+          } else {
+            setCapActiveView(nextItem.view);
           }
         }
       }
@@ -293,7 +317,7 @@ const Merch = () => {
 
         {/* Productos Grid */}
         <div className="products-grid">
-          {PRODUCTS.filter(product => product.type !== 'cap').map(product => {
+          {PRODUCTS.map(product => {
             if (product.type === "tshirt") {
               const activeColorImg = activeView === "front" 
                 ? product.images[activeColor].front 
@@ -314,21 +338,21 @@ const Merch = () => {
                       className="product-image"
                     />
                     
-                    {/* Switch de Vista Frente/Espalda */}
+                    {/* Switch de Vista Frontal/Trasera */}
                     <div className="view-toggle-container" style={{ position: 'absolute', bottom: '1.2rem', left: '50%', transform: 'translateX(-50%)', display: 'flex', gap: '0.4rem', background: 'rgba(0,0,0,0.65)', padding: '0.3rem', borderRadius: '50px', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(8px)', zIndex: '2' }}>
                       <button 
                         onClick={(e) => { e.stopPropagation(); setActiveView("front"); }} 
                         className={`view-toggle-btn ${activeView === "front" ? 'active' : ''}`}
                         style={{ background: activeView === "front" ? 'white' : 'transparent', color: activeView === "front" ? 'black' : 'var(--text-secondary)', border: 'none', padding: '0.4rem 1rem', borderRadius: '50px', fontSize: '0.75rem', fontWeight: '700', cursor: 'pointer', transition: 'all 0.2s' }}
                       >
-                        Frente
+                        Frontal
                       </button>
                       <button 
                         onClick={(e) => { e.stopPropagation(); setActiveView("back"); }} 
                         className={`view-toggle-btn ${activeView === "back" ? 'active' : ''}`}
                         style={{ background: activeView === "back" ? 'white' : 'transparent', color: activeView === "back" ? 'black' : 'var(--text-secondary)', border: 'none', padding: '0.4rem 1rem', borderRadius: '50px', fontSize: '0.75rem', fontWeight: '700', cursor: 'pointer', transition: 'all 0.2s' }}
                       >
-                        Espalda
+                        Trasera
                       </button>
                     </div>
                   </div>
@@ -396,13 +420,15 @@ const Merch = () => {
               );
             } else {
               // GORRA
-              const activeCapImg = product.images["Negro"];
+              const activeCapImg = capActiveView === "front" 
+                ? product.images["Negro"].front 
+                : product.images["Negro"].back;
               return (
                 <div key={product.id} className="product-card glass-panel animate-fade-in">
                   <div 
                     className="product-image-container"
-                    style={{ cursor: 'zoom-in' }}
-                    onClick={() => setLightboxImage({ type: 'cap', color: 'Negro' })}
+                    style={{ position: 'relative', cursor: 'zoom-in' }}
+                    onClick={() => setLightboxImage({ type: 'cap', color: 'Negro', view: capActiveView })}
                     title="Click para ampliar"
                   >
                     <PremiumImageDisplay 
@@ -411,6 +437,24 @@ const Merch = () => {
                       alt={product.name} 
                       className="product-image"
                     />
+
+                    {/* Switch de Vista Frontal/Trasera */}
+                    <div className="view-toggle-container" style={{ position: 'absolute', bottom: '1.2rem', left: '50%', transform: 'translateX(-50%)', display: 'flex', gap: '0.4rem', background: 'rgba(0,0,0,0.65)', padding: '0.3rem', borderRadius: '50px', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(8px)', zIndex: '2' }}>
+                      <button 
+                        onClick={(e) => { e.stopPropagation(); setCapActiveView("front"); }} 
+                        className={`view-toggle-btn ${capActiveView === "front" ? 'active' : ''}`}
+                        style={{ background: capActiveView === "front" ? 'white' : 'transparent', color: capActiveView === "front" ? 'black' : 'var(--text-secondary)', border: 'none', padding: '0.4rem 1rem', borderRadius: '50px', fontSize: '0.75rem', fontWeight: '700', cursor: 'pointer', transition: 'all 0.2s' }}
+                      >
+                        Frontal
+                      </button>
+                      <button 
+                        onClick={(e) => { e.stopPropagation(); setCapActiveView("back"); }} 
+                        className={`view-toggle-btn ${capActiveView === "back" ? 'active' : ''}`}
+                        style={{ background: capActiveView === "back" ? 'white' : 'transparent', color: capActiveView === "back" ? 'black' : 'var(--text-secondary)', border: 'none', padding: '0.4rem 1rem', borderRadius: '50px', fontSize: '0.75rem', fontWeight: '700', cursor: 'pointer', transition: 'all 0.2s' }}
+                      >
+                        Trasera
+                      </button>
+                    </div>
                   </div>
 
                   <div className="product-info">
@@ -470,11 +514,12 @@ const Merch = () => {
         const product = PRODUCTS.find(p => p.type === lightboxImage.type);
         const zoomedImgSrc = lightboxImage.type === 'tshirt'
           ? product.images[lightboxImage.color][lightboxImage.view]
-          : product.images['Negro'];
+          : product.images['Negro'][lightboxImage.view];
         
-        const currentIndex = lightboxImage.type === 'tshirt'
-          ? tshirtImagesList.findIndex(item => item.color === lightboxImage.color && item.view === lightboxImage.view)
-          : 0;
+        const currentList = lightboxImage.type === 'tshirt' ? tshirtImagesList : capImagesList;
+        const currentIndex = currentList.findIndex(
+          item => item.color === lightboxImage.color && item.view === lightboxImage.view
+        );
         
         return (
           <div 
@@ -512,32 +557,40 @@ const Merch = () => {
               />
             </div>
             
-            {lightboxImage.type === 'tshirt' && (
+            {currentList.length > 1 && (
               <>
                 {currentIndex > 0 && (
                   <button 
                     className="lightbox-nav-btn prev" 
                     onClick={(e) => {
                       e.stopPropagation();
-                      const prevItem = tshirtImagesList[currentIndex - 1];
-                      setLightboxImage({ type: 'tshirt', color: prevItem.color, view: prevItem.view });
-                      setActiveColor(prevItem.color);
-                      setActiveView(prevItem.view);
+                      const prevItem = currentList[currentIndex - 1];
+                      setLightboxImage({ type: lightboxImage.type, color: prevItem.color, view: prevItem.view });
+                      if (lightboxImage.type === 'tshirt') {
+                        setActiveColor(prevItem.color);
+                        setActiveView(prevItem.view);
+                      } else {
+                        setCapActiveView(prevItem.view);
+                      }
                     }}
                     aria-label="Imagen anterior"
                   >
                     <ChevronLeft size={36} />
                   </button>
                 )}
-                {currentIndex < tshirtImagesList.length - 1 && (
+                {currentIndex < currentList.length - 1 && (
                   <button 
                     className="lightbox-nav-btn next" 
                     onClick={(e) => {
                       e.stopPropagation();
-                      const nextItem = tshirtImagesList[currentIndex + 1];
-                      setLightboxImage({ type: 'tshirt', color: nextItem.color, view: nextItem.view });
-                      setActiveColor(nextItem.color);
-                      setActiveView(nextItem.view);
+                      const nextItem = currentList[currentIndex + 1];
+                      setLightboxImage({ type: lightboxImage.type, color: nextItem.color, view: nextItem.view });
+                      if (lightboxImage.type === 'tshirt') {
+                        setActiveColor(nextItem.color);
+                        setActiveView(nextItem.view);
+                      } else {
+                        setCapActiveView(nextItem.view);
+                      }
                     }}
                     aria-label="Imagen siguiente"
                   >
@@ -550,10 +603,10 @@ const Merch = () => {
                   style={{ position: 'absolute', bottom: '2.5rem', left: '50%', transform: 'translateX(-50%)', background: 'rgba(255, 255, 255, 0.1)', color: 'white', padding: '0.35rem 1rem', borderRadius: '50px', fontSize: '0.85rem', fontWeight: '700', border: '1px solid rgba(255, 255, 255, 0.1)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.2rem', userSelect: 'none', backdropFilter: 'blur(10px)', zIndex: '20' }}
                 >
                   <span style={{ fontSize: '0.8rem' }}>
-                    {lightboxImage.color} - {lightboxImage.view === 'front' ? 'Frente' : 'Espalda'}
+                    {lightboxImage.color} - {lightboxImage.view === 'front' ? 'Frontal' : 'Trasera'}
                   </span>
                   <span style={{ fontSize: '0.7rem', opacity: 0.6 }}>
-                    ({currentIndex + 1} / {tshirtImagesList.length})
+                    ({currentIndex + 1} / {currentList.length})
                   </span>
                 </div>
               </>

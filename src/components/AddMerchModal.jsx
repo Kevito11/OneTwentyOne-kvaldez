@@ -11,7 +11,10 @@ const PRODUCTS = [
     price: 750,
     type: 'cap',
     images: {
-      'Negro': '/merch/Merch SIN FILTROS gorra 1.jpeg'
+      'Negro': {
+        front: '/merch/Merch SIN FILTROS gorra 1.jpeg',
+        back: '/merch/Merch SIN FILTROS gorra 2.jpeg'
+      }
     },
     colors: ['Negro'],
     colorHex: {
@@ -177,8 +180,8 @@ const AddMerchModal = ({
       newTotalAmount += p.price * sel.quantity;
       newSelectedItemsDetails.push(`${sel.quantity}x ${p.name} - ${sel.color} (Talla: ${sel.size})`);
       
-      const imgPath = p.type === 'tshirt'
-        ? p.images[sel.color]?.front
+      const imgPath = typeof p.images[sel.color || 'Negro'] === 'object'
+        ? p.images[sel.color || 'Negro']?.front
         : p.images['Negro'];
       selectedImageUrls.push(encodeURI(decodeURI(getImageUrl(imgPath))));
     }
@@ -474,8 +477,8 @@ const AddMerchModal = ({
               {PRODUCTS.map(product => {
                 const sel = merchSelections[product.id] || { selected: false, quantity: 1, color: 'Negro', size: 'M' };
                 const isTshirt = product.type === 'tshirt';
-                const previewImg = isTshirt
-                  ? product.images[sel.color]?.front
+                const previewImg = typeof product.images[sel.color || 'Negro'] === 'object'
+                  ? product.images[sel.color || 'Negro']?.front
                   : product.images['Negro'];
 
                 return (
