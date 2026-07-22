@@ -8,6 +8,64 @@ function doPost(e) {
     
     var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
     
+    // Si la acción es actualizar mercancía para un boleto existente
+    if (data.action === 'updateMerch') {
+      var codeToFind = data.ticketCode;
+      if (!codeToFind) {
+        return ContentService.createTextOutput(JSON.stringify({ status: 'error', message: 'Falta el código de boleto.' }))
+          .setMimeType(ContentService.MimeType.JSON);
+      }
+
+      var values = sheet.getDataRange().getValues();
+      var foundRowIndex = -1;
+      
+      for (var i = 1; i < values.length; i++) {
+        if (String(values[i][2]).trim() === String(codeToFind).trim()) {
+          foundRowIndex = i + 1; // 1-indexed row en Google Sheets
+          break;
+        }
+      }
+      
+      if (foundRowIndex === -1) {
+        return ContentService.createTextOutput(JSON.stringify({ status: 'not_found', message: 'Código de boleto no encontrado en los registros.' }))
+          .setMimeType(ContentService.MimeType.JSON);
+      }
+      
+      // Actualizar columnas J (10: Interés), K (11: Items), L (12: Total)
+      sheet.getRange(foundRowIndex, 10).setValue('Sí');
+      sheet.getRange(foundRowIndex, 11).setValue(data.merchItems || 'Ninguno');
+      sheet.getRange(foundRowIndex, 12).setValue(data.merchTotal || 0);
+      
+      // Construir objeto con datos de la fila + nueva mercancía
+      var rowData = values[foundRowIndex - 1];
+      var updatedData = {
+        firstName: rowData[3],
+        lastName: rowData[4],
+        email: rowData[5],
+        phone: rowData[6],
+        church: rowData[7],
+        ageGroup: rowData[8],
+        ticketCode: codeToFind,
+        interestedInMerch: 'Sí',
+        merchItems: data.merchItems || 'Ninguno',
+        merchTotal: data.merchTotal || 0,
+        merchImageUrls: data.merchImageUrls || '',
+        ticketUrl: data.ticketUrl || ("https://onetwentyone-icc.vercel.app/ticket/" + codeToFind)
+      };
+      
+      try {
+        enviarCorreoConfirmacion(updatedData);
+      } catch (emailError) {
+        console.error("Error al enviar correo de actualización: " + emailError.toString());
+      }
+      
+      return ContentService.createTextOutput(JSON.stringify({ 
+        status: 'success', 
+        message: 'Mercancía actualizada correctamente.',
+        updatedData: updatedData
+      })).setMimeType(ContentService.MimeType.JSON);
+    }
+    
     var now = new Date();
     var timezone = Session.getScriptTimeZone();
     var dateFormatted = Utilities.formatDate(now, timezone, "dd/MM/yyyy");

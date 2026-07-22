@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { CheckCircle, XCircle, Calendar, MapPin, User, Phone, Home, ShoppingBag, Loader, ShieldCheck, AlertTriangle, Printer, RotateCcw } from 'lucide-react';
+import { CheckCircle, XCircle, Calendar, MapPin, User, Phone, Home, ShoppingBag, Loader, ShieldCheck, AlertTriangle, Printer, RotateCcw, Sparkles } from 'lucide-react';
 import QRCode from 'qrcode';
 import { getImageUrl } from '../../config/images';
+import AddMerchModal from '../../components/AddMerchModal';
 import './TicketVerification.css';
 
 const getProductImage = (itemStr) => {
@@ -27,6 +28,17 @@ const TicketVerification = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [qrCodeUrl, setQrCodeUrl] = useState('');
+
+  const [isMerchModalOpen, setIsMerchModalOpen] = useState(false);
+
+  const handleMerchSuccess = (updatedData) => {
+    setTicketData(prev => ({
+      ...prev,
+      interestedInMerch: 'Sí',
+      merchItems: updatedData.merchItems,
+      merchTotal: updatedData.merchTotal
+    }));
+  };
 
   const handlePrint = () => {
     window.print();
@@ -281,6 +293,25 @@ const TicketVerification = () => {
                     </div>
                   ) : null;
                 })()}
+
+                {/* Banner para usuarios que aún no han pedido mercancía */}
+                {(!ticketData.interestedInMerch || ticketData.interestedInMerch !== 'Sí' || !ticketData.merchItems || ticketData.merchItems === 'Ninguno') && (
+                  <div className="ticket-no-merch-banner" style={{ marginTop: '1.2rem', padding: '1.2rem', background: 'rgba(255, 255, 255, 0.03)', border: '1px dashed rgba(255, 255, 255, 0.15)', borderRadius: '14px', display: 'flex', flexDirection: 'column', gap: '0.75rem', textAlign: 'left' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#fff', fontWeight: '800', fontSize: '0.95rem' }}>
+                      <ShoppingBag size={18} className="text-gradient" />
+                      <span>¿Deseas agregar mercancía oficial a tu entrada?</span>
+                    </div>
+                    <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', margin: 0, lineHeight: '1.5' }}>
+                      Pide tu gorra o camiseta oficial de la conferencia <strong>"Sin Filtros 2026"</strong> usando tu código de boleto <code>{ticketData.ticketCode}</code> sin tener que registrarte de nuevo.
+                    </p>
+                    <button
+                      onClick={() => setIsMerchModalOpen(true)}
+                      style={{ marginTop: '0.2rem', background: '#ffffff', color: '#000000', border: 'none', padding: '0.65rem 1.2rem', borderRadius: '50px', fontWeight: '800', fontSize: '0.85rem', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', width: 'fit-content', transition: 'transform 0.2s' }}
+                    >
+                      <Sparkles size={16} /> Reservar Mercancía Ahora
+                    </button>
+                  </div>
+                )}
               </div>
 
               <div className="ticket-bottom">
@@ -338,6 +369,19 @@ const TicketVerification = () => {
             </div>
 
           </div>
+        )}
+
+        {/* Modal para Agregar Mercancía */}
+        {ticketData && (
+          <AddMerchModal
+            isOpen={isMerchModalOpen}
+            onClose={() => setIsMerchModalOpen(false)}
+            ticketCode={ticketData.ticketCode}
+            participantName={`${ticketData.firstName} ${ticketData.lastName}`}
+            existingMerchItems={ticketData.merchItems}
+            existingMerchTotal={ticketData.merchTotal}
+            onSuccess={handleMerchSuccess}
+          />
         )}
 
       </div>

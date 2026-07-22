@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
-import { Link } from 'react-router-dom';
-import { ArrowLeft, Check, Ticket, HelpCircle, X, ChevronLeft, ChevronRight, ShoppingBag } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { ArrowLeft, Check, Ticket, HelpCircle, X, ChevronLeft, ChevronRight, ShoppingBag, Sparkles } from 'lucide-react';
 import { getImageUrl } from '../../config/images';
+import AddMerchModal from '../../components/AddMerchModal';
 import './Merch.css';
 
 // Constantes de Productos Oficiales
@@ -119,11 +120,20 @@ const PremiumImageDisplay = ({ src, localPath, alt, className, style, onClick })
 };
 
 const Merch = () => {
+  const navigate = useNavigate();
+  const [isAddMerchModalOpen, setIsAddMerchModalOpen] = useState(false);
+
   // Estados para el selector de camiseta
   const [activeColor, setActiveColor] = useState("Negro"); // Negro, Gris, Blanco
   const [activeView, setActiveView] = useState("front"); // front, back
   const [tshirtSize, setTshirtSize] = useState("M");
   const [lightboxImage, setLightboxImage] = useState(null);
+
+  const handleAddMerchSuccess = (updatedData) => {
+    if (updatedData && updatedData.ticketCode) {
+      navigate(`/ticket/${updatedData.ticketCode}`);
+    }
+  };
 
   // Lógica de Deslizamiento (Swipe) para el Lightbox
   const [touchStart, setTouchStart] = useState(null);
@@ -260,8 +270,25 @@ const Merch = () => {
           <span className="subtitle">Colección Oficial</span>
           <h1 className="title">Mercancía <span className="text-gradient">Sin Filtros</span></h1>
           <p className="description">
-            Explora los artículos oficiales de la conferencia de jóvenes <strong>"Sin Filtros" 2026</strong>. Para adquirir y reservar tus piezas, haz clic en el botón de reserva para ir al formulario de registro del evento.
+            Explora los artículos oficiales de la conferencia de jóvenes <strong>"Sin Filtros" 2026</strong>. Para adquirir y reservar tus piezas, haz clic en el botón de reserva o utiliza tu código de boleto existente.
           </p>
+
+          {/* Banner para Asistentes Ya Registrados */}
+          <div className="merch-already-registered-banner glass-panel" style={{ margin: '2rem auto 1rem auto', maxWidth: '640px', padding: '1.25rem 1.5rem', background: 'rgba(255, 255, 255, 0.03)', border: '1px dashed rgba(255, 255, 255, 0.18)', borderRadius: '16px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.75rem', textAlign: 'center' }}>
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', color: '#fff', fontWeight: '800', fontSize: '1.05rem' }}>
+              <Sparkles size={20} className="text-gradient" />
+              <span>¿Ya te registraste para la conferencia?</span>
+            </div>
+            <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', margin: 0, lineHeight: '1.5', maxWidth: '520px' }}>
+              No necesitas registrarte de nuevo. Si ya tienes tu boleto de entrada, puedes pedir tu mercancía usando tu <strong>código de boleto</strong>.
+            </p>
+            <button
+              onClick={() => setIsAddMerchModalOpen(true)}
+              style={{ marginTop: '0.25rem', background: '#ffffff', color: '#000000', border: 'none', padding: '0.7rem 1.5rem', borderRadius: '50px', fontWeight: '800', fontSize: '0.9rem', display: 'inline-flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', transition: 'transform 0.2s' }}
+            >
+              <ShoppingBag size={18} /> Pedir Mercancía con mi Código de Boleto
+            </button>
+          </div>
         </div>
 
         {/* Productos Grid */}
@@ -534,6 +561,13 @@ const Merch = () => {
           </div>
         );
       })()}
+
+      {/* Modal para pedir mercancía con código de boleto */}
+      <AddMerchModal
+        isOpen={isAddMerchModalOpen}
+        onClose={() => setIsAddMerchModalOpen(false)}
+        onSuccess={handleAddMerchSuccess}
+      />
     </div>
   );
 };
