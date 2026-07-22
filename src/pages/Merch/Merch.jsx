@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, forwardRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Check, Ticket, HelpCircle, X, ChevronLeft, ChevronRight, ShoppingBag, Sparkles } from 'lucide-react';
 import { getImageUrl } from '../../config/images';
@@ -70,16 +70,25 @@ const tshirtImagesList = [
   { color: "Blanco", view: "back" }
 ];
 
-// Componente para manejar imágenes con fallback local
-const ImageWithFallback = ({ src, localPath, alt, className, style, onLoad }) => {
+// Componente para manejar imágenes con fallback local y detección instantánea de caché
+const ImageWithFallback = forwardRef(({ src, localPath, alt, className, style, onLoad }, ref) => {
   const [currentSrc, setCurrentSrc] = useState(src);
+  const internalRef = useRef(null);
+  const imgRef = ref || internalRef;
 
   useEffect(() => {
     setCurrentSrc(src);
   }, [src]);
 
+  useEffect(() => {
+    if (imgRef.current && imgRef.current.complete) {
+      if (onLoad) onLoad();
+    }
+  }, [currentSrc]);
+
   return (
     <img
+      ref={imgRef}
       src={currentSrc}
       alt={alt}
       className={className}
@@ -92,14 +101,19 @@ const ImageWithFallback = ({ src, localPath, alt, className, style, onLoad }) =>
       }}
     />
   );
-};
+});
 
 // Componente para previsualización premium con transición suave al cambiar de imagen/color
 const PremiumImageDisplay = ({ src, localPath, alt, className, style, onClick }) => {
   const [loaded, setLoaded] = useState(false);
+  const imgRef = useRef(null);
 
   useEffect(() => {
-    setLoaded(false);
+    if (imgRef.current && imgRef.current.complete) {
+      setLoaded(true);
+    } else {
+      setLoaded(false);
+    }
   }, [src]);
 
   return (
@@ -108,6 +122,7 @@ const PremiumImageDisplay = ({ src, localPath, alt, className, style, onClick })
       style={{ width: '100%', height: '100%', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' }}
     >
       <ImageWithFallback
+        ref={imgRef}
         src={getImageUrl(src)}
         localPath={src}
         alt={alt}
