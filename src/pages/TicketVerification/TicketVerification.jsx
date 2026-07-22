@@ -8,7 +8,7 @@ import './TicketVerification.css';
 
 const getProductImage = (itemStr) => {
   if (itemStr.toLowerCase().includes('gorra')) {
-    return "/merch/Merch SIN FILTROS gorra 1.jpeg";
+    return "/merch/Merch SIN FILTROS gorra Frontal.jpeg";
   }
   if (itemStr.toLowerCase().includes('camiseta')) {
     if (itemStr.includes('Gris')) {

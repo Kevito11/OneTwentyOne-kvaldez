@@ -82,7 +82,7 @@ const PRODUCTS = [
     type: "cap",
     images: {
       "Negro": {
-        front: "/merch/Merch SIN FILTROS gorra 1.jpeg",
+        front: "/merch/Merch SIN FILTROS gorra Frontal.jpeg",
         back: "/merch/Merch SIN FILTROS gorra 2.jpeg"
       }
     },

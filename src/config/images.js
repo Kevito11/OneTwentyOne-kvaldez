@@ -56,7 +56,7 @@ export const CRITICAL_IMAGES = [
   "/sin-filtro-poster.jpeg",
   "/sin-filtros-theme.jpeg",
   "/logo-121.png",
-  "/merch/Merch SIN FILTROS gorra 1.jpeg",
+  "/merch/Merch SIN FILTROS gorra Frontal.jpeg",
   "/merch/Merch SIN FILTROS gorra 2.jpeg",
   "/merch/Merch SIN FILTROS Tshirt frontal 6.jpeg",
   "/merch/Merch SIN FILTROS Tshirt atrs 6.jpeg",
