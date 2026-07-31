@@ -70,6 +70,15 @@ const AddMerchModal = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [successState, setSuccessState] = useState(null);
+  const [isClosing, setIsClosing] = useState(false);
+
+  const handleClose = () => {
+    setIsClosing(true);
+    setTimeout(() => {
+      setIsClosing(false);
+      onClose();
+    }, 250);
+  };
 
   const [existingMerch, setExistingMerch] = useState({
     hasMerch: false,
@@ -291,10 +300,10 @@ const AddMerchModal = ({
   };
 
   const modalContent = (
-    <div className="add-merch-modal-overlay">
-      <div className="add-merch-modal-card glass-panel" onClick={(e) => e.stopPropagation()}>
+    <div className={`add-merch-modal-overlay ${isClosing ? 'closing' : ''}`} onClick={handleClose}>
+      <div className={`add-merch-modal-card glass-panel ${isClosing ? 'closing' : ''}`} onClick={(e) => e.stopPropagation()}>
         
-        <button className="add-merch-close-btn" onClick={onClose} aria-label="Cerrar modal">
+        <button type="button" className="add-merch-close-btn" onClick={handleClose} aria-label="Cerrar modal">
           <X size={20} />
         </button>
 
@@ -322,7 +331,7 @@ const AddMerchModal = ({
 
             <div className="success-actions">
               <button 
-                onClick={onClose} 
+                onClick={handleClose} 
                 className="action-btn-primary"
                 style={{ width: '100%' }}
               >

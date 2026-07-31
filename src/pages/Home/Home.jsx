@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { Calendar, MapPin, ArrowRight, Clock, Plus, Star, ExternalLink, ChevronLeft, ChevronRight, Heart, MessageCircle, Send, Bookmark, MoreHorizontal, X } from 'lucide-react';
+import { Calendar, MapPin, ArrowRight, Clock, Plus, Star, ExternalLink, ChevronLeft, ChevronRight, Heart, MessageCircle, Send, Bookmark, MoreHorizontal, X, Ticket } from 'lucide-react';
 import { getImageUrl } from '../../config/images';
 import './Home.css';
 
@@ -28,8 +28,33 @@ const LightboxImage = ({ src, alt }) => {
   );
 };
 
+// Helper to calculate dynamic target date (this year or next year)
+const getDynamicTargetDate = (month, day, hour = 0, minute = 0) => {
+  const currentYear = new Date().getFullYear();
+  let target = new Date(currentYear, month - 1, day, hour, minute, 0, 0);
+  if (new Date() > target) {
+    target.setFullYear(target.getFullYear() + 1);
+  }
+  return target;
+};
+
 const Home = () => {
-  // Countdown Logic (Target: August 29 - Youth Conference)
+  // Featured Event Card Carousel (Media Vigilia RESET & Conferencia)
+  const [activeFeaturedCard, setActiveFeaturedCard] = useState(0); // 0 = RESET, 1 = Conferencia
+  const [showResetDetails, setShowResetDetails] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setActiveFeaturedCard((prev) => (prev + 1) % 2);
+    }, 5000); // Swaps card after 5 seconds of inactivity
+    return () => clearTimeout(timer);
+  }, [activeFeaturedCard]);
+
+  // Targets
+  const resetTarget = getDynamicTargetDate(8, 22, 18, 0);
+  const confTarget = getDynamicTargetDate(8, 29, 15, 0);
+
+  // Countdown Logic (Dynamic based on activeFeaturedCard)
   const [timeLeft, setTimeLeft] = useState({
     days: 0,
     hours: 0,
@@ -39,13 +64,7 @@ const Home = () => {
   });
 
   useEffect(() => {
-    const currentYear = new Date().getFullYear();
-    let targetDate = new Date(currentYear, 7, 29, 15, 0, 0, 0); // 29 de Agosto, 03:00 PM
-    
-    // Si ya pasó la fecha de este año, apuntamos al año siguiente
-    if (new Date() > targetDate) {
-      targetDate.setFullYear(targetDate.getFullYear() + 1);
-    }
+    const targetDate = activeFeaturedCard === 0 ? resetTarget : confTarget;
 
     const calculateTimeLeft = () => {
       const now = new Date().getTime();
@@ -66,22 +85,10 @@ const Home = () => {
       return true;
     };
 
-    const isActive = calculateTimeLeft();
-
-    let interval;
-    if (isActive) {
-      interval = setInterval(() => {
-        const shouldContinue = calculateTimeLeft();
-        if (!shouldContinue) {
-          clearInterval(interval);
-        }
-      }, 1000);
-    }
-
-    return () => {
-      if (interval) clearInterval(interval);
-    };
-  }, []);
+    calculateTimeLeft();
+    const interval = setInterval(calculateTimeLeft, 1000);
+    return () => clearInterval(interval);
+  }, [activeFeaturedCard]);
 
   // Poster Carousel Logic
   const posterImages = [getImageUrl('/sin-filtro-poster.jpeg'), getImageUrl('/sin-filtros-theme.jpeg')];
@@ -230,6 +237,12 @@ const Home = () => {
       } else if (!isNext && lightboxIndex > 0) {
         setLightboxIndex(prev => prev - 1);
       }
+    } else if (type === 'featured') {
+      if (isNext) {
+        setActiveFeaturedCard((prev) => Math.min(prev + 1, 1));
+      } else {
+        setActiveFeaturedCard((prev) => Math.max(prev - 1, 0));
+      }
     }
   };
 
@@ -280,13 +293,16 @@ const Home = () => {
     setIndex(null);
   };
 
-  // Bloquear el scroll del fondo cuando el lightbox está abierto (sin visual jumps) y escuchar teclado
+  // Bloquear el scroll del fondo cuando el lightbox o modal está abierto (sin visual jumps) y escuchar teclado
   useEffect(() => {
     const isLightboxOpen = lightboxIndex !== null || comunidadLightboxIndex !== null;
-    if (isLightboxOpen) {
+    const isModalOpen = showConfDetails || showResetDetails;
+    const shouldBlockScroll = isLightboxOpen || isModalOpen;
+
+    if (shouldBlockScroll) {
       document.body.style.overflow = 'hidden';
       document.body.classList.add('lightbox-active');
-      // Desenfocar cualquier elemento activo para evitar conflictos con el teclado al abrir el lightbox
+      // Desenfocar cualquier elemento activo para evitar conflictos con el teclado al abrir el lightbox o modal
       if (document.activeElement && typeof document.activeElement.blur === 'function') {
         document.activeElement.blur();
       }
@@ -296,13 +312,13 @@ const Home = () => {
     }
 
     const handleKeyDown = (e) => {
-      if (!isLightboxOpen) return;
-
       if (e.key === 'Escape') {
         e.preventDefault();
         setLightboxIndex(null);
         setComunidadLightboxIndex(null);
-      } else if (e.key === 'ArrowRight') {
+        setShowConfDetails(false);
+        setShowResetDetails(false);
+      } else if (isLightboxOpen && e.key === 'ArrowRight') {
         if (comunidadLightboxIndex !== null && comunidadLightboxIndex < comunidadImages.length - 1) {
           e.preventDefault();
           setComunidadLightboxIndex(prev => prev + 1);
@@ -310,7 +326,7 @@ const Home = () => {
           e.preventDefault();
           setLightboxIndex(prev => prev + 1);
         }
-      } else if (e.key === 'ArrowLeft') {
+      } else if (isLightboxOpen && e.key === 'ArrowLeft') {
         if (comunidadLightboxIndex !== null && comunidadLightboxIndex > 0) {
           e.preventDefault();
           setComunidadLightboxIndex(prev => prev - 1);
@@ -328,7 +344,7 @@ const Home = () => {
       document.body.classList.remove('lightbox-active');
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [lightboxIndex, comunidadLightboxIndex]);
+  }, [lightboxIndex, comunidadLightboxIndex, showConfDetails, showResetDetails]);
 
   return (
     <div className="home-page animate-fade-in">
@@ -367,73 +383,221 @@ const Home = () => {
             </div>
             
             <div className="hero-featured-col">
-              <div className="hero-featured-card glass-panel">
+              <div 
+                className="hero-featured-card glass-panel"
+                {...getSwipeHandlers('featured')}
+              >
                 <div 
-                  className="featured-card-image-wrap"
-                  onClick={() => setShowConfDetails(true)}
-                  style={{ cursor: 'pointer' }}
-                  title="Haz clic para ver detalles de la conferencia"
+                  className="featured-carousel-track"
+                  style={{
+                    display: 'flex',
+                    width: '200%',
+                    transform: `translateX(-${activeFeaturedCard * 50}%)`,
+                    transition: 'transform 0.65s cubic-bezier(0.16, 1, 0.3, 1)'
+                  }}
                 >
-                  <div className="poster-carousel-track">
-                    <div className={`poster-carousel-item ${activePosterIndex === 0 ? 'active' : ''}`}>
-                      <img src={posterImages[0]} alt="Afiche Conferencia Sin Filtros 2026 - Opción 1" className="featured-card-poster" />
+                  {/* Slide 0: Media Vigilia RESET */}
+                  <div style={{ width: '50%', flexShrink: 0 }}>
+                    <div 
+                      className="featured-card-image-wrap"
+                      onClick={(e) => {
+                        if (isDragging.current) return;
+                        setShowResetDetails(true);
+                      }}
+                      style={{ cursor: 'pointer' }}
+                      title="Haz clic para ver detalles de RESET"
+                    >
+                      <div className="reset-placeholder-wrap">
+                        <div className="reset-glow-1"></div>
+                        <div className="reset-glow-2"></div>
+                        <span style={{
+                          fontSize: '0.75rem',
+                          fontWeight: '800',
+                          color: 'var(--text-secondary)',
+                          letterSpacing: '3px',
+                          textTransform: 'uppercase',
+                          marginBottom: '0.4rem',
+                          opacity: 0.8,
+                          zIndex: 1
+                        }}>MEDIA VIGILIA</span>
+                        <h2 className="text-gradient" style={{
+                          fontSize: '3.6rem',
+                          fontWeight: '900',
+                          fontFamily: 'var(--font-heading)',
+                          letterSpacing: '-2px',
+                          margin: 0,
+                          zIndex: 1,
+                          filter: 'drop-shadow(0 2px 10px rgba(255, 255, 255, 0.15))'
+                        }}>RESET</h2>
+                        <span style={{
+                          fontSize: '0.85rem',
+                          color: 'var(--text-secondary)',
+                          marginTop: '0.8rem',
+                          fontWeight: '600',
+                          letterSpacing: '1px',
+                          zIndex: 1
+                        }}>SÁB. 22 AGOSTO</span>
+                      </div>
+                      <div className="featured-card-badge" style={{ background: 'var(--accent-gradient)', color: '#12100e' }}>PRE-CONFERENCIA</div>
                     </div>
-                    <div className={`poster-carousel-item ${activePosterIndex === 1 ? 'active' : ''}`}>
-                      <img src={posterImages[1]} alt="Afiche Conferencia Sin Filtros 2026 - Opción 2" className="featured-card-poster" />
+                    <div className="featured-card-details">
+                      <h3>Media Vigilia "RESET"</h3>
+                      <div className="featured-card-meta">
+                        <Clock size={14} style={{ color: 'var(--accent-blue)', flexShrink: 0 }} />
+                        <span>Sáb. 22 de Agosto - 06:00 PM</span>
+                      </div>
+                      <div style={{ display: 'flex', gap: '0.8rem', marginTop: '0.4rem' }}>
+                        <button 
+                          onClick={(e) => {
+                            if (isDragging.current) return;
+                            setShowResetDetails(true);
+                          }} 
+                          className="btn-secondary-sm"
+                          style={{ 
+                            flex: 1, 
+                            fontSize: '0.85rem', 
+                            padding: '0.65rem 1rem', 
+                            borderRadius: '50px',
+                            border: '1px solid rgba(255, 255, 255, 0.15)',
+                            background: 'rgba(255, 255, 255, 0.05)',
+                            color: 'var(--text-primary)',
+                            cursor: 'pointer',
+                            fontWeight: '700',
+                            textAlign: 'center',
+                            transition: 'all 0.2s ease'
+                          }}
+                        >
+                          Ver Info
+                        </button>
+                        <Link 
+                          to="/registro?event=vigilia" 
+                          className="btn-primary-sm"
+                          style={{ flex: 1, margin: 0, padding: '0.65rem 1rem', fontSize: '0.85rem', textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                          onClick={(e) => {
+                            if (isDragging.current) e.preventDefault();
+                          }}
+                        >
+                          Registrarse
+                        </Link>
+                      </div>
                     </div>
                   </div>
-                  <div className="featured-card-badge">PRÓXIMO EVENTO</div>
-                  <div className="poster-carousel-dots">
-                    {posterImages.map((_, idx) => (
-                      <button 
-                        key={idx} 
-                        className={`poster-dot ${activePosterIndex === idx ? 'active' : ''}`}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          e.preventDefault();
-                          setActivePosterIndex(idx);
-                        }}
-                        aria-label={`Ver afiche ${idx + 1}`}
-                      />
-                    ))}
+
+                  {/* Slide 1: Conferencia */}
+                  <div style={{ width: '50%', flexShrink: 0 }}>
+                    <div 
+                      className="featured-card-image-wrap"
+                      onClick={(e) => {
+                        if (isDragging.current) return;
+                        setShowConfDetails(true);
+                      }}
+                      style={{ cursor: 'pointer' }}
+                      title="Haz clic para ver detalles de la conferencia"
+                    >
+                      <div className="poster-carousel-track">
+                        <div className={`poster-carousel-item ${activePosterIndex === 0 ? 'active' : ''}`}>
+                          <img src={posterImages[0]} alt="Afiche Conferencia Sin Filtros 2026 - Opción 1" className="featured-card-poster" />
+                        </div>
+                        <div className={`poster-carousel-item ${activePosterIndex === 1 ? 'active' : ''}`}>
+                          <img src={posterImages[1]} alt="Afiche Conferencia Sin Filtros 2026 - Opción 2" className="featured-card-poster" />
+                        </div>
+                      </div>
+                      <div className="featured-card-badge">PRÓXIMO EVENTO</div>
+                      <div className="poster-carousel-dots">
+                        {posterImages.map((_, idx) => (
+                          <button 
+                            key={idx} 
+                            className={`poster-dot ${activePosterIndex === idx ? 'active' : ''}`}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              e.preventDefault();
+                              setActivePosterIndex(idx);
+                            }}
+                            aria-label={`Ver afiche ${idx + 1}`}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                    <div className="featured-card-details">
+                      <h3>Conferencia "Sin Filtros" 2026</h3>
+                      <div className="featured-card-meta">
+                        <Clock size={14} style={{ color: 'var(--accent-blue)', flexShrink: 0 }} />
+                        <span>Sáb. 29 de Agosto - 03:00 PM</span>
+                      </div>
+                      <div style={{ display: 'flex', gap: '0.8rem', marginTop: '0.4rem' }}>
+                        <button 
+                          onClick={(e) => {
+                            if (isDragging.current) return;
+                            setShowConfDetails(true);
+                          }} 
+                          className="btn-secondary-sm"
+                          style={{ 
+                            flex: 1, 
+                            fontSize: '0.85rem', 
+                            padding: '0.65rem 1rem', 
+                            borderRadius: '50px',
+                            border: '1px solid rgba(255, 255, 255, 0.15)',
+                            background: 'rgba(255, 255, 255, 0.05)',
+                            color: 'var(--text-primary)',
+                            cursor: 'pointer',
+                            fontWeight: '700',
+                            textAlign: 'center',
+                            transition: 'all 0.2s ease'
+                          }}
+                        >
+                          Ver Info
+                        </button>
+                        <Link 
+                          to="/registro" 
+                          className="btn-primary-sm"
+                          style={{ flex: 1, margin: 0, padding: '0.65rem 1rem', fontSize: '0.85rem' }}
+                          onClick={(e) => {
+                            if (isDragging.current) e.preventDefault();
+                          }}
+                        >
+                          Registrarse
+                        </Link>
+                      </div>
+                    </div>
                   </div>
                 </div>
-                <div className="featured-card-details">
-                  <h3>Conferencia "Sin Filtros" 2026</h3>
-
-
-                  <div className="featured-card-meta">
-                    <Clock size={14} style={{ color: 'var(--accent-blue)', flexShrink: 0 }} />
-                    <span>Gratis</span>
-                  </div>
-                  <div style={{ display: 'flex', gap: '0.8rem', marginTop: '0.4rem' }}>
-                    <button 
-                      onClick={() => setShowConfDetails(true)} 
-                      className="btn-secondary-sm"
-                      style={{ 
-                        flex: 1, 
-                        fontSize: '0.85rem', 
-                        padding: '0.65rem 1rem', 
-                        borderRadius: '50px',
-                        border: '1px solid rgba(255, 255, 255, 0.15)',
-                        background: 'rgba(255, 255, 255, 0.05)',
-                        color: 'var(--text-primary)',
-                        cursor: 'pointer',
-                        fontWeight: '700',
-                        textAlign: 'center',
-                        transition: 'all 0.2s ease'
-                      }}
-                    >
-                      Ver Info
-                    </button>
-                    <Link 
-                      to="/registro" 
-                      className="btn-primary-sm"
-                      style={{ flex: 1, margin: 0, padding: '0.65rem 1rem', fontSize: '0.85rem' }}
-                    >
-                      Registrarse
-                    </Link>
-                  </div>
+                
+                {/* Carousel navigation indicators at the bottom of the card */}
+                <div style={{
+                  display: 'flex',
+                  justifyContent: 'center',
+                  gap: '0.5rem',
+                  paddingBottom: '1.2rem',
+                  marginTop: '-0.2rem',
+                  position: 'relative',
+                  zIndex: 5
+                }}>
+                  <button 
+                    onClick={() => setActiveFeaturedCard(0)} 
+                    style={{
+                      width: activeFeaturedCard === 0 ? '24px' : '12px',
+                      height: '6px',
+                      borderRadius: '3px',
+                      border: 'none',
+                      background: activeFeaturedCard === 0 ? 'var(--text-primary)' : 'rgba(255, 255, 255, 0.2)',
+                      cursor: 'pointer',
+                      transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)'
+                    }}
+                    aria-label="Ver Media Vigilia RESET"
+                  />
+                  <button 
+                    onClick={() => setActiveFeaturedCard(1)} 
+                    style={{
+                      width: activeFeaturedCard === 1 ? '24px' : '12px',
+                      height: '6px',
+                      borderRadius: '3px',
+                      border: 'none',
+                      background: activeFeaturedCard === 1 ? 'var(--text-primary)' : 'rgba(255, 255, 255, 0.2)',
+                      cursor: 'pointer',
+                      transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)'
+                    }}
+                    aria-label="Ver Conferencia Sin Filtros"
+                  />
                 </div>
               </div>
             </div>
@@ -446,9 +610,9 @@ const Home = () => {
         <div className="container">
           <div className="countdown-wrapper glass-panel">
             <h2 className="countdown-title">
-              {timeLeft.isExpired 
-                ? "¡La conferencia 'Sin Filtros' ya ha comenzado!" 
-                : "¡La conferencia 'Sin Filtros' está por comenzar!"}
+              {activeFeaturedCard === 0 
+                ? (timeLeft.isExpired ? "¡La Media Vigilia 'RESET' ya ha comenzado!" : "¡La Media Vigilia 'RESET' está por comenzar!")
+                : (timeLeft.isExpired ? "¡La conferencia 'Sin Filtros' ya ha comenzado!" : "¡La conferencia 'Sin Filtros' está por comenzar!")}
             </h2>
             <div className="countdown-timer">
               <div className="time-block">
@@ -979,6 +1143,108 @@ const Home = () => {
                         rel="noopener noreferrer" 
                         className="btn-primary"
                         style={{ width: 'fit-content', padding: '0.7rem 1.5rem', fontSize: '0.9rem' }}
+                      >
+                        <MapPin size={16} />
+                        Abrir en Google Maps
+                      </a>
+                      <a 
+                        href="https://www.convertidosacristo.org/" 
+                        target="_blank" 
+                        rel="noopener noreferrer" 
+                        className="feature-link"
+                        style={{ marginTop: '0.3rem', width: 'fit-content', display: 'flex', alignItems: 'center', gap: '5px', fontSize: '0.85rem' }}
+                      >
+                        Web de la Iglesia <ExternalLink size={12} />
+                      </a>
+                    </div>
+                  </div>
+                  
+                  <div className="location-map-mock" style={{ height: '220px' }}>
+                    <div className="map-mock-bg"></div>
+                    <div className="map-pin-pulse">
+                      <div className="pin-icon-wrap" style={{ width: '40px', height: '40px' }}>
+                        <MapPin size={20} />
+                      </div>
+                      <div className="pin-tag" style={{ fontSize: '0.75rem', padding: '0.3rem 0.8rem' }}>ICC Santo Domingo</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de Detalles de la Media Vigilia RESET */}
+      {showResetDetails && (
+        <div className="modal-overlay" onClick={() => setShowResetDetails(false)}>
+          <div className="modal-content glass-panel" onClick={(e) => e.stopPropagation()}>
+            <button 
+              className="modal-close-btn" 
+              onClick={() => setShowResetDetails(false)}
+              aria-label="Cerrar detalles"
+            >
+              <X size={24} />
+            </button>
+            
+            <div className="modal-header">
+              <span className="modal-subtitle">Pre-Conferencia: Media Vigilia</span>
+              <h2 className="modal-title text-gradient">Media Vigilia "RESET"</h2>
+            </div>
+            
+            <div className="modal-body-scroll">
+              <div className="modal-section" style={{ marginBottom: '2.5rem' }}>
+                <p style={{ fontSize: '1.1rem', lineHeight: '1.7', color: 'var(--text-secondary)' }}>
+                  Una actividad especial conectada con la conferencia <strong>"Sin Filtros" 2026</strong>. 
+                  Esta Media Vigilia está diseñada con el propósito de preparar nuestros corazones, buscar al Señor en oración unida, clamar por Su gracia y el impacto espiritual de la conferencia en nuestra juventud. ¡Te esperamos para juntos buscar el rostro del Señor!
+                </p>
+              </div>
+
+              <div className="modal-section" style={{ marginBottom: '2.5rem' }}>
+                <div className="activity-details" style={{ borderTop: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
+                  <div className="detail-item" style={{ fontSize: '1.05rem', display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
+                    <Calendar size={20} className="detail-icon" style={{ color: 'var(--accent-blue)' }} />
+                    <span><strong>Fecha:</strong> Sábado 22 de Agosto, 2026</span>
+                  </div>
+                  <div className="detail-item" style={{ fontSize: '1.05rem', display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
+                    <Clock size={20} className="detail-icon" style={{ color: 'var(--accent-blue)' }} />
+                    <span><strong>Hora:</strong> El registro abre a las 06:00 PM</span>
+                  </div>
+                  <div className="detail-item" style={{ fontSize: '1.05rem', display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
+                    <MapPin size={20} className="detail-icon" style={{ color: 'var(--accent-blue)' }} />
+                    <span><strong>Lugar:</strong> Salón Principal, Iglesia de Convertidos a Cristo (ICC)</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Location Section */}
+              <div className="modal-section" style={{ marginTop: '2rem' }}>
+                <h3 className="modal-section-title">Ubicación del Evento</h3>
+                <div className="location-panel glass-panel" style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '2rem', padding: '2rem' }}>
+                  <div className="location-info-block">
+                    <span className="location-badge">Lugar del Evento</span>
+                    <h3>Iglesia de Convertidos a Cristo</h3>
+                    <p className="location-address" style={{ fontSize: '0.95rem', marginBottom: '1.5rem', lineHeight: '1.6', color: 'var(--text-secondary)' }}>
+                      Calle Dr. Núñez Domínguez #30,<br />
+                      Ensanche La Julia, Santo Domingo 10109,<br />
+                      República Dominicana.
+                    </p>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
+                      <Link 
+                        to="/registro?event=vigilia" 
+                        className="btn-primary"
+                        style={{ width: 'fit-content', padding: '0.7rem 1.5rem', fontSize: '0.9rem', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '8px' }}
+                        onClick={() => setShowResetDetails(false)}
+                      >
+                        <Ticket size={16} />
+                        Registrarse Gratis
+                      </Link>
+                      <a 
+                        href="https://maps.app.goo.gl/jRX8PC4S3oVrPMQz6" 
+                        target="_blank" 
+                        rel="noopener noreferrer" 
+                        className="btn-secondary"
+                        style={{ width: 'fit-content', padding: '0.7rem 1.5rem', fontSize: '0.9rem', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '8px' }}
                       >
                         <MapPin size={16} />
                         Abrir en Google Maps

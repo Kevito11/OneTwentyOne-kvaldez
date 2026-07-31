@@ -257,6 +257,20 @@ const MerchPaymentInstructions = () => {
 };
 
 const Registration = () => {
+  // Selected Event State ('conferencia' | 'vigilia')
+  const [selectedEvent, setSelectedEvent] = useState('vigilia');
+
+  // Read URL query parameter on load
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const eventParam = params.get('event');
+    if (eventParam === 'conferencia') {
+      setSelectedEvent('conferencia');
+    } else {
+      setSelectedEvent('vigilia');
+    }
+  }, []);
+
   // Carousel images
   const posterImages = [getImageUrl('/sin-filtro-poster.jpeg'), getImageUrl('/sin-filtros-theme.jpeg')];
   const [activePosterIndex, setActivePosterIndex] = useState(0);
@@ -268,9 +282,19 @@ const Registration = () => {
     return () => clearInterval(timer);
   }, [posterImages.length]);
 
+  useEffect(() => {
+    if (selectedEvent === 'vigilia') {
+      document.body.classList.add('vigilia-mode');
+    } else {
+      document.body.classList.remove('vigilia-mode');
+    }
+    return () => {
+      document.body.classList.remove('vigilia-mode');
+    };
+  }, [selectedEvent]);
+
   const [regTshirtView, setRegTshirtView] = useState('front');
   const [regCapView, setRegCapView] = useState('front');
-
 
   const [formData, setFormData] = useState({
     firstName: '',
@@ -295,7 +319,7 @@ const Registration = () => {
   const [selectedChurch, setSelectedChurch] = useState('');
   const [customChurch, setCustomChurch] = useState('');
 
-  // Sincronizar el campo 'church' de formData cuando cambian selectedChurch, customChurch o isGuest
+  // Synchronize church field in formData when selectedChurch, customChurch or isGuest changes
   useEffect(() => {
     if (formData.isGuest) {
       setFormData(prev => ({
@@ -310,7 +334,7 @@ const Registration = () => {
     }
   }, [selectedChurch, customChurch, formData.isGuest]);
 
-  // Generar QR real cuando se obtiene el ticketCode
+  // Generate real QR code when ticketCode changes
   useEffect(() => {
     if (ticketCode) {
       const validationUrl = `${window.location.origin}/ticket/${ticketCode}`;
@@ -333,18 +357,19 @@ const Registration = () => {
     }
   }, [ticketCode]);
 
-  // Cambiar el título del documento para la impresión/descarga del PDF
+  // Change document title for printing/PDF generation
   useEffect(() => {
     if (isRegistered && ticketCode) {
       const originalTitle = document.title;
-      document.title = `${ticketCode} - Sin Filtros 2026`;
+      const eventTitle = selectedEvent === 'vigilia' ? 'RESET Media Vigilia' : 'Sin Filtros 2026';
+      document.title = `${ticketCode} - ${eventTitle}`;
       return () => {
         document.title = originalTitle;
       };
     }
-  }, [isRegistered, ticketCode]);
+  }, [isRegistered, ticketCode, selectedEvent]);
 
-  // Scroll al top al abrir y bloquear scroll del body, y scroll al top al cerrar
+  // Lock body scroll on successful registration overlay
   useEffect(() => {
     if (isRegistered) {
       window.scrollTo({ top: 0, behavior: 'instant' });
@@ -353,7 +378,6 @@ const Registration = () => {
     } else {
       document.body.style.overflow = '';
       document.body.classList.remove('success-overlay-active');
-      // Scroll al principio de la página al cerrar el registro exitoso
       window.scrollTo({ top: 0, behavior: 'instant' });
     }
     return () => {
@@ -379,6 +403,13 @@ const Registration = () => {
       ...formData,
       [e.target.name]: e.target.type === 'checkbox' ? e.target.checked : e.target.value
     });
+  };
+
+  const handleEventChange = (event) => {
+    setSelectedEvent(event);
+    if (event === 'vigilia') {
+      setFormData(prev => ({ ...prev, interestedInMerch: false }));
+    }
   };
 
   const handleMerchSelectionToggle = (productId) => {
@@ -430,24 +461,23 @@ const Registration = () => {
     setSubmitError('');
 
     const randomCode = Math.floor(1000 + Math.random() * 9000);
-    const generatedCode = `121-ICC-${randomCode}`;
+    const generatedCode = selectedEvent === 'vigilia' ? `121-RESET-${randomCode}` : `121-ICC-${randomCode}`;
     const sheetUrl = import.meta.env.VITE_SHEETS_API_URL;
 
-    // Calcular merch seleccionada
+    // Calcular merch seleccionada (solo si es conferencia)
     const selectedItems = [];
     const selectedImageUrls = [];
     let merchTotal = 0;
-    if (formData.interestedInMerch) {
+    if (selectedEvent === 'conferencia' && formData.interestedInMerch) {
       PRODUCTS.forEach(p => {
         const sel = formData.merchSelections[p.id];
         if (sel.selected) {
           selectedItems.push(`${sel.quantity}x ${p.name} - ${sel.color} (Talla: ${sel.size})`);
           merchTotal += p.price * sel.quantity;
           
-          // Obtener ruta de imagen y resolver URL pública de Supabase
           const imgPath = p.type === 'tshirt'
             ? p.images[sel.color]?.front
-            : p.images['Negro']; // para gorra
+            : p.images['Negro'];
           selectedImageUrls.push(encodeURI(decodeURI(getImageUrl(imgPath))));
         }
       });
@@ -457,7 +487,7 @@ const Registration = () => {
 
     // Si la URL de la API no está configurada, simulamos localmente para desarrollo
     if (!sheetUrl || sheetUrl.trim() === '') {
-      console.warn("VITE_SHEETS_API_URL no está configurada en .env.local. Se simulará el registro localmente.");
+      console.warn("VITE_SHEETS_API_URL no está configurada. Se simulará el registro localmente.");
       setTimeout(() => {
         setTicketCode(generatedCode);
         setIsRegistered(true);
@@ -467,7 +497,6 @@ const Registration = () => {
     }
 
     try {
-      // Usamos 'text/plain;charset=utf-8' para evitar problemas con peticiones CORS preflight (OPTIONS)
       const response = await fetch(sheetUrl, {
         method: 'POST',
         mode: 'cors',
@@ -482,10 +511,12 @@ const Registration = () => {
           church: formData.church || 'Iglesia de Convertidos a Cristo',
           ageGroup: formData.ageGroup,
           ticketCode: generatedCode,
-          interestedInMerch: formData.interestedInMerch ? 'Sí' : 'No',
+          interestedInMerch: (selectedEvent === 'conferencia' && formData.interestedInMerch) ? 'Sí' : 'No',
           merchItems,
           merchTotal,
           merchImageUrls,
+          event: selectedEvent === 'vigilia' ? 'Media Vigilia RESET' : 'Conferencia Sin Filtros',
+          eventType: selectedEvent,
           ticketUrl: `${window.location.origin}/ticket/${generatedCode}`,
           ticketLink: `${window.location.origin}/ticket/${generatedCode}`,
           validationUrl: `${window.location.origin}/ticket/${generatedCode}`,
@@ -540,68 +571,148 @@ const Registration = () => {
     <div className="registration-page animate-fade-in section-padding">
       <div className="container">
 
+        {!isRegistered && (
+          <div className="registration-selector-container animate-fade-in">
+            <h2 className="registration-select-title">Elige el evento para registrarte</h2>
+            <div className="registration-event-tabs centered">
+              <button
+                type="button"
+                className={`reg-tab-btn ${selectedEvent === 'vigilia' ? 'active' : ''}`}
+                onClick={() => handleEventChange('vigilia')}
+              >
+                Media Vigilia RESET
+              </button>
+              <button
+                type="button"
+                className={`reg-tab-btn ${selectedEvent === 'conferencia' ? 'active' : ''}`}
+                onClick={() => handleEventChange('conferencia')}
+              >
+                Conferencia Sin Filtros
+              </button>
+            </div>
+          </div>
+        )}
+
         {!isRegistered ? (
           <div className="registration-layout">
 
             {/* Info Column */}
-            <div className="registration-info">
-              <span className="subtitle">
-                <Star size={16} style={{ color: 'var(--accent-color)', marginRight: '5px', verticalAlign: 'middle' }} />
-                Registro Abierto 2026
-              </span>
-              <h1 className="title">Asegura tu <span className="text-gradient">Lugar</span></h1>
-              <p className="description">
-                Únete a nosotros el <strong>29 de Agosto</strong> en la conferencia de jóvenes <strong>"Sin Filtros"</strong>. Vive un día lleno de adoración e instrucción expositiva de la Palabra de Dios y comunión.
-              </p>
+            <div className="registration-info animate-fade-in" key={selectedEvent}>
+              {selectedEvent === 'conferencia' ? (
+                <>
+                  <span className="subtitle">
+                    <Star size={16} style={{ color: 'var(--accent-color)', marginRight: '5px', verticalAlign: 'middle' }} />
+                    Registro Abierto 2026
+                  </span>
+                  <h1 className="title">Asegura tu <span className="text-gradient">Lugar</span></h1>
+                  <p className="description">
+                    Únete a nosotros el <strong>29 de Agosto</strong> en la conferencia de jóvenes <strong>"Sin Filtros"</strong>. Vive un día lleno de adoración e instrucción expositiva de la Palabra de Dios y comunión.
+                  </p>
 
-              <div className="ticket-perks">
-                <div className="perk-item">
-                  <div className="perk-icon"><Ticket size={24} /></div>
-                  <div>
-                    <h3>Acceso Completo Gratis</h3>
-                    <p>Entrada libre a todas las conferencias plenarias y dinámicas de grupo.</p>
-                  </div>
-                </div>
+                  <div className="ticket-perks">
+                    <div className="perk-item">
+                      <div className="perk-icon"><Ticket size={24} /></div>
+                      <div>
+                        <h3>Acceso Completo Gratis</h3>
+                        <p>Entrada libre a todas las conferencias plenarias y dinámicas de grupo.</p>
+                      </div>
+                    </div>
 
-                <div className="perk-item">
-                  <div className="perk-icon"><Star size={24} /></div>
-                  <div>
-                    <h3>Experiencia Organizada</h3>
-                    <p>Es necesario registrarse previamente para poder brindarte una experiencia más cómoda y coordinada.</p>
+                    <div className="perk-item">
+                      <div className="perk-icon"><Star size={24} /></div>
+                      <div>
+                        <h3>Experiencia Organizada</h3>
+                        <p>Es necesario registrarse previamente para poder brindarte una experiencia más cómoda y coordinada.</p>
+                      </div>
+                    </div>
                   </div>
-                </div>
-              </div>
 
-              <div className="free-pass-badge">
-                <span className="badge-title">Tipo de Entrada</span>
-                <span className="badge-price">GRATIS</span>
-                <span className="badge-note">* Registro previo obligatorio para la logística del evento.</span>
-              </div>
-              <div className="registration-poster-wrapper glass-panel">
-                <div className="poster-carousel-track">
-                  <div className={`poster-carousel-item ${activePosterIndex === 0 ? 'active' : ''}`}>
-                    <img src={posterImages[0]} alt="Afiche Conferencia Sin Filtros 2026 - Opción 1" className="featured-card-poster" />
+                  <div className="free-pass-badge">
+                    <span className="badge-title">Tipo de Entrada</span>
+                    <span className="badge-price">GRATIS</span>
+                    <span className="badge-note">* Registro previo obligatorio para la logística del evento.</span>
                   </div>
-                  <div className={`poster-carousel-item ${activePosterIndex === 1 ? 'active' : ''}`}>
-                    <img src={posterImages[1]} alt="Afiche Conferencia Sin Filtros 2026 - Opción 2" className="featured-card-poster" />
-                  </div>
-                </div>
+                  <div className="registration-poster-wrapper glass-panel">
+                    <div className="poster-carousel-track">
+                      <div className={`poster-carousel-item ${activePosterIndex === 0 ? 'active' : ''}`}>
+                        <img src={posterImages[0]} alt="Afiche Conferencia Sin Filtros 2026 - Opción 1" className="featured-card-poster" />
+                      </div>
+                      <div className={`poster-carousel-item ${activePosterIndex === 1 ? 'active' : ''}`}>
+                        <img src={posterImages[1]} alt="Afiche Conferencia Sin Filtros 2026 - Opción 2" className="featured-card-poster" />
+                      </div>
+                    </div>
 
-                <div className="registration-poster-dots">
-                  {posterImages.map((_, idx) => (
-                    <button
-                      key={idx}
-                      className={`poster-dot ${activePosterIndex === idx ? 'active' : ''}`}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        e.preventDefault();
-                        setActivePosterIndex(idx);
-                      }}
-                      aria-label={`Ver afiche ${idx + 1}`}
-                    />
-                  ))}
-                </div>
-              </div>
+                    <div className="registration-poster-dots">
+                      {posterImages.map((_, idx) => (
+                        <button
+                          key={idx}
+                          className={`poster-dot ${activePosterIndex === idx ? 'active' : ''}`}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            e.preventDefault();
+                            setActivePosterIndex(idx);
+                          }}
+                          aria-label={`Ver afiche ${idx + 1}`}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <span className="subtitle">
+                    <Star size={16} style={{ color: 'var(--accent-blue)', marginRight: '5px', verticalAlign: 'middle' }} />
+                    Pre-Conferencia 2026
+                  </span>
+                  <h1 className="title">Prepárate en <span className="text-gradient" style={{ background: 'linear-gradient(90deg, #ffffff 0%, #888888 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>RESET</span></h1>
+                  <p className="description">
+                    Acompáñanos el <strong>22 de Agosto a las 06:00 PM</strong> en nuestra <strong>Media Vigilia "RESET"</strong>. Un tiempo enfocado en la oración unida, intercesión y preparación de nuestros corazones para la conferencia.
+                  </p>
+
+                  <div className="ticket-perks">
+                    <div className="perk-item">
+                      <div className="perk-icon" style={{ background: 'rgba(255,255,255,0.05)', color: 'var(--accent-blue)' }}><Ticket size={24} /></div>
+                      <div>
+                        <h3>Oración & Clamor</h3>
+                        <p>Clamaremos juntos por el impacto de la Palabra de Dios en nuestra generación.</p>
+                      </div>
+                    </div>
+
+                    <div className="perk-item">
+                      <div className="perk-icon" style={{ background: 'rgba(255,255,255,0.05)', color: 'var(--accent-blue)' }}><Star size={24} /></div>
+                      <div>
+                        <h3>Preparación Espiritual</h3>
+                        <p>Un espacio de consagración previo al gran día de la conferencia.</p>
+                      </div>
+                    </div>
+
+                    <div className="perk-item">
+                      <div className="perk-icon" style={{ background: 'rgba(255,255,255,0.05)', color: 'var(--accent-blue)' }}><Star size={24} /></div>
+                      <div>
+                        <h3>Experiencia Organizada</h3>
+                        <p>Es necesario registrarse previamente para poder brindarte una experiencia más cómoda y coordinada.</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="free-pass-badge" style={{ borderLeft: '4px solid var(--accent-blue)' }}>
+                    <span className="badge-title">Tipo de Entrada</span>
+                    <span className="badge-price">GRATIS</span>
+                    <span className="badge-note">* Registro requerido para control de capacidad en el templo.</span>
+                  </div>
+
+                  {/* Portada abstracta premium para RESET */}
+                  <div className="registration-poster-wrapper glass-panel" style={{ height: '320px', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', position: 'relative' }}>
+                    <div className="reset-placeholder-wrap" style={{ position: 'absolute', width: '100%', height: '100%', top: 0, left: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: 'radial-gradient(circle at center, rgba(30, 30, 45, 0.95) 0%, rgba(10, 10, 15, 0.98) 100%)' }}>
+                      <div className="reset-glow-1"></div>
+                      <div className="reset-glow-2"></div>
+                      <span style={{ fontSize: '0.75rem', fontWeight: '800', color: 'var(--text-secondary)', letterSpacing: '3px', textTransform: 'uppercase', marginBottom: '0.4rem', zIndex: 1 }}>MEDIA VIGILIA</span>
+                      <h2 className="text-gradient" style={{ fontSize: '3.2rem', fontWeight: '900', fontFamily: 'var(--font-heading)', letterSpacing: '-2px', margin: 0, zIndex: 1, filter: 'drop-shadow(0 2px 10px rgba(255,255,255,0.15))' }}>RESET</h2>
+                      <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: '0.8rem', fontWeight: '600', letterSpacing: '1px', zIndex: 1 }}>22 DE AGOSTO, 6:00 PM</span>
+                    </div>
+                  </div>
+                </>
+              )}
             </div>
 
             {/* Form Column */}
@@ -753,213 +864,216 @@ const Registration = () => {
                   </select>
                 </div>
 
-                {/* Pregunta sobre Mercancía con diseño premium */}
-                <div className="form-group merch-checkbox-group">
-                  <label className="checkbox-container">
-                    <input
-                      type="checkbox"
-                      name="interestedInMerch"
-                      checked={formData.interestedInMerch}
-                      onChange={handleChange}
-                    />
-                    <span className="checkbox-checkmark"></span>
-                    <span className="checkbox-label-text">¿Te interesa adquirir mercancía oficial de la conferencia?</span>
-                  </label>
-                </div>
-
-                {/* Galería Visual de Mercancía Interactiva */}
-                {formData.interestedInMerch && (
-                  <div className="registration-merch-selection animate-fade-in">
-                    <span className="merch-section-title">Selección de Artículos</span>
-                    
-                    <div className="registration-products-list">
-                      {PRODUCTS.map(p => {
-                        const isSel = formData.merchSelections[p.id]?.selected;
-                        
-                        // Determinar imagen para previsualizar
-                        let previewImg = "";
-                        if (p.type === "tshirt" || p.id === 2) {
-                          const activeCol = formData.merchSelections[p.id]?.color || "Negro";
-                          previewImg = regTshirtView === "front" ? p.images[activeCol].front : p.images[activeCol].back;
-                        } else if (p.type === "cap" || p.id === 1) {
-                          previewImg = regCapView === "front" ? p.images["Negro"].front : p.images["Negro"].back;
-                        } else {
-                          previewImg = typeof p.images["Negro"] === "object" ? p.images["Negro"].front : p.images["Negro"];
-                        }
-
-                        return (
-                          <div key={p.id} className={`reg-product-card ${isSel ? 'selected' : ''}`}>
-                            <div className="reg-product-main" onClick={() => handleMerchSelectionToggle(p.id)}>
-                              <div className="reg-checkbox">
-                                <div className={`custom-chk ${isSel ? 'checked' : ''}`}>
-                                  {isSel && <Check size={14} />}
-                                </div>
-                              </div>
-                              
-                              <div style={{ width: '50px', height: '50px', flexShrink: 0 }}>
-                                <PremiumImageDisplay 
-                                  src={previewImg} 
-                                  localPath={previewImg} 
-                                  alt={p.name} 
-                                  className="reg-product-img"
-                                />
-                              </div>
-                              
-                              <div className="reg-product-info">
-                                <span className="reg-product-name">{p.name}</span>
-                                <span className="reg-product-price">RD$ {p.price.toLocaleString()}</span>
-                              </div>
-                            </div>
-                            
-                            {isSel && (
-                              <div className="reg-product-options animate-fade-in">
-                                {/* Si es gorra, mostrar selector de vista */}
-                                {(p.type === "cap" || p.id === 1) && (
-                                  <div className="reg-option-group">
-                                    <label>Vista</label>
-                                    <div style={{ display: 'flex', gap: '0.4rem', background: 'rgba(0,0,0,0.4)', padding: '0.2rem', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.06)' }}>
-                                      <button 
-                                        type="button"
-                                        onClick={(e) => { e.stopPropagation(); setRegCapView("front"); }}
-                                        className={`reg-size-chip ${regCapView === "front" ? 'active' : ''}`}
-                                        style={{ padding: '0.25rem 0.6rem', fontSize: '0.75rem', minWidth: 'auto' }}
-                                      >
-                                        Frontal
-                                      </button>
-                                      <button 
-                                        type="button"
-                                        onClick={(e) => { e.stopPropagation(); setRegCapView("back"); }}
-                                        className={`reg-size-chip ${regCapView === "back" ? 'active' : ''}`}
-                                        style={{ padding: '0.25rem 0.6rem', fontSize: '0.75rem', minWidth: 'auto' }}
-                                      >
-                                        Trasera
-                                      </button>
-                                    </div>
-                                  </div>
-                                )}
-
-                                {/* Si es camiseta, mostrar selector de color y vista */}
-                                {(p.type === "tshirt" || p.id === 2) && (
-                                  <>
-                                    {/* Selector de Vista en miniatura */}
-                                    <div className="reg-option-group">
-                                      <label>Vista</label>
-                                      <div style={{ display: 'flex', gap: '0.4rem', background: 'rgba(0,0,0,0.4)', padding: '0.2rem', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.06)' }}>
-                                        <button 
-                                          type="button"
-                                          onClick={(e) => { e.stopPropagation(); setRegTshirtView("front"); }}
-                                          className={`reg-size-chip ${regTshirtView === "front" ? 'active' : ''}`}
-                                          style={{ padding: '0.25rem 0.6rem', fontSize: '0.75rem', minWidth: 'auto' }}
-                                        >
-                                          Frontal
-                                        </button>
-                                        <button 
-                                          type="button"
-                                          onClick={(e) => { e.stopPropagation(); setRegTshirtView("back"); }}
-                                          className={`reg-size-chip ${regTshirtView === "back" ? 'active' : ''}`}
-                                          style={{ padding: '0.25rem 0.6rem', fontSize: '0.75rem', minWidth: 'auto' }}
-                                        >
-                                          Trasera
-                                        </button>
-                                      </div>
-                                    </div>
-
-                                    <div className="reg-option-group">
-                                      <label>Color</label>
-                                      <div className="reg-color-options">
-                                        {p.colors.map(col => (
-                                          <button
-                                            key={col}
-                                            type="button"
-                                            onClick={(e) => { 
-                                              e.stopPropagation(); 
-                                              handleMerchOptionChange(p.id, 'color', col); 
-                                            }}
-                                            className={`reg-color-dot ${formData.merchSelections[p.id].color === col ? 'active' : ''}`}
-                                            style={{ 
-                                              backgroundColor: p.colorHex[col],
-                                              border: col === 'Blanco' ? '1px solid rgba(255,255,255,0.2)' : 'none'
-                                            }}
-                                            aria-label={`Color ${col}`}
-                                          />
-                                        ))}
-                                      </div>
-                                    </div>
-
-                                    <div className="reg-option-group">
-                                      <label>Talla</label>
-                                      <div className="reg-size-options">
-                                        {p.sizes.map(sz => (
-                                          <button
-                                            key={sz}
-                                            type="button"
-                                            onClick={(e) => { 
-                                              e.stopPropagation(); 
-                                              handleMerchOptionChange(p.id, 'size', sz); 
-                                            }}
-                                            className={`reg-size-chip ${formData.merchSelections[p.id].size === sz ? 'active' : ''}`}
-                                          >
-                                            {sz}
-                                          </button>
-                                        ))}
-                                      </div>
-                                    </div>
-                                  </>
-                                )}
-
-                                {/* Selector de Cantidad para ambos */}
-                                <div className="reg-option-group qty-row">
-                                  <label>Cantidad</label>
-                                  <div className="reg-qty-selector">
-                                    <button 
-                                      type="button"
-                                      className="reg-qty-btn" 
-                                      onClick={(e) => { 
-                                        e.stopPropagation(); 
-                                        handleMerchQuantityChange(p.id, -1); 
-                                      }}
-                                      aria-label="Reducir cantidad"
-                                    >
-                                      <Minus size={12} />
-                                    </button>
-                                    <span>{formData.merchSelections[p.id].quantity}</span>
-                                    <button 
-                                      type="button"
-                                      className="reg-qty-btn" 
-                                      onClick={(e) => { 
-                                        e.stopPropagation(); 
-                                        handleMerchQuantityChange(p.id, 1); 
-                                      }}
-                                      aria-label="Aumentar cantidad"
-                                    >
-                                      <Plus size={12} />
-                                    </button>
-                                  </div>
-                                </div>
-                              </div>
-                            )}
-                          </div>
-                        );
-                      })}
+                {/* Pregunta sobre Mercancía con diseño premium (Solo Conferencia) */}
+                {selectedEvent === 'conferencia' && (
+                  <>
+                    <div className="form-group merch-checkbox-group">
+                      <label className="checkbox-container">
+                        <input
+                          type="checkbox"
+                          name="interestedInMerch"
+                          checked={formData.interestedInMerch}
+                          onChange={handleChange}
+                        />
+                        <span className="checkbox-checkmark"></span>
+                        <span className="checkbox-label-text">¿Te interesa adquirir mercancía oficial de la conferencia?</span>
+                      </label>
                     </div>
-                    
-                    {/* Resumen de Subtotal */}
-                    {(() => {
-                      let total = 0;
-                      PRODUCTS.forEach(p => {
-                        const sel = formData.merchSelections[p.id];
-                        if (sel?.selected) {
-                          total += p.price * sel.quantity;
-                        }
-                      });
-                      return total > 0 ? (
-                        <div className="reg-merch-summary">
-                          <span>Total de Mercancía:</span>
-                          <strong>RD$ {total.toLocaleString()}</strong>
+
+                    {/* Galería Visual de Mercancía Interactiva */}
+                    {formData.interestedInMerch && (
+                      <div className="registration-merch-selection animate-fade-in">
+                        <span className="merch-section-title">Selección de Artículos</span>
+                        
+                        <div className="registration-products-list">
+                          {PRODUCTS.map(p => {
+                            const isSel = formData.merchSelections[p.id]?.selected;
+                            
+                            let previewImg = "";
+                            if (p.type === "tshirt" || p.id === 2) {
+                              const activeCol = formData.merchSelections[p.id]?.color || "Negro";
+                              previewImg = regTshirtView === "front" ? p.images[activeCol].front : p.images[activeCol].back;
+                            } else if (p.type === "cap" || p.id === 1) {
+                              previewImg = regCapView === "front" ? p.images["Negro"].front : p.images["Negro"].back;
+                            } else {
+                              previewImg = typeof p.images["Negro"] === "object" ? p.images["Negro"].front : p.images["Negro"];
+                            }
+
+                            return (
+                              <div key={p.id} className={`reg-product-card ${isSel ? 'selected' : ''}`}>
+                                <div className="reg-product-main" onClick={() => handleMerchSelectionToggle(p.id)}>
+                                  <div className="reg-checkbox">
+                                    <div className={`custom-chk ${isSel ? 'checked' : ''}`}>
+                                      {isSel && <Check size={14} />}
+                                    </div>
+                                  </div>
+                                  
+                                  <div style={{ width: '50px', height: '50px', flexShrink: 0 }}>
+                                    <PremiumImageDisplay 
+                                      src={previewImg} 
+                                      localPath={previewImg} 
+                                      alt={p.name} 
+                                      className="reg-product-img"
+                                    />
+                                  </div>
+                                  
+                                  <div className="reg-product-info">
+                                    <span className="reg-product-name">{p.name}</span>
+                                    <span className="reg-product-price">RD$ {p.price.toLocaleString()}</span>
+                                  </div>
+                                </div>
+                                
+                                {isSel && (
+                                  <div className="reg-product-options animate-fade-in">
+                                    {/* Si es gorra, mostrar selector de vista */}
+                                    {(p.type === "cap" || p.id === 1) && (
+                                      <div className="reg-option-group">
+                                        <label>Vista</label>
+                                        <div style={{ display: 'flex', gap: '0.4rem', background: 'rgba(0,0,0,0.4)', padding: '0.2rem', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.06)' }}>
+                                          <button 
+                                            type="button"
+                                            onClick={(e) => { e.stopPropagation(); setRegCapView("front"); }}
+                                            className={`reg-size-chip ${regCapView === "front" ? 'active' : ''}`}
+                                            style={{ padding: '0.25rem 0.6rem', fontSize: '0.75rem', minWidth: 'auto' }}
+                                          >
+                                            Frontal
+                                          </button>
+                                          <button 
+                                            type="button"
+                                            onClick={(e) => { e.stopPropagation(); setRegCapView("back"); }}
+                                            className={`reg-size-chip ${regCapView === "back" ? 'active' : ''}`}
+                                            style={{ padding: '0.25rem 0.6rem', fontSize: '0.75rem', minWidth: 'auto' }}
+                                          >
+                                            Trasera
+                                          </button>
+                                        </div>
+                                      </div>
+                                    )}
+
+                                    {/* Si es camiseta, mostrar selector de color y vista */}
+                                    {(p.type === "tshirt" || p.id === 2) && (
+                                      <>
+                                        {/* Selector de Vista en miniatura */}
+                                        <div className="reg-option-group">
+                                          <label>Vista</label>
+                                          <div style={{ display: 'flex', gap: '0.4rem', background: 'rgba(0,0,0,0.4)', padding: '0.2rem', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.06)' }}>
+                                            <button 
+                                              type="button"
+                                              onClick={(e) => { e.stopPropagation(); setRegTshirtView("front"); }}
+                                              className={`reg-size-chip ${regTshirtView === "front" ? 'active' : ''}`}
+                                              style={{ padding: '0.25rem 0.6rem', fontSize: '0.75rem', minWidth: 'auto' }}
+                                            >
+                                              Frontal
+                                            </button>
+                                            <button 
+                                              type="button"
+                                              onClick={(e) => { e.stopPropagation(); setRegTshirtView("back"); }}
+                                              className={`reg-size-chip ${regTshirtView === "back" ? 'active' : ''}`}
+                                              style={{ padding: '0.25rem 0.6rem', fontSize: '0.75rem', minWidth: 'auto' }}
+                                            >
+                                              Trasera
+                                            </button>
+                                          </div>
+                                        </div>
+
+                                        <div className="reg-option-group">
+                                          <label>Color</label>
+                                          <div className="reg-color-options">
+                                            {p.colors.map(col => (
+                                              <button
+                                                key={col}
+                                                type="button"
+                                                onClick={(e) => { 
+                                                  e.stopPropagation(); 
+                                                  handleMerchOptionChange(p.id, 'color', col); 
+                                                }}
+                                                className={`reg-color-dot ${formData.merchSelections[p.id].color === col ? 'active' : ''}`}
+                                                style={{ 
+                                                  backgroundColor: p.colorHex[col],
+                                                  border: col === 'Blanco' ? '1px solid rgba(255,255,255,0.2)' : 'none'
+                                                }}
+                                                aria-label={`Color ${col}`}
+                                              />
+                                            ))}
+                                          </div>
+                                        </div>
+
+                                        <div className="reg-option-group">
+                                          <label>Talla</label>
+                                          <div className="reg-size-options">
+                                            {p.sizes.map(sz => (
+                                              <button
+                                                key={sz}
+                                                type="button"
+                                                onClick={(e) => { 
+                                                  e.stopPropagation(); 
+                                                  handleMerchOptionChange(p.id, 'size', sz); 
+                                                }}
+                                                className={`reg-size-chip ${formData.merchSelections[p.id].size === sz ? 'active' : ''}`}
+                                              >
+                                                {sz}
+                                              </button>
+                                            ))}
+                                          </div>
+                                        </div>
+                                      </>
+                                    )}
+
+                                    {/* Selector de Cantidad para ambos */}
+                                    <div className="reg-option-group qty-row">
+                                      <label>Cantidad</label>
+                                      <div className="reg-qty-selector">
+                                        <button 
+                                          type="button"
+                                          className="reg-qty-btn" 
+                                          onClick={(e) => { 
+                                            e.stopPropagation(); 
+                                            handleMerchQuantityChange(p.id, -1); 
+                                          }}
+                                          aria-label="Reducir cantidad"
+                                        >
+                                          <Minus size={12} />
+                                        </button>
+                                        <span>{formData.merchSelections[p.id].quantity}</span>
+                                        <button 
+                                          type="button"
+                                          className="reg-qty-btn" 
+                                          onClick={(e) => { 
+                                            e.stopPropagation(); 
+                                            handleMerchQuantityChange(p.id, 1); 
+                                          }}
+                                          aria-label="Aumentar cantidad"
+                                        >
+                                          <Plus size={12} />
+                                        </button>
+                                      </div>
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                            );
+                          })}
                         </div>
-                      ) : null;
-                    })()}
-                  </div>
+                        
+                        {/* Resumen de Subtotal */}
+                        {(() => {
+                          let total = 0;
+                          PRODUCTS.forEach(p => {
+                            const sel = formData.merchSelections[p.id];
+                            if (sel?.selected) {
+                              total += p.price * sel.quantity;
+                            }
+                          });
+                          return total > 0 ? (
+                            <div className="reg-merch-summary">
+                              <span>Total de Mercancía:</span>
+                              <strong>RD$ {total.toLocaleString()}</strong>
+                            </div>
+                          ) : null;
+                        })()}
+                      </div>
+                    )}
+                  </>
                 )}
 
                 <button type="submit" className="submit-btn" disabled={isSubmitting}>
@@ -973,11 +1087,9 @@ const Registration = () => {
 
       </div>
 
-      {/* SUCCESS SCREEN - Portal: renderizado directo en document.body */}
+      {/* SUCCESS SCREEN - Portal */}
       {isRegistered && createPortal(
-          /* Success Screen & Digital Ticket */
           <div className="ticket-success-container" onClick={handleOutsideClick}>
-            {/* Botón X fijo en la esquina superior derecha */}
             <button
               onClick={(e) => {
                 e.stopPropagation();
@@ -1002,13 +1114,17 @@ const Registration = () => {
             </div>
 
             {/* Virtual Ticket Card */}
-            <div className="ticket-card animate-fade-in" onClick={(e) => e.stopPropagation()}>
+            <div className={`ticket-card animate-fade-in ${selectedEvent === 'vigilia' ? 'ticket-reset' : ''}`} onClick={(e) => e.stopPropagation()}>
               <div className="ticket-top">
                 <div className="ticket-header">
                   <div className="ticket-event-info">
-                    <span className="ticket-event-label">Boleto de Entrada</span>
-                    <span className="ticket-event-name text-gradient">SIN FILTROS 2026</span>
-                    <span className="ticket-event-subtitle">Conferencia de Jóvenes ICC</span>
+                    <span className="ticket-event-label">{selectedEvent === 'vigilia' ? 'Boleto Media Vigilia' : 'Boleto de Entrada'}</span>
+                    <span className="ticket-event-name text-gradient">
+                      {selectedEvent === 'vigilia' ? 'RESET' : 'SIN FILTROS 2026'}
+                    </span>
+                    <span className="ticket-event-subtitle">
+                      {selectedEvent === 'vigilia' ? 'Pre-Conferencia Jóvenes ICC' : 'Conferencia de Jóvenes ICC'}
+                    </span>
                   </div>
                   <div className="ticket-logo">
                     <span className="t-logo-text">Jóvenes</span>
@@ -1024,19 +1140,23 @@ const Registration = () => {
 
                   <div className="ticket-info-item">
                     <span className="ticket-info-label">Código de Entrada</span>
-                    <span className="ticket-info-value" style={{ fontFamily: 'monospace', letterSpacing: '1px', color: 'var(--accent-light)' }}>
+                    <span className="ticket-info-value" style={{ fontFamily: 'monospace', letterSpacing: '1px', color: selectedEvent === 'vigilia' ? '#a78bfa' : 'var(--accent-light)' }}>
                       {ticketCode}
                     </span>
                   </div>
 
                   <div className="ticket-info-item">
                     <span className="ticket-info-label">Fecha del Evento</span>
-                    <span className="ticket-info-value">Sábado 29 Agosto, 2026</span>
+                    <span className="ticket-info-value">
+                      {selectedEvent === 'vigilia' ? 'Sábado 22 Agosto, 2026' : 'Sábado 29 Agosto, 2026'}
+                    </span>
                   </div>
 
                   <div className="ticket-info-item">
                     <span className="ticket-info-label">Hora de Apertura</span>
-                    <span className="ticket-info-value">03:00 PM</span>
+                    <span className="ticket-info-value">
+                      {selectedEvent === 'vigilia' ? '06:00 PM' : '03:00 PM'}
+                    </span>
                   </div>
 
                   <div className="ticket-info-item">
@@ -1051,7 +1171,7 @@ const Registration = () => {
                 </div>
 
                 {/* Visualizing reserved merch inside the ticket if present */}
-                {formData.interestedInMerch && (() => {
+                {selectedEvent === 'conferencia' && formData.interestedInMerch && (() => {
                   const selectedItems = [];
                   let merchTotal = 0;
                   PRODUCTS.forEach(p => {
@@ -1068,7 +1188,6 @@ const Registration = () => {
                         <span>Mercancía Reservada (Pago del 100% Requerido)</span>
                       </div>
                       
-                      {/* Visual List of Items with Images */}
                       <div className="ticket-merch-items-list" style={{ marginTop: '0.8rem', display: 'flex', flexDirection: 'column', gap: '0.6rem', marginBottom: '0.8rem' }}>
                         {PRODUCTS.map(p => {
                           const sel = formData.merchSelections[p.id];
@@ -1085,11 +1204,6 @@ const Registration = () => {
                                   src={getImageUrl(imgPath)} 
                                   alt={p.name} 
                                   style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                                  onError={(e) => {
-                                    if (e.target.src !== imgPath) {
-                                      e.target.src = imgPath;
-                                    }
-                                  }}
                                 />
                               </div>
                               <div style={{ flexGrow: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: '0.1rem', textAlign: 'left' }}>
@@ -1124,14 +1238,13 @@ const Registration = () => {
                           </div>
                         </div>
                         <div style={{ background: 'rgba(239,68,68,0.12)', border: '1px solid rgba(239,68,68,0.35)', borderRadius: '6px', padding: '0.5rem 0.7rem', marginBottom: '0.5rem', color: '#f87171', fontWeight: '600', fontSize: '0.78rem', lineHeight: '1.4' }}>
-                          ⚠️ Fecha límite de pago: <strong style={{ color: '#fca5a5' }}>01 de agosto de 2026</strong>. Por favor, completa tu pago a tiempo. Pasada esta fecha, las reservas no pagadas se cancelarán automáticamente y no podremos garantizar la disponibilidad de tus artículos.
+                          ⚠️ Fecha límite de pago: <strong style={{ color: '#fca5a5' }}>09 de agosto de 2026</strong>. Por favor, completa tu pago a tiempo. Pasada esta fecha, las reservas no pagadas se cancelarán automáticamente y no podremos garantizar la disponibilidad de tus artículos.
                         </div>
 
                         <div style={{ color: '#fbd590', marginBottom: '0.4rem' }}>
                           * Una vez recibido el pago, estaremos contactando cuando esté listo y disponible para retirar en la iglesia.
                         </div>
 
-                        {/* Botón idéntico al del registro para enviar comprobante */}
                         <a 
                           href={`https://wa.me/18096299236?text=${encodeURIComponent(
                             `*COMPROBANTE DE PAGO - REGISTRO CONFERENCIA*\n\n*Asistente:* ${formData.firstName} ${formData.lastName}\n*Código de Boleto:* ${ticketCode}\n\nAdjunto el comprobante del depósito del 100% para confirmar mi mercancía.`
@@ -1205,7 +1318,7 @@ const Registration = () => {
             </div>
           </div>,
           document.body
-        )}
+      )}
     </div>
   );
 };

@@ -52,6 +52,7 @@ body {
   line-height: 1.6;
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
+  transition: background-color 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -365,4 +366,13 @@ ul {
 body.lightbox-active .main-content {
   position: relative;
   z-index: 2500 !important;
+}
+
+/* Media Vigilia (RESET) custom ambient background */
+body.vigilia-mode {
+  background-color: #030306 !important;
+  background-image: 
+    radial-gradient(at 10% 20%, rgba(124, 58, 237, 0.08) 0px, transparent 50%),
+    radial-gradient(at 90% 80%, rgba(99, 102, 241, 0.06) 0px, transparent 50%),
+    radial-gradient(at 50% 50%, rgba(79, 70, 229, 0.04) 0px, transparent 45%) !important;
 }

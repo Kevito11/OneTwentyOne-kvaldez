@@ -67,6 +67,24 @@ const TicketVerification = () => {
   }, [ticketData]);
 
   useEffect(() => {
+    if (ticketData) {
+      const isVigilia = (ticketData.event && (
+        ticketData.event.toLowerCase().includes('vigilia') || 
+        ticketData.event.toLowerCase().includes('reset')
+      )) || (ticketData.ticketCode && ticketData.ticketCode.indexOf('RESET') !== -1);
+      
+      if (isVigilia) {
+        document.body.classList.add('vigilia-mode');
+      } else {
+        document.body.classList.remove('vigilia-mode');
+      }
+    }
+    return () => {
+      document.body.classList.remove('vigilia-mode');
+    };
+  }, [ticketData]);
+
+  useEffect(() => {
     const fetchTicketData = async () => {
       setLoading(true);
       setError('');
@@ -260,7 +278,7 @@ const TicketVerification = () => {
                       </div>
                       <div className="ticket-merch-note" style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.6rem', borderTop: '1px dashed rgba(255,255,255,0.06)', paddingTop: '0.6rem', lineHeight: '1.4' }}>
                         <div style={{ background: 'rgba(239,68,68,0.12)', border: '1px solid rgba(239,68,68,0.35)', borderRadius: '6px', padding: '0.5rem 0.7rem', marginBottom: '0.8rem', color: '#f87171', fontWeight: '600', fontSize: '0.78rem', lineHeight: '1.4', textAlign: 'left' }}>
-                          ⚠️ Fecha límite de pago: <strong style={{ color: '#fca5a5' }}>01 de agosto de 2026</strong>. Por favor, completa tu pago a tiempo. Pasada esta fecha, las reservas no pagadas se cancelarán automáticamente y no podremos garantizar la disponibilidad de tus artículos.
+                          ⚠️ Fecha límite de pago: <strong style={{ color: '#fca5a5' }}>09 de agosto de 2026</strong>. Por favor, completa tu pago a tiempo. Pasada esta fecha, las reservas no pagadas se cancelarán automáticamente y no podremos garantizar la disponibilidad de tus artículos.
                         </div>
                         <div style={{ marginBottom: '0.4rem', color: 'var(--text-secondary)' }}>
                           <strong>📌 Confirmación de Reserva (Pago 100%):</strong>
@@ -289,6 +307,15 @@ const TicketVerification = () => {
                           <Phone size={14} style={{ color: 'var(--accent-light)' }} />
                           <span>Envía el comprobante por WhatsApp al <strong>(809) 629-9236</strong> (Haz clic para chatear).</span>
                         </a>
+
+                        <div style={{ marginTop: '1rem', borderTop: '1px dashed rgba(255,255,255,0.06)', paddingTop: '0.8rem', textAlign: 'center' }}>
+                          <Link 
+                            to="/merch" 
+                            style={{ color: 'var(--accent-light)', fontSize: '0.82rem', fontWeight: '800', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '0.4rem', padding: '0.5rem 1rem', background: 'rgba(255,255,255,0.03)', borderRadius: '30px', border: '1px solid rgba(255,255,255,0.08)' }}
+                          >
+                            <ShoppingBag size={14} /> Ver catálogo completo de mercancía
+                          </Link>
+                        </div>
                       </div>
                     </div>
                   ) : null;
@@ -304,12 +331,20 @@ const TicketVerification = () => {
                     <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', margin: 0, lineHeight: '1.5' }}>
                       Pide tu gorra o camiseta oficial de la conferencia <strong>"Sin Filtros 2026"</strong> usando tu código de boleto <code>{ticketData.ticketCode}</code> sin tener que registrarte de nuevo.
                     </p>
-                    <button
-                      onClick={() => setIsMerchModalOpen(true)}
-                      style={{ marginTop: '0.2rem', background: '#ffffff', color: '#000000', border: 'none', padding: '0.65rem 1.2rem', borderRadius: '50px', fontWeight: '800', fontSize: '0.85rem', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', width: 'fit-content', transition: 'transform 0.2s' }}
-                    >
-                      <Sparkles size={16} /> Reservar Mercancía Ahora
-                    </button>
+                    <div style={{ display: 'flex', gap: '0.8rem', flexWrap: 'wrap', alignItems: 'center', marginTop: '0.2rem' }}>
+                      <button
+                        onClick={() => setIsMerchModalOpen(true)}
+                        style={{ background: '#ffffff', color: '#000000', border: 'none', padding: '0.65rem 1.2rem', borderRadius: '50px', fontWeight: '800', fontSize: '0.85rem', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', transition: 'transform 0.2s' }}
+                      >
+                        <Sparkles size={16} /> Reservar Mercancía Ahora
+                      </button>
+                      <Link
+                        to="/merch"
+                        style={{ color: '#ffffff', border: '1px solid rgba(255, 255, 255, 0.2)', padding: '0.65rem 1.2rem', borderRadius: '50px', fontWeight: '800', fontSize: '0.85rem', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', background: 'rgba(255, 255, 255, 0.05)', transition: 'background-color 0.2s' }}
+                      >
+                        <ShoppingBag size={16} /> Ver Catálogo Completo
+                      </Link>
+                    </div>
                   </div>
                 )}
               </div>
@@ -345,7 +380,7 @@ const TicketVerification = () => {
             </div>
 
             {/* Actions Bar */}
-            <div className="ticket-actions-bar" style={{ width: '100%' }}>
+            <div className="ticket-actions-bar" style={{ width: '100%', flexWrap: 'wrap', gap: '0.8rem' }}>
               <button onClick={handlePrint} className="ticket-action-btn print">
                 <Printer size={18} />
                 Imprimir Boleto / PDF
@@ -361,6 +396,15 @@ const TicketVerification = () => {
                 <MapPin size={18} style={{ color: 'var(--accent-color)' }} />
                 Cómo llegar (Maps)
               </a>
+
+              <Link
+                to="/merch"
+                className="ticket-action-btn nav"
+                style={{ textDecoration: 'none' }}
+              >
+                <ShoppingBag size={18} style={{ color: 'var(--accent-color)' }} />
+                Ver Todo el Merch
+              </Link>
 
               <Link to="/" className="ticket-action-btn nav" style={{ textDecoration: 'none' }}>
                 <RotateCcw size={18} />

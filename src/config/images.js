@@ -18,13 +18,33 @@ const imageMemoryCache = new Map();
 export const getImageUrl = (path) => {
   if (!path) return "";
   
+  let resolvedPath = path;
+  let isLocalOverride = false;
+  
+  // Dynamic switch starting August 1st, 2026
+  try {
+    const now = new Date();
+    const targetDate = new Date(2026, 7, 1); // 0-indexed month: 7 = August
+    if (now >= targetDate) {
+      if (path === "/sin-filtro-poster.jpeg") {
+        resolvedPath = "/expositores-sin-filtros-amarillo.jpeg";
+        isLocalOverride = true;
+      } else if (path === "/sin-filtros-theme.jpeg") {
+        resolvedPath = "/conferencia-juvenil-sin-filtros-amarillo.jpeg";
+        isLocalOverride = true;
+      }
+    }
+  } catch (e) {
+    console.error("Error checking date for image override:", e);
+  }
+  
   let finalUrl = "";
-  if (path.startsWith("http://") || path.startsWith("https://")) {
-    finalUrl = path;
+  if (resolvedPath.startsWith("http://") || resolvedPath.startsWith("https://")) {
+    finalUrl = resolvedPath;
   } else {
-    const cleanPath = path.startsWith("/") ? path : `/${path}`;
-    if (!USE_SUPABASE_STORAGE) {
-      finalUrl = cleanPath;
+    const cleanPath = resolvedPath.startsWith("/") ? resolvedPath : `/${resolvedPath}`;
+    if (!USE_SUPABASE_STORAGE || isLocalOverride) {
+      finalUrl = cleanPath; // Return local path directly
     } else if (CONTAINS_PUBLIC_FOLDER) {
       finalUrl = `${BUCKET_URL}/public${cleanPath}`;
     } else {
@@ -55,6 +75,8 @@ export const preloadImages = (paths = []) => {
 export const CRITICAL_IMAGES = [
   "/sin-filtro-poster.jpeg",
   "/sin-filtros-theme.jpeg",
+  "/expositores-sin-filtros-amarillo.jpeg",
+  "/conferencia-juvenil-sin-filtros-amarillo.jpeg",
   "/logo-121.png",
   "/merch/Merch SIN FILTROS gorra Frontal.jpeg",
   "/merch/Merch SIN FILTROS gorra 2.jpeg",
