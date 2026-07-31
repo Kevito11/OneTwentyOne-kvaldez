@@ -1,3 +1,4 @@
+import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import Navbar from './components/layout/Navbar';
 import Footer from './components/layout/Footer';
@@ -34,6 +35,18 @@ function AppContent() {
 }
 
 function App() {
+  useEffect(() => {
+    try {
+      const now = new Date();
+      const targetDate = new Date(2026, 7, 1); // August 1st, 2026
+      if (now >= targetDate) {
+        document.body.classList.add('yellow-theme');
+      }
+    } catch (e) {
+      console.error("Error setting dynamic yellow theme:", e);
+    }
+  }, []);
+
   return (
     <Router>
       <ScrollToTop />

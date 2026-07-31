@@ -368,8 +368,30 @@ body.lightbox-active .main-content {
   z-index: 2500 !important;
 }
 
-/* Media Vigilia (RESET) custom ambient background */
+/* Yellow Theme active starting August 1st, 2026 */
+body.yellow-theme {
+  --accent-color: #f59e0b; /* Amber Yellow */
+  --accent-light: #fef3c7; /* Warm Gold Light */
+  --accent-blue: #f59e0b; /* Warm Gold */
+  --accent-gradient: linear-gradient(135deg, #fbbf24 0%, #d97706 50%, #78350f 100%);
+  --accent-glow: rgba(245, 158, 11, 0.08);
+  --blue-glow: rgba(245, 158, 11, 0.12);
+
+  background-image: 
+    radial-gradient(at 10% 20%, rgba(245, 158, 11, 0.02) 0px, transparent 55%),
+    radial-gradient(at 90% 80%, rgba(217, 119, 6, 0.03) 0px, transparent 55%),
+    radial-gradient(at 50% 50%, rgba(245, 158, 11, 0.01) 0px, transparent 50%);
+}
+
+/* Media Vigilia (RESET) custom purple/indigo theme overrides */
 body.vigilia-mode {
+  --accent-color: #a78bfa; /* Lavender Purple */
+  --accent-light: #c4b5fd; /* Soft Purple Light */
+  --accent-blue: #a78bfa; /* Lavender Purple */
+  --accent-gradient: linear-gradient(135deg, #c4b5fd 0%, #7c3aed 50%, #4c1d95 100%);
+  --accent-glow: rgba(124, 58, 237, 0.08);
+  --blue-glow: rgba(124, 58, 237, 0.12);
+
   background-color: #030306 !important;
   background-image: 
     radial-gradient(at 10% 20%, rgba(124, 58, 237, 0.08) 0px, transparent 50%),
