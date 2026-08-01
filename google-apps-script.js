@@ -457,9 +457,9 @@ function enviarNotificacionExtensionPago() {
     var event = data[i][12] || ''; // Columna M
     var pago = String(data[i][13] || '').trim(); // Columna N
     
-    var isVigilia = (ticketCode && ticketCode.indexOf("RESET") !== -1) || (event.indexOf("RESET") !== -1);
+    var isConferencia = event === "Conferencia Sin Filtros";
     
-    if (!isVigilia && interestedInMerch === "Sí" && merchTotal > 0 && pago !== "Si" && email) {
+    if (isConferencia && interestedInMerch === "Sí" && merchTotal > 0 && pago !== "Si" && email) {
       try {
         enviarCorreoNotificacionExtension({
           email: email.trim(),
@@ -640,10 +640,10 @@ function enviarNotificacionInvitacionMercancia() {
     var event = data[i][12] || ''; // Columna M
     var pago = String(data[i][13] || '').trim(); // Columna N
     
-    var isVigilia = (ticketCode && ticketCode.indexOf("RESET") !== -1) || (event.indexOf("RESET") !== -1);
+    var isConferencia = event === "Conferencia Sin Filtros";
     
-    // Condición: No es vigilia, no mostró interés en mercancía ("Sí") y la columna de pago está vacía, y tiene correo
-    if (!isVigilia && interestedInMerch !== "Sí" && pago === "" && email) {
+    // Condición: Es conferencia, no mostró interés en mercancía ("Sí") y la columna de pago está vacía, y tiene correo
+    if (isConferencia && interestedInMerch !== "Sí" && pago === "" && email) {
       try {
         enviarCorreoInvitacionMercancia({
           email: email.trim(),
@@ -786,10 +786,10 @@ function enviarNotificacionConfirmacionPago() {
     var event = data[i][12] || ''; // Columna M
     var pago = String(data[i][13] || '').trim(); // Columna N
     
-    var isVigilia = (ticketCode && ticketCode.indexOf("RESET") !== -1) || (event.indexOf("RESET") !== -1);
+    var isConferencia = event === "Conferencia Sin Filtros";
     
-    // Condición: No es vigilia, tiene mercancía y la columna de pago contiene "Si", y tiene correo
-    if (!isVigilia && interestedInMerch === "Sí" && pago.toLowerCase() === "si" && email) {
+    // Condición: Es conferencia, tiene mercancía y la columna de pago contiene "Si", y tiene correo
+    if (isConferencia && interestedInMerch === "Sí" && pago.toLowerCase() === "si" && email) {
       try {
         enviarCorreoPagoConfirmado({
           email: email.trim(),
