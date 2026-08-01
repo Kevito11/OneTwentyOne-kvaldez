@@ -664,14 +664,14 @@ const Registration = () => {
                     <Star size={16} style={{ color: 'var(--accent-blue)', marginRight: '5px', verticalAlign: 'middle' }} />
                     Pre-Conferencia 2026
                   </span>
-                  <h1 className="title">Prepárate en <span className="text-gradient" style={{ background: 'linear-gradient(90deg, #ffffff 0%, #888888 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>RESET</span></h1>
+                  <h1 className="title">Prepárate en <span className="text-gradient" style={{ background: 'linear-gradient(90deg, #c4b5fd 0%, #7c3aed 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>RESET</span></h1>
                   <p className="description">
                     Acompáñanos el <strong>22 de Agosto a las 06:00 PM</strong> en nuestra <strong>Media Vigilia "RESET"</strong>. Un tiempo enfocado en la oración unida, intercesión y preparación de nuestros corazones para la conferencia.
                   </p>
 
                   <div className="ticket-perks">
                     <div className="perk-item">
-                      <div className="perk-icon" style={{ background: 'rgba(255,255,255,0.05)', color: 'var(--accent-blue)' }}><Ticket size={24} /></div>
+                      <div className="perk-icon" style={{ background: 'rgba(124, 58, 237, 0.1)', color: 'var(--accent-blue)' }}><Ticket size={24} /></div>
                       <div>
                         <h3>Oración & Clamor</h3>
                         <p>Clamaremos juntos por el impacto de la Palabra de Dios en nuestra generación.</p>
@@ -679,7 +679,7 @@ const Registration = () => {
                     </div>
 
                     <div className="perk-item">
-                      <div className="perk-icon" style={{ background: 'rgba(255,255,255,0.05)', color: 'var(--accent-blue)' }}><Star size={24} /></div>
+                      <div className="perk-icon" style={{ background: 'rgba(124, 58, 237, 0.1)', color: 'var(--accent-blue)' }}><Star size={24} /></div>
                       <div>
                         <h3>Preparación Espiritual</h3>
                         <p>Un espacio de consagración previo al gran día de la conferencia.</p>
@@ -687,7 +687,7 @@ const Registration = () => {
                     </div>
 
                     <div className="perk-item">
-                      <div className="perk-icon" style={{ background: 'rgba(255,255,255,0.05)', color: 'var(--accent-blue)' }}><Star size={24} /></div>
+                      <div className="perk-icon" style={{ background: 'rgba(124, 58, 237, 0.1)', color: 'var(--accent-blue)' }}><Star size={24} /></div>
                       <div>
                         <h3>Experiencia Organizada</h3>
                         <p>Es necesario registrarse previamente para poder brindarte una experiencia más cómoda y coordinada.</p>

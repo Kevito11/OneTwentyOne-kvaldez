@@ -246,15 +246,17 @@ function enviarCorreoConfirmacion(data) {
     `;
   }
 
-  // Design variables matching the specific event (Vigilia vs Conferencia)
-  var outerBg = isVigilia ? "#05050b" : "#000000";
-  var cardBg = isVigilia ? "#0c0a15" : "#0a0a0a";
-  var cardBorderColor = isVigilia ? "#3c2d66" : "#222222";
-  var detailsBg = isVigilia ? "#151224" : "#111111";
-  var detailsBorderColor = isVigilia ? "#4c3785" : "#333333";
-  var accentColorText = isVigilia ? "#a78bfa" : "#ffffff";
-  var textColorMuted = isVigilia ? "#8c7eb3" : "#888888";
-  var textCodeColor = isVigilia ? "#d1c4e9" : "#ffffff";
+  // Design variables matching the specific event (Vigilia vs Conferencia stages)
+  var theme = getEmailTheme(isVigilia);
+  var outerBg = theme.outerBg;
+  var cardBg = theme.cardBg;
+  var cardBorderColor = theme.cardBorderColor;
+  var detailsBg = theme.detailsBg;
+  var detailsBorderColor = theme.detailsBorderColor;
+  var accentColorText = theme.accentColorText;
+  var textColorMuted = theme.textColorMuted;
+  var textCodeColor = theme.textCodeColor;
+  var headerColor = theme.headerColor;
 
   var htmlBody = `
     <!DOCTYPE html>
@@ -487,24 +489,112 @@ function enviarCorreoNotificacionExtension(data) {
   var ticketUrl = "https://ministeriodejovenesicc.netlify.app/ticket/" + data.ticketCode;
   var totalVal = "RD$ " + Number(data.merchTotal).toLocaleString();
   
+  var theme = getEmailTheme(false);
+
   var htmlBody = `
     <!DOCTYPE html>
     <html>
     <head>
       <meta charset="utf-8">
     </head>
-    <body style="background-color: #000000; color: #ffffff; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
-      <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #000000; padding: 40px 20px;">
+    <body style="background-color: ${theme.outerBg}; color: #ffffff; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+      <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: ${theme.outerBg}; padding: 40px 20px;">
         <tr>
           <td align="center">
-            <table width="100%" max-width="500" border="0" cellspacing="0" cellpadding="0" style="max-width: 500px; background-color: #0a0a0a; border: 1px solid #222222; border-radius: 16px; padding: 32px; text-align: left;">
+            <table width="100%" max-width="500" border="0" cellspacing="0" cellpadding="0" style="max-width: 500px; background-color: ${theme.cardBg}; border: 1px solid ${theme.cardBorderColor}; border-radius: 16px; padding: 32px; text-align: left;">
               <tr>
-                <td align="center" style="padding-bottom: 24px; border-bottom: 1px solid #222222;">
-                  <div style="color: #888888; font-size: 11px; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 6px;">Conferencia de Jóvenes ICC</div>
-                  <div style="font-size: 24px; font-weight: 800; color: #f59e0b; letter-spacing: -0.5px;">SIN FILTROS 2026</div>
+                <td align="center" style="padding-bottom: 24px; border-bottom: 1px solid ${theme.cardBorderColor};">
+                  <div style="color: ${theme.textColorMuted}; font-size: 11px; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 6px;">Conferencia de Jóvenes ICC</div>
+                  <div style="font-size: 24px; font-weight: 800; color: ${theme.headerColor}; letter-spacing: -0.5px;">SIN FILTROS 2026</div>
                   <div style="color: #666666; font-size: 13px; margin-top: 4px;">OneTwentyOne</div>
                 </td>
               </tr>
+              <tr>
+                <td style="font-size: 15px; color: #dddddd; line-height: 1.6; padding: 24px 0 16px 0;">
+                  ¡Hola <strong>${data.firstName}</strong>! 👋 ¡Que Dios te bendiga mucho!<br><br>
+                  Pasamos por aquí para dejarte un saludito y darte una excelente noticia. Sabemos lo mucho que quieres tu mercancía de <strong>Sin Filtros 2026</strong> y queremos ponértela fácil para que no te quedes sin ella: <strong>¡hemos extendido el plazo de pago!</strong> 🥳<br><br>
+                  Tienes hasta el <strong>domingo, 9 de agosto de 2026</strong> para completar tu pago y asegurar tus artículos. ¡Aprovecha estos días extras! 💻✨
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: ${theme.detailsBg}; border: 1px solid ${theme.detailsBorderColor}; border-radius: 12px; padding: 20px;">
+                    <tr>
+                      <td style="font-size: 11px; color: ${theme.textColorMuted}; padding-bottom: 2px;">Asistente</td>
+                    </tr>
+                    <tr>
+                      <td style="font-size: 15px; font-weight: bold; color: #ffffff; padding-bottom: 12px;">${data.firstName} ${data.lastName}</td>
+                    </tr>
+                    <tr>
+                      <td style="font-size: 11px; color: ${theme.textColorMuted}; padding-bottom: 2px;">Código de Entrada / Boleto</td>
+                    </tr>
+                    <tr>
+                      <td style="font-size: 16px; font-weight: bold; font-family: monospace; color: ${theme.textCodeColor}; padding-bottom: 12px; letter-spacing: 0.5px;">${data.ticketCode}</td>
+                    </tr>
+                    <tr>
+                      <td style="font-size: 11px; color: ${theme.textColorMuted}; padding-bottom: 2px;">Artículos Reservados</td>
+                    </tr>
+                    <tr>
+                      <td style="font-size: 13px; color: #aaaaaa; padding-bottom: 12px; line-height: 1.4;">${data.merchItems}</td>
+                    </tr>
+                    <tr>
+                      <td style="font-size: 11px; color: ${theme.textColorMuted}; padding-bottom: 2px;">Total a Pagar (100%)</td>
+                    </tr>
+                    <tr>
+                      <td style="font-size: 16px; font-weight: bold; color: #ffffff;">${totalVal}</td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+              <tr>
+                <td style="padding-top: 16px;">
+                  <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #141414; border: 1px dashed ${theme.detailsBorderColor}; border-radius: 12px; padding: 20px;">
+                    <tr>
+                      <td style="font-size: 11px; color: #888888; line-height: 1.4;">
+                        <strong>Instrucciones de Pago:</strong><br>
+                        Deposita o transfiere el monto total e indica como concepto: <strong>${data.ticketCode} - ${data.firstName} ${data.lastName}</strong>.<br><br>
+                        • <strong>Banreservas (Ahorro):</strong> <code>9607274318</code> &mdash; Joelmary Hernandez &mdash; Cédula: 402-3603056-1<br>
+                        • <strong>Banco Popular (Corriente):</strong> <code>836288449</code> &mdash; David J. Chez &mdash; Cédula: 402-0037969-7<br><br>
+                        Una vez realizado el pago, envía tu comprobante por WhatsApp para validar tu reserva:<br>
+                        <a href="https://wa.me/18096299236?text=COMPROBANTE%20DE%20PAGO%20-%20REGISTRO%20CONFERENCIA%0A%0AAsistente%3A%20${encodeURIComponent(data.firstName + ' ' + data.lastName)}%0ACódigo%20de%20Boleto%3A%20${encodeURIComponent(data.ticketCode)}" target="_blank" style="color: ${theme.accentColorText}; font-weight: bold; text-decoration: underline;">Enviar comprobante por WhatsApp al (809) 629-9236</a>
+                        <br><br>
+                        <strong style="color: #f87171;">⚠️ Recordatorio importante:</strong><br>
+                        Para poder coordinar la entrega de toda la mercancía a tiempo, después de esta fecha (9 de agosto) liberaremos los pedidos que no estén confirmados para que otros jóvenes puedan adquirirlos. ¡Bendiciones y gracias por tu comprensión! 🙌
+                        <br><br>
+                        <em>* Si ya realizaste tu pago y enviaste tu comprobante por WhatsApp, no te preocupes, ya lo estamos procesando. ¡Nos vemos pronto!</em>
+                      </td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+              <tr>
+                <td style="padding-top: 24px; font-size: 12px; color: ${theme.textColorMuted}; line-height: 1.5; border-top: 1px solid ${theme.cardBorderColor}; margin-top: 24px;">
+                  Si tienes alguna duda o necesitas modificar tus datos de registro, escríbenos a nuestra cuenta de Instagram <a href="https://instagram.com/onetwentyone.icc" target="_blank" style="color: #ffffff; text-decoration: underline;">@onetwentyone.icc</a>.
+                </td>
+              </tr>
+            </table>
+            <table width="100%" max-width="500" border="0" cellspacing="0" cellpadding="0" style="max-width: 500px; text-align: center; margin-top: 20px;">
+              <tr>
+                <td style="font-size: 10px; color: #555555; line-height: 1.4;">
+                  Este correo fue enviado automáticamente para notificar cambios en los plazos de pago.<br>
+                  © 2026 Iglesia de Convertidos a Cristo. Todos los derechos reservados.
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+      </table>
+    </body>
+    </html>
+  `;
+
+  MailApp.sendEmail({
+    to: email,
+    subject: subject,
+    htmlBody: htmlBody,
+    name: "Sin Filtros 2026"
+  });
+}
               <tr>
                 <td style="font-size: 15px; color: #dddddd; line-height: 1.6; padding: 24px 0 16px 0;">
                   ¡Hola <strong>${data.firstName}</strong>! 👋 ¡Que Dios te bendiga mucho!<br><br>
@@ -666,24 +756,73 @@ function enviarCorreoInvitacionMercancia(data) {
   
   var ticketUrl = "https://ministeriodejovenesicc.netlify.app/ticket/" + data.ticketCode;
   
+  var theme = getEmailTheme(false);
+
   var htmlBody = `
     <!DOCTYPE html>
     <html>
     <head>
       <meta charset="utf-8">
     </head>
-    <body style="background-color: #000000; color: #ffffff; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
-      <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #000000; padding: 40px 20px;">
+    <body style="background-color: ${theme.outerBg}; color: #ffffff; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+      <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: ${theme.outerBg}; padding: 40px 20px;">
         <tr>
           <td align="center">
-            <table width="100%" max-width="500" border="0" cellspacing="0" cellpadding="0" style="max-width: 500px; background-color: #0a0a0a; border: 1px solid #222222; border-radius: 16px; padding: 32px; text-align: left;">
+            <table width="100%" max-width="500" border="0" cellspacing="0" cellpadding="0" style="max-width: 500px; background-color: ${theme.cardBg}; border: 1px solid ${theme.cardBorderColor}; border-radius: 16px; padding: 32px; text-align: left;">
               <tr>
-                <td align="center" style="padding-bottom: 24px; border-bottom: 1px solid #222222;">
-                  <div style="color: #888888; font-size: 11px; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 6px;">Conferencia de Jóvenes ICC</div>
-                  <div style="font-size: 24px; font-weight: 800; color: #f59e0b; letter-spacing: -0.5px;">SIN FILTROS 2026</div>
+                <td align="center" style="padding-bottom: 24px; border-bottom: 1px solid ${theme.cardBorderColor};">
+                  <div style="color: ${theme.textColorMuted}; font-size: 11px; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 6px;">Conferencia de Jóvenes ICC</div>
+                  <div style="font-size: 24px; font-weight: 800; color: ${theme.headerColor}; letter-spacing: -0.5px;">SIN FILTROS 2026</div>
                   <div style="color: #666666; font-size: 13px; margin-top: 4px;">OneTwentyOne</div>
                 </td>
               </tr>
+              <tr>
+                <td style="font-size: 15px; color: #dddddd; line-height: 1.6; padding: 24px 0 16px 0;">
+                  ¡Hola <strong>${data.firstName}</strong>! 👋 ¡Que Dios te bendiga mucho!<br><br>
+                  Esperamos que estés súper bien y con el corazón expectante para lo que viviremos en <strong>Sin Filtros 2026</strong>. ¡Ya falta muy poco! 🥳<br><br>
+                  Pasamos por aquí para contarte que aún estás a tiempo de adquirir la <strong>mercancía oficial de la conferencia</strong> (t-shirts, gorras y más) para que vayas con el outfit completo. ¡Los diseños quedaron increíbles!<br><br>
+                  Puedes ver el catálogo de artículos y hacer tu reserva directamente desde tu boleto digital haciendo clic en el botón de abajo:
+                </td>
+              </tr>
+              <tr>
+                <td align="center" style="padding: 16px 0 24px 0;">
+                  <a href="${ticketUrl}" target="_blank" style="background-color: ${theme.accentColorText}; color: #000000; display: inline-block; padding: 14px 28px; font-weight: bold; border-radius: 8px; text-decoration: none; font-size: 15px; letter-spacing: 0.5px;">🛒 Ver Mercancía y Reservar</a>
+                </td>
+              </tr>
+              <tr>
+                <td style="font-size: 12px; color: ${theme.textColorMuted}; line-height: 1.5; padding: 20px; background-color: ${theme.detailsBg}; border: 1px dashed ${theme.detailsBorderColor}; border-radius: 12px;">
+                  ⚠️ <strong>Nota importante:</strong> La fecha límite para realizar tu reserva y completar el pago es el <strong>domingo, 9 de agosto de 2026</strong>. Pasada esta fecha, cerraremos los pedidos de producción para garantizar que todo esté listo para el día del evento.<br><br>
+                  ¡Bendiciones y nos vemos pronto! 🙌
+                </td>
+              </tr>
+              <tr>
+                <td style="padding-top: 24px; font-size: 12px; color: ${theme.textColorMuted}; line-height: 1.5; border-top: 1px solid ${theme.cardBorderColor}; margin-top: 24px;">
+                  Si tienes alguna duda o necesitas asistencia, escríbenos a nuestra cuenta de Instagram <a href="https://instagram.com/onetwentyone.icc" target="_blank" style="color: #ffffff; text-decoration: underline;">@onetwentyone.icc</a>.
+                </td>
+              </tr>
+            </table>
+            <table width="100%" max-width="500" border="0" cellspacing="0" cellpadding="0" style="max-width: 500px; text-align: center; margin-top: 20px;">
+              <tr>
+                <td style="font-size: 10px; color: #555555; line-height: 1.4;">
+                  Este correo fue enviado automáticamente por tu registro en la plataforma de OneTwentyOne.<br>
+                  © 2026 Iglesia de Convertidos a Cristo. Todos los derechos reservados.
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+      </table>
+    </body>
+    </html>
+  `;
+
+  MailApp.sendEmail({
+    to: email,
+    subject: subject,
+    htmlBody: htmlBody,
+    name: "Sin Filtros 2026"
+  });
+}
               <tr>
                 <td style="font-size: 15px; color: #dddddd; line-height: 1.6; padding: 24px 0 16px 0;">
                   ¡Hola <strong>${data.firstName}</strong>! 👋 ¡Que Dios te bendiga mucho!<br><br>
@@ -813,21 +952,23 @@ function enviarCorreoPagoConfirmado(data) {
   var ticketUrl = "https://ministeriodejovenesicc.netlify.app/ticket/" + data.ticketCode;
   var totalVal = "RD$ " + Number(data.merchTotal).toLocaleString();
   
+  var theme = getEmailTheme(false);
+
   var htmlBody = `
     <!DOCTYPE html>
     <html>
     <head>
       <meta charset="utf-8">
     </head>
-    <body style="background-color: #000000; color: #ffffff; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
-      <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #000000; padding: 40px 20px;">
+    <body style="background-color: ${theme.outerBg}; color: #ffffff; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+      <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: ${theme.outerBg}; padding: 40px 20px;">
         <tr>
           <td align="center">
-            <table width="100%" max-width="500" border="0" cellspacing="0" cellpadding="0" style="max-width: 500px; background-color: #0a0a0a; border: 1px solid #222222; border-radius: 16px; padding: 32px; text-align: left;">
+            <table width="100%" max-width="500" border="0" cellspacing="0" cellpadding="0" style="max-width: 500px; background-color: ${theme.cardBg}; border: 1px solid ${theme.cardBorderColor}; border-radius: 16px; padding: 32px; text-align: left;">
               <tr>
-                <td align="center" style="padding-bottom: 24px; border-bottom: 1px solid #222222;">
-                  <div style="color: #888888; font-size: 11px; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 6px;">Conferencia de Jóvenes ICC</div>
-                  <div style="font-size: 24px; font-weight: 800; color: #f59e0b; letter-spacing: -0.5px;">SIN FILTROS 2026</div>
+                <td align="center" style="padding-bottom: 24px; border-bottom: 1px solid ${theme.cardBorderColor};">
+                  <div style="color: ${theme.textColorMuted}; font-size: 11px; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 6px;">Conferencia de Jóvenes ICC</div>
+                  <div style="font-size: 24px; font-weight: 800; color: ${theme.headerColor}; letter-spacing: -0.5px;">SIN FILTROS 2026</div>
                   <div style="color: #666666; font-size: 13px; margin-top: 4px;">OneTwentyOne</div>
                 </td>
               </tr>
@@ -842,27 +983,27 @@ function enviarCorreoPagoConfirmado(data) {
               </tr>
               <tr>
                 <td>
-                  <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #111111; border: 1px solid #333333; border-radius: 12px; padding: 20px;">
+                  <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: ${theme.detailsBg}; border: 1px solid ${theme.detailsBorderColor}; border-radius: 12px; padding: 20px;">
                     <tr>
-                      <td style="font-size: 11px; color: #888888; padding-bottom: 2px;">Asistente</td>
+                      <td style="font-size: 11px; color: ${theme.textColorMuted}; padding-bottom: 2px;">Asistente</td>
                     </tr>
                     <tr>
                       <td style="font-size: 15px; font-weight: bold; color: #ffffff; padding-bottom: 12px;">${data.firstName} ${data.lastName}</td>
                     </tr>
                     <tr>
-                      <td style="font-size: 11px; color: #888888; padding-bottom: 2px;">Código de Entrada / Boleto</td>
+                      <td style="font-size: 11px; color: ${theme.textColorMuted}; padding-bottom: 2px;">Código de Entrada / Boleto</td>
                     </tr>
                     <tr>
-                      <td style="font-size: 16px; font-weight: bold; font-family: monospace; color: #ffffff; padding-bottom: 12px; letter-spacing: 0.5px;">${data.ticketCode}</td>
+                      <td style="font-size: 16px; font-weight: bold; font-family: monospace; color: ${theme.textCodeColor}; padding-bottom: 12px; letter-spacing: 0.5px;">${data.ticketCode}</td>
                     </tr>
                     <tr>
-                      <td style="font-size: 11px; color: #888888; padding-bottom: 2px;">Artículos Pagados</td>
+                      <td style="font-size: 11px; color: ${theme.textColorMuted}; padding-bottom: 2px;">Artículos Pagados</td>
                     </tr>
                     <tr>
                       <td style="font-size: 13px; color: #aaaaaa; padding-bottom: 12px; line-height: 1.4;">${data.merchItems}</td>
                     </tr>
                     <tr>
-                      <td style="font-size: 11px; color: #888888; padding-bottom: 2px;">Total Recibido</td>
+                      <td style="font-size: 11px; color: ${theme.textColorMuted}; padding-bottom: 2px;">Total Recibido</td>
                     </tr>
                     <tr>
                       <td style="font-size: 16px; font-weight: bold; color: #10b981;">${totalVal} (PAGADO)</td>
@@ -872,11 +1013,11 @@ function enviarCorreoPagoConfirmado(data) {
               </tr>
               <tr>
                 <td align="center" style="padding: 24px 0 16px 0;">
-                  <a href="${ticketUrl}" target="_blank" style="background-color: #ffffff; color: #000000; display: inline-block; padding: 12px 24px; font-weight: bold; border-radius: 8px; text-decoration: none; font-size: 14px;">🎫 Ver mi Boleto Digital</a>
+                  <a href="${ticketUrl}" target="_blank" style="background-color: ${theme.accentColorText}; color: #000000; display: inline-block; padding: 12px 24px; font-weight: bold; border-radius: 8px; text-decoration: none; font-size: 14px;">🎫 Ver mi Boleto Digital</a>
                 </td>
               </tr>
               <tr>
-                <td style="padding-top: 24px; font-size: 12px; color: #888888; line-height: 1.5; border-top: 1px solid #222222; margin-top: 24px;">
+                <td style="padding-top: 24px; font-size: 12px; color: ${theme.textColorMuted}; line-height: 1.5; border-top: 1px solid ${theme.cardBorderColor}; margin-top: 24px;">
                   Si tienes alguna duda o necesitas asistencia, escríbenos a nuestra cuenta de Instagram <a href="https://instagram.com/onetwentyone.icc" target="_blank" style="color: #ffffff; text-decoration: underline;">@onetwentyone.icc</a>.
                 </td>
               </tr>
@@ -902,4 +1043,62 @@ function enviarCorreoPagoConfirmado(data) {
     htmlBody: htmlBody,
     name: "Sin Filtros 2026"
   });
+}
+
+/**
+ * Retorna las variables de diseño para el correo según el evento y la fecha actual.
+ */
+function getEmailTheme(isVigilia) {
+  var now = new Date();
+  var isAugust1st2026OrLater = now >= new Date(2026, 7, 1); // 0-indexed month: 7 = August
+  var isAugust24th2026OrLater = now >= new Date(2026, 7, 24);
+
+  // Default Conferencia colors (Stage 1)
+  var theme = {
+    outerBg: "#000000",
+    cardBg: "#0a0a0a",
+    cardBorderColor: "#222222",
+    detailsBg: "#111111",
+    detailsBorderColor: "#333333",
+    accentColorText: "#ffffff",
+    textColorMuted: "#888888",
+    textCodeColor: "#ffffff",
+    headerColor: "#ffffff"
+  };
+
+  if (isVigilia) {
+    theme.outerBg = "#05050b";
+    theme.cardBg = "#0c0a15";
+    theme.cardBorderColor = "#3c2d66";
+    theme.detailsBg = "#151224";
+    theme.detailsBorderColor = "#4c3785";
+    theme.accentColorText = "#a78bfa";
+    theme.textColorMuted = "#8c7eb3";
+    theme.textCodeColor = "#d1c4e9";
+    theme.headerColor = "#7c3aed"; // RESET Purple
+  } else if (isAugust24th2026OrLater) {
+    // Stage 3: Orange Theme
+    theme.outerBg = "#030202"; // Negro PDF
+    theme.cardBg = "#0b0a0a";
+    theme.cardBorderColor = "#3c1910";
+    theme.detailsBg = "#141110";
+    theme.detailsBorderColor = "#542013";
+    theme.accentColorText = "#FF3800"; // Naranja PDF
+    theme.textColorMuted = "#a69385"; // Muted Crema/Silver
+    theme.textCodeColor = "#E1D2BD"; // Crema PDF
+    theme.headerColor = "#FF3800"; // Naranja PDF
+  } else if (isAugust1st2026OrLater) {
+    // Stage 2: Yellow Theme
+    theme.outerBg = "#030202"; // Negro PDF
+    theme.cardBg = "#0b0a09";
+    theme.cardBorderColor = "#3c3310";
+    theme.detailsBg = "#141310";
+    theme.detailsBorderColor = "#544613";
+    theme.accentColorText = "#F8C118"; // Amarillo PDF
+    theme.textColorMuted = "#a6a085"; // Muted Crema/Silver
+    theme.textCodeColor = "#E1D2BD"; // Crema PDF
+    theme.headerColor = "#F8C118"; // Amarillo PDF
+  }
+
+  return theme;
 }

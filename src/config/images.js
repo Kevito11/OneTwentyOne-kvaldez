@@ -21,11 +21,25 @@ export const getImageUrl = (path) => {
   let resolvedPath = path;
   let isLocalOverride = false;
   
-  // Dynamic switch starting August 1st, 2026
+  // Dynamic switch starting August 1st, 2026 (yellow) and August 24th, 2026 (orange)
   try {
+    const hash = typeof window !== "undefined" ? window.location.hash : "";
     const now = new Date();
-    const targetDate = new Date(2026, 7, 1); // 0-indexed month: 7 = August
-    if (now >= targetDate) {
+    const targetYellowDate = new Date(2026, 7, 1); // August 1st, 2026
+    const targetOrangeDate = new Date(2026, 7, 24); // August 24th, 2026
+
+    const isOrange = hash === "#orange" || (hash !== "#yellow" && now >= targetOrangeDate);
+    const isYellow = hash === "#yellow" || (hash !== "#orange" && now >= targetYellowDate && now < targetOrangeDate);
+
+    if (isOrange) {
+      if (path === "/sin-filtro-poster.jpeg") {
+        resolvedPath = "/expositores-sin-filtros-naranja.jpeg";
+        isLocalOverride = true;
+      } else if (path === "/sin-filtros-theme.jpeg") {
+        resolvedPath = "/conferencia-juvenil-sin-filtros-naranja.jpeg";
+        isLocalOverride = true;
+      }
+    } else if (isYellow) {
       if (path === "/sin-filtro-poster.jpeg") {
         resolvedPath = "/expositores-sin-filtros-amarillo.jpeg";
         isLocalOverride = true;
@@ -35,7 +49,7 @@ export const getImageUrl = (path) => {
       }
     }
   } catch (e) {
-    console.error("Error checking date for image override:", e);
+    console.error("Error checking date/hash for image override:", e);
   }
   
   let finalUrl = "";
@@ -77,6 +91,8 @@ export const CRITICAL_IMAGES = [
   "/sin-filtros-theme.jpeg",
   "/expositores-sin-filtros-amarillo.jpeg",
   "/conferencia-juvenil-sin-filtros-amarillo.jpeg",
+  "/expositores-sin-filtros-naranja.jpeg",
+  "/conferencia-juvenil-sin-filtros-naranja.jpeg",
   "/logo-121.png",
   "/merch/Merch SIN FILTROS gorra Frontal.jpeg",
   "/merch/Merch SIN FILTROS gorra 2.jpeg",
