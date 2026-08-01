@@ -52,7 +52,8 @@ function doPost(e) {
         merchImageUrls: data.merchImageUrls || '',
         event: rowData[12] || 'Conferencia Sin Filtros',
         eventType: (rowData[12] && rowData[12].indexOf('RESET') !== -1) ? 'vigilia' : 'conferencia',
-        ticketUrl: data.ticketUrl || ("https://ministeriodejovenesicc.netlify.app/ticket/" + codeToFind)
+        ticketUrl: data.ticketUrl || ("https://ministeriodejovenesicc.netlify.app/ticket/" + codeToFind),
+        activeTheme: data.activeTheme // Sincronizado
       };
       
       try {
@@ -247,7 +248,7 @@ function enviarCorreoConfirmacion(data) {
   }
 
   // Design variables matching the specific event (Vigilia vs Conferencia stages)
-  var theme = getEmailTheme(isVigilia);
+  var theme = getEmailTheme(isVigilia, data.activeTheme);
   var outerBg = theme.outerBg;
   var cardBg = theme.cardBg;
   var cardBorderColor = theme.cardBorderColor;
@@ -489,7 +490,7 @@ function enviarCorreoNotificacionExtension(data) {
   var ticketUrl = "https://ministeriodejovenesicc.netlify.app/ticket/" + data.ticketCode;
   var totalVal = "RD$ " + Number(data.merchTotal).toLocaleString();
   
-  var theme = getEmailTheme(false);
+  var theme = getEmailTheme(false, data.activeTheme);
 
   var htmlBody = `
     <!DOCTYPE html>
@@ -670,7 +671,7 @@ function enviarCorreoInvitacionMercancia(data) {
   
   var ticketUrl = "https://ministeriodejovenesicc.netlify.app/ticket/" + data.ticketCode;
   
-  var theme = getEmailTheme(false);
+  var theme = getEmailTheme(false, data.activeTheme);
 
   var htmlBody = `
     <!DOCTYPE html>
@@ -819,7 +820,7 @@ function enviarCorreoPagoConfirmado(data) {
   var ticketUrl = "https://ministeriodejovenesicc.netlify.app/ticket/" + data.ticketCode;
   var totalVal = "RD$ " + Number(data.merchTotal).toLocaleString();
   
-  var theme = getEmailTheme(false);
+  var theme = getEmailTheme(false, data.activeTheme);
 
   var htmlBody = `
     <!DOCTYPE html>
@@ -913,12 +914,20 @@ function enviarCorreoPagoConfirmado(data) {
 }
 
 /**
- * Retorna las variables de diseño para el correo según el evento y la fecha actual.
+ * Retorna las variables de diseño para el correo según el evento y la fecha actual o el tema activo.
  */
-function getEmailTheme(isVigilia) {
+function getEmailTheme(isVigilia, activeThemeOverride) {
   var now = new Date();
   var isAugust1st2026OrLater = now >= new Date(2026, 7, 1); // 0-indexed month: 7 = August
   var isAugust24th2026OrLater = now >= new Date(2026, 7, 24);
+
+  var isOrange = activeThemeOverride === 'orange' || (!activeThemeOverride && isAugust24th2026OrLater);
+  var isYellow = activeThemeOverride === 'yellow' || (!activeThemeOverride && isAugust1st2026OrLater && !isAugust24th2026OrLater);
+
+  if (activeThemeOverride === 'classic') {
+    isOrange = false;
+    isYellow = false;
+  }
 
   // Default Conferencia colors (Stage 1)
   var theme = {
@@ -943,7 +952,7 @@ function getEmailTheme(isVigilia) {
     theme.textColorMuted = "#8c7eb3";
     theme.textCodeColor = "#d1c4e9";
     theme.headerColor = "#7c3aed"; // RESET Purple
-  } else if (isAugust24th2026OrLater) {
+  } else if (isOrange) {
     // Stage 3: Orange Theme
     theme.outerBg = "#030202"; // Negro PDF
     theme.cardBg = "#0b0a0a";
@@ -954,7 +963,7 @@ function getEmailTheme(isVigilia) {
     theme.textColorMuted = "#a69385"; // Muted Crema/Silver
     theme.textCodeColor = "#E1D2BD"; // Crema PDF
     theme.headerColor = "#FF3800"; // Naranja PDF
-  } else if (isAugust1st2026OrLater) {
+  } else if (isYellow) {
     // Stage 2: Yellow Theme
     theme.outerBg = "#030202"; // Negro PDF
     theme.cardBg = "#0b0a09";

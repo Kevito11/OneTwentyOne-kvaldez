@@ -90,6 +90,14 @@ const Home = () => {
     return () => clearInterval(interval);
   }, [activeFeaturedCard]);
 
+  // Listen to hash changes for real-time image updates during local testing
+  const [, setHashTrigger] = useState(window.location.hash);
+  useEffect(() => {
+    const handleHash = () => setHashTrigger(window.location.hash);
+    window.addEventListener('hashchange', handleHash);
+    return () => window.removeEventListener('hashchange', handleHash);
+  }, []);
+
   // Poster Carousel Logic
   const posterImages = [getImageUrl('/sin-filtro-poster.jpeg'), getImageUrl('/sin-filtros-theme.jpeg')];
   const [activePosterIndex, setActivePosterIndex] = useState(0);

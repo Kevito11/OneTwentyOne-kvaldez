@@ -23,12 +23,13 @@ export const getImageUrl = (path) => {
   
   // Dynamic switch starting August 1st, 2026 (yellow) and August 24th, 2026 (orange)
   try {
+    const hash = typeof window !== "undefined" ? window.location.hash : "";
     const now = new Date();
     const targetYellowDate = new Date(2026, 7, 1); // August 1st, 2026
     const targetOrangeDate = new Date(2026, 7, 24); // August 24th, 2026
 
-    const isOrange = now >= targetOrangeDate;
-    const isYellow = now >= targetYellowDate && now < targetOrangeDate;
+    const isOrange = hash === "#orange" || (hash !== "#yellow" && now >= targetOrangeDate);
+    const isYellow = hash === "#yellow" || (hash !== "#orange" && now >= targetYellowDate && now < targetOrangeDate);
 
     if (isOrange) {
       if (path === "/sin-filtro-poster.jpeg") {
@@ -48,7 +49,7 @@ export const getImageUrl = (path) => {
       }
     }
   } catch (e) {
-    console.error("Error checking date for image override:", e);
+    console.error("Error checking date/hash for image override:", e);
   }
   
   let finalUrl = "";

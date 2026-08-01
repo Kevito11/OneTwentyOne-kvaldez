@@ -257,17 +257,25 @@ const MerchPaymentInstructions = () => {
 };
 
 const Registration = () => {
+  // Listen to hash changes for real-time image updates during local testing
+  const [, setHashTrigger] = useState(window.location.hash);
+  useEffect(() => {
+    const handleHash = () => setHashTrigger(window.location.hash);
+    window.addEventListener('hashchange', handleHash);
+    return () => window.removeEventListener('hashchange', handleHash);
+  }, []);
+
   // Selected Event State ('conferencia' | 'vigilia')
-  const [selectedEvent, setSelectedEvent] = useState('vigilia');
+  const [selectedEvent, setSelectedEvent] = useState('conferencia');
 
   // Read URL query parameter on load
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const eventParam = params.get('event');
-    if (eventParam === 'conferencia') {
-      setSelectedEvent('conferencia');
-    } else {
+    if (eventParam === 'vigilia') {
       setSelectedEvent('vigilia');
+    } else {
+      setSelectedEvent('conferencia');
     }
   }, []);
 
@@ -477,7 +485,7 @@ const Registration = () => {
           
           const imgPath = p.type === 'tshirt'
             ? p.images[sel.color]?.front
-            : p.images['Negro'];
+            : p.images['Negro']?.front;
           selectedImageUrls.push(encodeURI(decodeURI(getImageUrl(imgPath))));
         }
       });
@@ -521,7 +529,10 @@ const Registration = () => {
           ticketLink: `${window.location.origin}/ticket/${generatedCode}`,
           validationUrl: `${window.location.origin}/ticket/${generatedCode}`,
           qrUrl: `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(`${window.location.origin}/ticket/${generatedCode}`)}`,
-          qrCodeUrl: `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(`${window.location.origin}/ticket/${generatedCode}`)}`
+          qrCodeUrl: `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(`${window.location.origin}/ticket/${generatedCode}`)}`,
+          activeTheme: document.body.classList.contains('orange-theme') 
+            ? 'orange' 
+            : (document.body.classList.contains('yellow-theme') ? 'yellow' : 'classic')
         })
       });
 
@@ -1108,7 +1119,7 @@ const Registration = () => {
             </button>
             <div style={{ width: '100%', maxWidth: '700px', display: 'flex', flexDirection: 'column', gap: '2.5rem', alignItems: 'center' }}>
             <div className="success-header">
-              <CheckCircle size={64} style={{ color: '#10b981', margin: '0 auto 1rem auto' }} />
+              <CheckCircle size={64} style={{ color: 'var(--accent-color)', margin: '0 auto 1rem auto' }} />
               <h2>¡Registro Exitoso!</h2>
               <p>Tu boleto de entrada gratuito ha sido generado. Por favor, tómale una captura o imprímelo para presentarlo en la entrada. <strong>Te hemos enviado tu ticket por correo</strong> con toda la información del evento{formData.interestedInMerch ? ' y las instrucciones de pago de tu mercancía reservada' : ''} (si no lo recibes, revisa la carpeta de Spam).</p>
             </div>
@@ -1195,7 +1206,7 @@ const Registration = () => {
                           
                           const imgPath = p.type === 'tshirt'
                             ? p.images[sel.color]?.front
-                            : p.images['Negro'];
+                            : p.images['Negro']?.front;
                           
                           return (
                             <div key={p.id} className="ticket-merch-item-card" style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', background: 'rgba(255,255,255,0.03)', padding: '0.5rem', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.05)' }}>

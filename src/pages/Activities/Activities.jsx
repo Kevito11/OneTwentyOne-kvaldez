@@ -63,6 +63,14 @@ const activitiesList = [
 const Activities = () => {
   const [selectedActivity, setSelectedActivity] = useState(null);
 
+  // Listen to hash changes for real-time image updates during local testing
+  const [, setHashTrigger] = useState(window.location.hash);
+  useEffect(() => {
+    const handleHash = () => setHashTrigger(window.location.hash);
+    window.addEventListener('hashchange', handleHash);
+    return () => window.removeEventListener('hashchange', handleHash);
+  }, []);
+
   // General Countdowns State (Calculates for any activity with countdownTarget)
   const [countdowns, setCountdowns] = useState({});
 

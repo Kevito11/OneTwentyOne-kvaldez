@@ -266,7 +266,10 @@ const AddMerchModal = ({
           merchItems: finalMerchItemsStr,
           merchTotal: accumulatedTotal,
           merchImageUrls: merchImageUrlsStr,
-          ticketUrl: `${window.location.origin}/ticket/${targetCode}`
+          ticketUrl: `${window.location.origin}/ticket/${targetCode}`,
+          activeTheme: document.body.classList.contains('orange-theme') 
+            ? 'orange' 
+            : (document.body.classList.contains('yellow-theme') ? 'yellow' : 'classic')
         })
       });
 

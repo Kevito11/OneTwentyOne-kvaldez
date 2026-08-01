@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import Navbar from './components/layout/Navbar';
 import Footer from './components/layout/Footer';
@@ -18,6 +18,7 @@ function AppContent() {
 
   return (
     <div className="app-container">
+
       {/* Background Lightning Bolt */}
       <svg className="bg-animal-stripes lightning-bolt" viewBox="0 0 1000 1000" preserveAspectRatio="none" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" xmlns="http://www.w3.org/2000/svg">
         <path d="M 100,-20 L 250,180 L 150,250 L 500,550 L 380,620 L 750,880 L 650,920 L 950,1020" />
@@ -43,23 +44,36 @@ function AppContent() {
 
 function App() {
   useEffect(() => {
-    try {
-      const now = new Date();
-      const targetYellowDate = new Date(2026, 7, 1); // August 1st, 2026
-      const targetOrangeDate = new Date(2026, 7, 24); // August 24th, 2026
+    const checkTheme = () => {
+      try {
+        const hash = window.location.hash;
+        const now = new Date();
+        const targetYellowDate = new Date(2026, 7, 1); // August 1st, 2026
+        const targetOrangeDate = new Date(2026, 7, 24); // August 24th, 2026
 
-      // Reset theme classes
-      document.body.classList.remove('yellow-theme', 'orange-theme');
+        // Reset theme classes
+        document.body.classList.remove('yellow-theme', 'orange-theme');
 
-      // Automatic date-based selection
-      if (now >= targetOrangeDate) {
-        document.body.classList.add('orange-theme');
-      } else if (now >= targetYellowDate) {
-        document.body.classList.add('yellow-theme');
+        if (hash === '#orange') {
+          document.body.classList.add('orange-theme');
+        } else if (hash === '#yellow') {
+          document.body.classList.add('yellow-theme');
+        } else {
+          // Automatic date-based selection
+          if (now >= targetOrangeDate) {
+            document.body.classList.add('orange-theme');
+          } else if (now >= targetYellowDate) {
+            document.body.classList.add('yellow-theme');
+          }
+        }
+      } catch (e) {
+        console.error("Error setting dynamic colors theme:", e);
       }
-    } catch (e) {
-      console.error("Error setting dynamic colors theme:", e);
-    }
+    };
+
+    checkTheme();
+    window.addEventListener('hashchange', checkTheme);
+    return () => window.removeEventListener('hashchange', checkTheme);
   }, []);
 
   return (
