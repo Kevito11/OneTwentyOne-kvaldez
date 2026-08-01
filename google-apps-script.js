@@ -457,7 +457,7 @@ function enviarNotificacionExtensionPago() {
     var event = data[i][12] || ''; // Columna M
     var pago = String(data[i][13] || '').trim(); // Columna N
     
-    var isConferencia = event === "Conferencia Sin Filtros";
+    var isConferencia = (event === "Conferencia Sin Filtros") && (ticketCode && ticketCode.indexOf("RESET") === -1);
     
     if (isConferencia && interestedInMerch === "Sí" && merchTotal > 0 && pago !== "Si" && email) {
       try {
@@ -640,7 +640,7 @@ function enviarNotificacionInvitacionMercancia() {
     var event = data[i][12] || ''; // Columna M
     var pago = String(data[i][13] || '').trim(); // Columna N
     
-    var isConferencia = event === "Conferencia Sin Filtros";
+    var isConferencia = (event === "Conferencia Sin Filtros") && (ticketCode && ticketCode.indexOf("RESET") === -1);
     
     // Condición: Es conferencia, no mostró interés en mercancía ("Sí") y la columna de pago está vacía, y tiene correo
     if (isConferencia && interestedInMerch !== "Sí" && pago === "" && email) {
@@ -786,7 +786,7 @@ function enviarNotificacionConfirmacionPago() {
     var event = data[i][12] || ''; // Columna M
     var pago = String(data[i][13] || '').trim(); // Columna N
     
-    var isConferencia = event === "Conferencia Sin Filtros";
+    var isConferencia = (event === "Conferencia Sin Filtros") && (ticketCode && ticketCode.indexOf("RESET") === -1);
     
     // Condición: Es conferencia, tiene mercancía y la columna de pago contiene "Si", y tiene correo
     if (isConferencia && interestedInMerch === "Sí" && pago.toLowerCase() === "si" && email) {
