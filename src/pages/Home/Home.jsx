@@ -42,6 +42,20 @@ const Home = () => {
   // Featured Event Card Carousel (Media Vigilia RESET & Conferencia)
   const [activeFeaturedCard, setActiveFeaturedCard] = useState(0); // 0 = RESET, 1 = Conferencia
   const [showResetDetails, setShowResetDetails] = useState(false);
+  const [showConfDetails, setShowConfDetails] = useState(false);
+  const [modalScrolled, setModalScrolled] = useState(false);
+
+  const handleModalScroll = (e) => {
+    if (e.target.scrollTop > 40) {
+      setModalScrolled(true);
+    } else {
+      setModalScrolled(false);
+    }
+  };
+
+  useEffect(() => {
+    setModalScrolled(false);
+  }, [showResetDetails, showConfDetails]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -101,7 +115,6 @@ const Home = () => {
   // Poster Carousel Logic
   const posterImages = [getImageUrl('/sin-filtro-poster.jpeg'), getImageUrl('/sin-filtros-theme.jpeg')];
   const [activePosterIndex, setActivePosterIndex] = useState(0);
-  const [showConfDetails, setShowConfDetails] = useState(false);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -310,13 +323,16 @@ const Home = () => {
     if (shouldBlockScroll) {
       document.body.style.overflow = 'hidden';
       document.body.classList.add('lightbox-active');
+      if (isModalOpen) {
+        document.body.classList.add('activity-details-open');
+      }
       // Desenfocar cualquier elemento activo para evitar conflictos con el teclado al abrir el lightbox o modal
       if (document.activeElement && typeof document.activeElement.blur === 'function') {
         document.activeElement.blur();
       }
     } else {
       document.body.style.overflow = '';
-      document.body.classList.remove('lightbox-active');
+      document.body.classList.remove('lightbox-active', 'activity-details-open');
     }
 
     const handleKeyDown = (e) => {
@@ -405,7 +421,7 @@ const Home = () => {
                   }}
                 >
                   {/* Slide 0: Media Vigilia RESET */}
-                  <div style={{ width: '50%', flexShrink: 0 }}>
+                  <div style={{ width: '50%', flexShrink: 0 }} className="vigilia-theme">
                     <div 
                       className="featured-card-image-wrap"
                       onClick={(e) => {
@@ -616,7 +632,7 @@ const Home = () => {
       {/* Countdown Section */}
       <section className="countdown-section">
         <div className="container">
-          <div className="countdown-wrapper glass-panel">
+          <div className={`countdown-wrapper glass-panel ${activeFeaturedCard === 0 ? 'vigilia-theme' : ''}`}>
             <h2 className="countdown-title">
               {activeFeaturedCard === 0 
                 ? (timeLeft.isExpired ? "¡La Media Vigilia 'RESET' ya ha comenzado!" : "¡La Media Vigilia 'RESET' está por comenzar!")
@@ -1062,12 +1078,15 @@ const Home = () => {
               <X size={24} />
             </button>
             
-            <div className="modal-header">
-              <span className="modal-subtitle">Conferencia "Sin Filtros" 2026</span>
-              <h2 className="modal-title text-gradient">Detalles del Evento</h2>
+            <div className={`modal-compact-header ${modalScrolled ? 'visible' : ''}`}>
+              <span className="compact-header-title" title='Conferencia "Sin Filtros" 2026'>Conferencia "Sin Filtros" 2026</span>
             </div>
             
-            <div className="modal-body-scroll">
+            <div className="modal-body-scroll" onScroll={handleModalScroll}>
+              <div className="modal-header">
+                <span className="modal-subtitle">Conferencia "Sin Filtros" 2026</span>
+                <h2 className="modal-title text-gradient">Detalles del Evento</h2>
+              </div>
               {/* Posters Section */}
               <div className="modal-section" style={{ marginBottom: '3rem' }}>
                 <h3 className="modal-section-title">Afiches Oficiales</h3>
@@ -1185,7 +1204,7 @@ const Home = () => {
 
       {/* Modal de Detalles de la Media Vigilia RESET */}
       {showResetDetails && (
-        <div className="modal-overlay" onClick={() => setShowResetDetails(false)}>
+        <div className="modal-overlay vigilia-theme" onClick={() => setShowResetDetails(false)}>
           <div className="modal-content glass-panel" onClick={(e) => e.stopPropagation()}>
             <button 
               className="modal-close-btn" 
@@ -1195,12 +1214,15 @@ const Home = () => {
               <X size={24} />
             </button>
             
-            <div className="modal-header">
-              <span className="modal-subtitle">Pre-Conferencia: Media Vigilia</span>
-              <h2 className="modal-title text-gradient">Media Vigilia "RESET"</h2>
+            <div className={`modal-compact-header ${modalScrolled ? 'visible' : ''}`}>
+              <span className="compact-header-title" title='Media Vigilia "RESET"'>Media Vigilia "RESET"</span>
             </div>
             
-            <div className="modal-body-scroll">
+            <div className="modal-body-scroll" onScroll={handleModalScroll}>
+              <div className="modal-header">
+                <span className="modal-subtitle">Pre-Conferencia: Media Vigilia</span>
+                <h2 className="modal-title text-gradient">Media Vigilia "RESET"</h2>
+              </div>
               <div className="modal-section" style={{ marginBottom: '2.5rem' }}>
                 <p style={{ fontSize: '1.1rem', lineHeight: '1.7', color: 'var(--text-secondary)' }}>
                   Una actividad especial conectada con la conferencia <strong>"Sin Filtros" 2026</strong>. 

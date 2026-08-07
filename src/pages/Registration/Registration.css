@@ -1107,6 +1107,7 @@ body.orange-theme .ticket-card .t-logo-sub {
 
 .reg-color-options {
   display: flex;
+  flex-wrap: wrap;
   gap: 0.5rem;
 }
 
@@ -1132,6 +1133,7 @@ body.orange-theme .ticket-card .t-logo-sub {
 
 .reg-size-options {
   display: flex;
+  flex-wrap: wrap;
   gap: 0.4rem;
 }
 
@@ -1428,6 +1430,17 @@ body.orange-theme .ticket-card .t-logo-sub {
 .registration-event-tabs.centered {
   max-width: 500px;
   margin: 0 auto;
+}
+
+@media (max-width: 480px) {
+  .reg-option-group:not(.qty-row) {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  .reg-option-group:not(.qty-row) label {
+    width: auto;
+  }
 }
 
 

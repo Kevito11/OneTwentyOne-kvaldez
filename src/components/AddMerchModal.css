@@ -110,6 +110,10 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: 0;
+  margin: 0;
+  line-height: 1;
+  outline: none;
   cursor: pointer;
   transition: all 0.2s ease;
   z-index: 50;
@@ -124,6 +128,7 @@
 .add-merch-header {
   text-align: left;
   margin-bottom: 1.5rem;
+  padding-right: 2.5rem; /* Evita que el título choque con el botón X */
 }
 
 .add-merch-header .header-badge {
@@ -402,6 +407,7 @@
 
 .color-dots-row {
   display: flex;
+  flex-wrap: wrap;
   gap: 0.4rem;
 }
 
@@ -422,6 +428,7 @@
 
 .size-chips-row {
   display: flex;
+  flex-wrap: wrap;
   gap: 0.35rem;
 }
 
@@ -700,4 +707,22 @@
   margin-bottom: 0;
   font-size: 0.95rem;
   font-weight: bold;
+}
+
+@media (max-width: 480px) {
+  .product-row-options {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+  .options-controls {
+    width: 100%;
+  }
+  .opt-group {
+    width: 100%;
+  }
+  .opt-label {
+    width: 50px;
+    flex-shrink: 0;
+  }
 }

@@ -62,6 +62,19 @@ const activitiesList = [
 
 const Activities = () => {
   const [selectedActivity, setSelectedActivity] = useState(null);
+  const [modalScrolled, setModalScrolled] = useState(false);
+
+  const handleModalScroll = (e) => {
+    if (e.target.scrollTop > 40) {
+      setModalScrolled(true);
+    } else {
+      setModalScrolled(false);
+    }
+  };
+
+  useEffect(() => {
+    setModalScrolled(false);
+  }, [selectedActivity]);
 
   // Listen to hash changes for real-time image updates during local testing
   const [, setHashTrigger] = useState(window.location.hash);
@@ -106,6 +119,31 @@ const Activities = () => {
     return () => clearInterval(interval);
   }, []);
 
+  // Prevent background scroll, handle modal class and listen to Escape key when modal is open
+  useEffect(() => {
+    if (selectedActivity) {
+      document.body.style.overflow = 'hidden';
+      document.body.classList.add('activity-details-open');
+    } else {
+      document.body.style.overflow = '';
+      document.body.classList.remove('activity-details-open');
+    }
+
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        setSelectedActivity(null);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = '';
+      document.body.classList.remove('activity-details-open');
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [selectedActivity]);
+
   return (
     <div className="activities-page animate-fade-in section-padding">
       <div className="container">
@@ -122,7 +160,7 @@ const Activities = () => {
           {activitiesList.map(activity => (
             <div 
               key={activity.id} 
-              className={`activity-card glass-panel ${activity.featured ? 'featured' : ''}`}
+              className={`activity-card glass-panel ${activity.featured ? 'featured' : ''} ${activity.id === 3 ? 'vigilia-theme' : ''}`}
               onClick={() => setSelectedActivity(activity)}
               style={{ cursor: 'pointer' }}
               title="Haz clic para ver detalles de esta actividad"
@@ -132,29 +170,29 @@ const Activities = () => {
               <p className="activity-desc">{activity.description}</p>
               
               {activity.countdownTarget && countdowns[activity.id] && (
-                <div className="card-countdown-wrapper" style={{ margin: '1.5rem 0 2rem 0', background: 'rgba(255, 255, 255, 0.02)', padding: '1.2rem', borderRadius: '16px', border: '1px solid rgba(255, 255, 255, 0.08)' }}>
-                  <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: '700', marginBottom: '0.8rem', textAlign: 'center' }}>
+                <div className="card-countdown-wrapper">
+                  <div className="card-countdown-title">
                     {countdowns[activity.id].isExpired ? "¡El evento ya ha comenzado!" : "Faltan para el Evento:"}
                   </div>
-                  <div className="card-countdown-timer" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '1.2rem' }}>
-                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', minWidth: '50px' }}>
-                      <span className="text-gradient" style={{ fontSize: '1.8rem', fontWeight: '900', fontFamily: 'var(--font-heading)' }}>{countdowns[activity.id].days}</span>
-                      <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px', marginTop: '0.2rem' }}>Días</span>
+                  <div className="card-countdown-timer">
+                    <div className="countdown-item">
+                      <span className="countdown-value text-gradient">{countdowns[activity.id].days}</span>
+                      <span className="countdown-label">Días</span>
                     </div>
-                    <span style={{ fontSize: '1.5rem', fontWeight: '900', color: 'rgba(255, 255, 255, 0.2)', marginTop: '-0.8rem' }}>:</span>
-                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', minWidth: '50px' }}>
-                      <span className="text-gradient" style={{ fontSize: '1.8rem', fontWeight: '900', fontFamily: 'var(--font-heading)' }}>{countdowns[activity.id].hours.toString().padStart(2, '0')}</span>
-                      <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px', marginTop: '0.2rem' }}>Horas</span>
+                    <span className="countdown-separator">:</span>
+                    <div className="countdown-item">
+                      <span className="countdown-value text-gradient">{countdowns[activity.id].hours.toString().padStart(2, '0')}</span>
+                      <span className="countdown-label">Horas</span>
                     </div>
-                    <span style={{ fontSize: '1.5rem', fontWeight: '900', color: 'rgba(255, 255, 255, 0.2)', marginTop: '-0.8rem' }}>:</span>
-                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', minWidth: '50px' }}>
-                      <span className="text-gradient" style={{ fontSize: '1.8rem', fontWeight: '900', fontFamily: 'var(--font-heading)' }}>{countdowns[activity.id].minutes.toString().padStart(2, '0')}</span>
-                      <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px', marginTop: '0.2rem' }}>Mins</span>
+                    <span className="countdown-separator">:</span>
+                    <div className="countdown-item">
+                      <span className="countdown-value text-gradient">{countdowns[activity.id].minutes.toString().padStart(2, '0')}</span>
+                      <span className="countdown-label">Mins</span>
                     </div>
-                    <span style={{ fontSize: '1.5rem', fontWeight: '900', color: 'rgba(255, 255, 255, 0.2)', marginTop: '-0.8rem' }}>:</span>
-                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', minWidth: '50px' }}>
-                      <span className="text-gradient" style={{ fontSize: '1.8rem', fontWeight: '900', fontFamily: 'var(--font-heading)' }}>{countdowns[activity.id].seconds.toString().padStart(2, '0')}</span>
-                      <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px', marginTop: '0.2rem' }}>Segs</span>
+                    <span className="countdown-separator">:</span>
+                    <div className="countdown-item">
+                      <span className="countdown-value text-gradient">{countdowns[activity.id].seconds.toString().padStart(2, '0')}</span>
+                      <span className="countdown-label">Segs</span>
                     </div>
                   </div>
                 </div>
@@ -200,7 +238,7 @@ const Activities = () => {
 
       {/* Modal de Detalles de Actividad */}
       {selectedActivity && (
-        <div className="modal-overlay" onClick={() => setSelectedActivity(null)}>
+        <div className={`modal-overlay ${selectedActivity.id === 3 ? 'vigilia-theme' : ''}`} onClick={() => setSelectedActivity(null)}>
           <div className="modal-content glass-panel" onClick={(e) => e.stopPropagation()}>
             <button 
               className="modal-close-btn" 
@@ -210,41 +248,44 @@ const Activities = () => {
               <X size={24} />
             </button>
             
-            <div className="modal-header">
-              <span className="modal-subtitle">{selectedActivity.tag}</span>
-              <h2 className="modal-title text-gradient">{selectedActivity.title}</h2>
+            <div className={`modal-compact-header ${modalScrolled ? 'visible' : ''}`}>
+              <span className="compact-header-title" title={selectedActivity.title}>{selectedActivity.title}</span>
             </div>
             
-            <div className="modal-body-scroll">
+            <div className="modal-body-scroll" onScroll={handleModalScroll}>
+              <div className="modal-header">
+                <span className="modal-subtitle">{selectedActivity.tag}</span>
+                <h2 className="modal-title text-gradient">{selectedActivity.title}</h2>
+              </div>
               <div className="modal-section">
                 <p style={{ fontSize: '1.1rem', lineHeight: '1.7', color: 'var(--text-secondary)', marginBottom: '2rem' }}>
                   {selectedActivity.description}
                 </p>
                 
                 {selectedActivity.countdownTarget && countdowns[selectedActivity.id] && (
-                  <div className="modal-countdown-wrapper" style={{ margin: '-0.5rem 0 2rem 0', background: 'rgba(255, 255, 255, 0.03)', padding: '1.5rem', borderRadius: '16px', border: '1px solid rgba(255, 255, 255, 0.08)', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                    <div style={{ fontSize: '0.85rem', color: 'var(--accent-light)', textTransform: 'uppercase', letterSpacing: '1.5px', fontWeight: '700', marginBottom: '1rem' }}>
+                  <div className="modal-countdown-wrapper">
+                    <div className="modal-countdown-title">
                       {countdowns[selectedActivity.id].isExpired ? "¡El evento ya ha comenzado!" : "Tiempo restante para el Evento:"}
                     </div>
-                    <div style={{ display: 'flex', gap: '1.5rem', alignItems: 'center' }}>
-                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', minWidth: '70px' }}>
-                        <span className="text-gradient" style={{ fontSize: '2.5rem', fontWeight: '900', fontFamily: 'var(--font-heading)', lineHeight: '1' }}>{countdowns[selectedActivity.id].days}</span>
-                        <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '1px', marginTop: '0.4rem', fontWeight: '600' }}>Días</span>
+                    <div className="modal-countdown-timer">
+                      <div className="countdown-item modal-item">
+                        <span className="countdown-value modal-value text-gradient">{countdowns[selectedActivity.id].days}</span>
+                        <span className="countdown-label modal-label">Días</span>
                       </div>
-                      <span style={{ fontSize: '2rem', fontWeight: '900', color: 'rgba(255, 255, 255, 0.25)', marginTop: '-1rem' }}>:</span>
-                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', minWidth: '70px' }}>
-                        <span className="text-gradient" style={{ fontSize: '2.5rem', fontWeight: '900', fontFamily: 'var(--font-heading)', lineHeight: '1' }}>{countdowns[selectedActivity.id].hours.toString().padStart(2, '0')}</span>
-                        <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '1px', marginTop: '0.4rem', fontWeight: '600' }}>Horas</span>
+                      <span className="countdown-separator modal-separator">:</span>
+                      <div className="countdown-item modal-item">
+                        <span className="countdown-value modal-value text-gradient">{countdowns[selectedActivity.id].hours.toString().padStart(2, '0')}</span>
+                        <span className="countdown-label modal-label">Horas</span>
                       </div>
-                      <span style={{ fontSize: '2rem', fontWeight: '900', color: 'rgba(255, 255, 255, 0.25)', marginTop: '-1rem' }}>:</span>
-                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', minWidth: '70px' }}>
-                        <span className="text-gradient" style={{ fontSize: '2.5rem', fontWeight: '900', fontFamily: 'var(--font-heading)', lineHeight: '1' }}>{countdowns[selectedActivity.id].minutes.toString().padStart(2, '0')}</span>
-                        <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '1px', marginTop: '0.4rem', fontWeight: '600' }}>Minutos</span>
+                      <span className="countdown-separator modal-separator">:</span>
+                      <div className="countdown-item modal-item">
+                        <span className="countdown-value modal-value text-gradient">{countdowns[selectedActivity.id].minutes.toString().padStart(2, '0')}</span>
+                        <span className="countdown-label modal-label">Minutos</span>
                       </div>
-                      <span style={{ fontSize: '2rem', fontWeight: '900', color: 'rgba(255, 255, 255, 0.25)', marginTop: '-1rem' }}>:</span>
-                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', minWidth: '70px' }}>
-                        <span className="text-gradient" style={{ fontSize: '2.5rem', fontWeight: '900', fontFamily: 'var(--font-heading)', lineHeight: '1' }}>{countdowns[selectedActivity.id].seconds.toString().padStart(2, '0')}</span>
-                        <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '1px', marginTop: '0.4rem', fontWeight: '600' }}>Segundos</span>
+                      <span className="countdown-separator modal-separator">:</span>
+                      <div className="countdown-item modal-item">
+                        <span className="countdown-value modal-value text-gradient">{countdowns[selectedActivity.id].seconds.toString().padStart(2, '0')}</span>
+                        <span className="countdown-label modal-label">Segundos</span>
                       </div>
                     </div>
                   </div>

@@ -426,6 +426,16 @@ body.vigilia-mode {
     radial-gradient(at 15% 80%, rgba(99, 102, 241, 0.10) 0px, transparent 60%) !important;
 }
 
+/* Local scoped theme class for components representing Media Vigilia (RESET) */
+.vigilia-theme {
+  --accent-color: #a78bfa !important;
+  --accent-light: #c4b5fd !important;
+  --accent-blue: #a78bfa !important;
+  --accent-gradient: linear-gradient(135deg, #c4b5fd 0%, #7c3aed 50%, #4c1d95 100%) !important;
+  --accent-glow: rgba(124, 58, 237, 0.08) !important;
+  --blue-glow: rgba(124, 58, 237, 0.12) !important;
+}
+
 /* Background Lightning Bolt Watermark */
 .bg-animal-stripes.lightning-bolt {
   position: fixed;
