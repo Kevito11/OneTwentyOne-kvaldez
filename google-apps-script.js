@@ -6,7 +6,7 @@ function doPost(e) {
     var jsonString = e.postData.contents;
     var data = JSON.parse(jsonString);
     
-    var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+    var activeSpreadsheet = SpreadsheetApp.getActiveSpreadsheet();
     
     // Si la acción es actualizar mercancía para un boleto existente
     if (data.action === 'updateMerch') {
@@ -16,6 +16,7 @@ function doPost(e) {
           .setMimeType(ContentService.MimeType.JSON);
       }
 
+      var sheet = activeSpreadsheet.getSheetByName("Conferencia") || activeSpreadsheet.getActiveSheet();
       var values = sheet.getDataRange().getValues();
       var foundRowIndex = -1;
       
@@ -69,26 +70,57 @@ function doPost(e) {
       })).setMimeType(ContentService.MimeType.JSON);
     }
     
+    // Nueva Inscripción
+    var isVigilia = data.eventType === "vigilia" || (data.ticketCode && data.ticketCode.indexOf("RESET") !== -1);
+    var targetSheetName = isVigilia ? "Media Vigilia" : "Conferencia";
+    var sheet = activeSpreadsheet.getSheetByName(targetSheetName);
+    
+    if (!sheet) {
+      sheet = activeSpreadsheet.insertSheet(targetSheetName);
+      var headers = isVigilia 
+        ? ["Fecha", "Hora", "Código de Boleto", "Nombre", "Apellido", "Correo", "Teléfono", "Iglesia", "Rango de Edad", "Nombre del Evento"]
+        : ["Fecha", "Hora", "Código de Boleto", "Nombre", "Apellido", "Correo", "Teléfono", "Iglesia", "Rango de Edad", "Interés en Mercancía", "Artículos de Mercancía", "Total de Venta", "Nombre del Evento"];
+      sheet.appendRow(headers);
+    }
+    
     var now = new Date();
     var timezone = Session.getScriptTimeZone();
     var dateFormatted = Utilities.formatDate(now, timezone, "dd/MM/yyyy");
     var timeFormatted = Utilities.formatDate(now, timezone, "hh:mm:ss a");
     
-    var rowData = [
-      dateFormatted,                // Fecha (Columna A)
-      timeFormatted,                // Hora (Columna B)
-      data.ticketCode,              // Código de Boleto (Columna C)
-      data.firstName,               // Nombre (Columna D)
-      data.lastName,                // Apellido (Columna E)
-      data.email,                   // Correo (Columna F)
-      data.phone,                   // Teléfono (Columna G)
-      data.church,                  // Iglesia (Columna H)
-      data.ageGroup,                // Rango de Edad (Columna I)
-      data.interestedInMerch,       // Interés en Mercancía (Columna J)
-      data.merchItems || 'Ninguno', // Artículos de Mercancía (Columna K)
-      data.merchTotal || 0,         // Total de Venta (Columna L)
-      data.event || 'Conferencia Sin Filtros' // Nombre del Evento (Columna M)
-    ];
+    var rowData;
+    if (isVigilia) {
+      // Omit J, K, L columns (no merch)
+      rowData = [
+        dateFormatted,                // Fecha (Columna A)
+        timeFormatted,                // Hora (Columna B)
+        data.ticketCode,              // Código de Boleto (Columna C)
+        data.firstName,               // Nombre (Columna D)
+        data.lastName,                // Apellido (Columna E)
+        data.email,                   // Correo (Columna F)
+        data.phone,                   // Teléfono (Columna G)
+        data.church,                  // Iglesia (Columna H)
+        data.ageGroup,                // Rango de Edad (Columna I)
+        data.event || 'Media Vigilia RESET' // Nombre del Evento (Columna J)
+      ];
+    } else {
+      // Standard Conferencia columns
+      rowData = [
+        dateFormatted,                // Fecha (Columna A)
+        timeFormatted,                // Hora (Columna B)
+        data.ticketCode,              // Código de Boleto (Columna C)
+        data.firstName,               // Nombre (Columna D)
+        data.lastName,                // Apellido (Columna E)
+        data.email,                   // Correo (Columna F)
+        data.phone,                   // Teléfono (Columna G)
+        data.church,                  // Iglesia (Columna H)
+        data.ageGroup,                // Rango de Edad (Columna I)
+        data.interestedInMerch,       // Interés en Mercancía (Columna J)
+        data.merchItems || 'Ninguno', // Artículos de Mercancía (Columna K)
+        data.merchTotal || 0,         // Total de Venta (Columna L)
+        data.event || 'Conferencia Sin Filtros' // Nombre del Evento (Columna M)
+      ];
+    }
     
     sheet.appendRow(rowData);
     
@@ -117,30 +149,46 @@ function doGet(e) {
         .setMimeType(ContentService.MimeType.JSON);
     }
     
-    var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
-    var data = sheet.getDataRange().getValues();
+    var sheets = SpreadsheetApp.getActiveSpreadsheet().getSheets();
     
-    for (var i = 1; i < data.length; i++) {
-      if (data[i][2] === codeToFind) {
-        var result = {
-          status: 'success',
-          date: data[i][0],
-          time: data[i][1],
-          ticketCode: data[i][2],
-          firstName: data[i][3],
-          lastName: data[i][4],
-          email: data[i][5],
-          phone: data[i][6],
-          church: data[i][7],
-          ageGroup: data[i][8],
-          interestedInMerch: data[i][9],
-          merchItems: data[i][10],
-          merchTotal: data[i][11],
-          event: data[i][12] || 'Conferencia Sin Filtros'
-        };
-        
-        return ContentService.createTextOutput(JSON.stringify(result))
-          .setMimeType(ContentService.MimeType.JSON);
+    for (var s = 0; s < sheets.length; s++) {
+      var sheet = sheets[s];
+      var data = sheet.getDataRange().getValues();
+      
+      for (var i = 1; i < data.length; i++) {
+        if (String(data[i][2]).trim() === String(codeToFind).trim()) {
+          var isVigiliaSheet = sheet.getName() === "Media Vigilia";
+          
+          var result = {
+            status: 'success',
+            date: data[i][0],
+            time: data[i][1],
+            ticketCode: data[i][2],
+            firstName: data[i][3],
+            lastName: data[i][4],
+            email: data[i][5],
+            phone: data[i][6],
+            church: data[i][7],
+            ageGroup: data[i][8]
+          };
+          
+          if (isVigiliaSheet) {
+            // Media Vigilia columns (no merch)
+            result.interestedInMerch = 'No';
+            result.merchItems = 'Ninguno';
+            result.merchTotal = 0;
+            result.event = data[i][9] || 'Media Vigilia RESET';
+          } else {
+            // Conferencia columns (with merch)
+            result.interestedInMerch = data[i][9];
+            result.merchItems = data[i][10];
+            result.merchTotal = data[i][11];
+            result.event = data[i][12] || 'Conferencia Sin Filtros';
+          }
+          
+          return ContentService.createTextOutput(JSON.stringify(result))
+            .setMimeType(ContentService.MimeType.JSON);
+        }
       }
     }
     
@@ -362,27 +410,13 @@ function probarPermisos() {
   MailApp.sendEmail(Session.getActiveUser().getEmail(), "Prueba de Permisos", "Si lees esto, los permisos están activos.");
 }
 
-/**
- * 5. MENÚ DE ADMINISTRACIÓN EN GOOGLE SHEETS
- * Aparece en la barra superior al abrir o recargar la hoja de cálculo.
- */
-function onOpen() {
-  var ui = SpreadsheetApp.getUi();
-  ui.createMenu('OneTwentyOne - Admin')
-      .addItem('1. Enviar correo de prueba a Kevin', 'enviarCorreoPruebaAdmin')
-      .addItem('2. Enviar notificaciones masivas de extensión (A NO PAGADOS)', 'enviarNotificacionExtensionPago')
-      .addItem('3. Enviar correo de prueba de invitación a Kevin', 'enviarCorreoPruebaInvitacionAdmin')
-      .addItem('4. Enviar invitaciones de mercancía (A NO INTERESADOS)', 'enviarNotificacionInvitacionMercancia')
-      .addItem('5. Enviar correo de prueba de pago confirmado a Kevin', 'enviarCorreoPruebaPagoConfirmadoAdmin')
-      .addItem('6. Enviar confirmación de pago (A PAGADOS)', 'enviarNotificacionConfirmacionPago')
-      .addToUi();
-}
+
 
 /**
  * Envía una prueba del correo de extensión a kevito.valdezg@gmail.com usando datos de la hoja.
  */
 function enviarCorreoPruebaAdmin() {
-  var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Conferencia") || SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
   var data = sheet.getDataRange().getValues();
   
   var sampleRecord = null;
@@ -442,7 +476,7 @@ function enviarNotificacionExtensionPago() {
     return;
   }
   
-  var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Conferencia") || SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
   var data = sheet.getDataRange().getValues();
   var count = 0;
   
@@ -627,7 +661,7 @@ function enviarNotificacionInvitacionMercancia() {
     return;
   }
   
-  var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Conferencia") || SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
   var data = sheet.getDataRange().getValues();
   var count = 0;
   
@@ -771,7 +805,7 @@ function enviarNotificacionConfirmacionPago() {
     return;
   }
   
-  var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Conferencia") || SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
   var data = sheet.getDataRange().getValues();
   var count = 0;
   

@@ -754,3 +754,42 @@
     color: #555555 !important;
   }
 }
+
+/* RESET Media Vigilia Ticket style overrides taking priority over yellow/orange global themes */
+body.yellow-theme.vigilia-mode .ticket-card,
+body.orange-theme.vigilia-mode .ticket-card,
+body.yellow-theme .ticket-card.ticket-reset,
+body.orange-theme .ticket-card.ticket-reset,
+.ticket-card.ticket-reset {
+  border-color: rgba(167, 139, 250, 0.35) !important;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), 0 0 30px rgba(167, 139, 250, 0.12) !important;
+}
+
+body.yellow-theme.vigilia-mode .ticket-card .ticket-top::before,
+body.yellow-theme.vigilia-mode .ticket-card .ticket-top::after,
+body.orange-theme.vigilia-mode .ticket-card .ticket-top::before,
+body.orange-theme.vigilia-mode .ticket-card .ticket-top::after,
+body.yellow-theme .ticket-card.ticket-reset .ticket-top::before,
+body.yellow-theme .ticket-card.ticket-reset .ticket-top::after,
+body.orange-theme .ticket-card.ticket-reset .ticket-top::before,
+body.orange-theme .ticket-card.ticket-reset .ticket-top::after,
+.ticket-card.ticket-reset .ticket-top::before,
+.ticket-card.ticket-reset .ticket-top::after {
+  border-color: rgba(167, 139, 250, 0.35) !important;
+}
+
+body.yellow-theme.vigilia-mode .ticket-card .ticket-event-label,
+body.orange-theme.vigilia-mode .ticket-card .ticket-event-label,
+body.yellow-theme .ticket-card.ticket-reset .ticket-event-label,
+body.orange-theme .ticket-card.ticket-reset .ticket-event-label,
+.ticket-card.ticket-reset .ticket-event-label {
+  color: #a78bfa !important;
+}
+
+body.yellow-theme.vigilia-mode .ticket-card .t-logo-sub,
+body.orange-theme.vigilia-mode .ticket-card .t-logo-sub,
+body.yellow-theme .ticket-card.ticket-reset .t-logo-sub,
+body.orange-theme .ticket-card.ticket-reset .t-logo-sub,
+.ticket-card.ticket-reset .t-logo-sub {
+  color: #a78bfa !important;
+}

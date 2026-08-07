@@ -1100,7 +1100,7 @@ const Registration = () => {
 
       {/* SUCCESS SCREEN - Portal */}
       {isRegistered && createPortal(
-          <div className="ticket-success-container" onClick={handleOutsideClick}>
+          <div className={`ticket-success-container ${selectedEvent === 'vigilia' ? 'vigilia-theme' : ''}`} onClick={handleOutsideClick}>
             <button
               onClick={(e) => {
                 e.stopPropagation();

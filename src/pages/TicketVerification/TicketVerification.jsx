@@ -130,6 +130,13 @@ const TicketVerification = () => {
     }
   }, [code]);
 
+  const isVigilia = ticketData && (
+    (ticketData.event && (
+      ticketData.event.toLowerCase().includes('vigilia') || 
+      ticketData.event.toLowerCase().includes('reset')
+    )) || (ticketData.ticketCode && ticketData.ticketCode.indexOf('RESET') !== -1)
+  );
+
   return (
     <div className="verification-page animate-fade-in section-padding" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '2rem 0' }}>
       <div className="container" style={{ maxWidth: '550px', margin: '0 auto', width: '100%', padding: '0 1.5rem', boxSizing: 'border-box' }}>
@@ -174,13 +181,13 @@ const TicketVerification = () => {
             </div>
 
             {/* Tarjeta de Entrada de Cristal (Idéntica a la de registro) */}
-            <div className="ticket-card animate-fade-in" style={{ textAlign: 'left' }}>
+            <div className={`ticket-card animate-fade-in ${isVigilia ? 'ticket-reset' : ''}`} style={{ textAlign: 'left' }}>
               <div className="ticket-top">
                 <div className="ticket-header">
                   <div className="ticket-event-info">
-                    <span className="ticket-event-label">Boleto de Entrada</span>
-                    <span className="ticket-event-name text-gradient">SIN FILTROS 2026</span>
-                    <span className="ticket-event-subtitle">Conferencia de Jóvenes ICC</span>
+                    <span className="ticket-event-label">{isVigilia ? 'Boleto Media Vigilia' : 'Boleto de Entrada'}</span>
+                    <span className="ticket-event-name text-gradient">{isVigilia ? 'RESET' : 'SIN FILTROS 2026'}</span>
+                    <span className="ticket-event-subtitle">{isVigilia ? 'Pre-Conferencia Jóvenes ICC' : 'Conferencia de Jóvenes ICC'}</span>
                   </div>
                   <div className="ticket-logo">
                     <span className="t-logo-text">Jóvenes</span>
@@ -196,19 +203,23 @@ const TicketVerification = () => {
 
                   <div className="ticket-info-item">
                     <span className="ticket-info-label">Código de Entrada</span>
-                    <span className="ticket-info-value" style={{ fontFamily: 'monospace', letterSpacing: '1px', color: 'var(--accent-light)' }}>
+                    <span className="ticket-info-value" style={{ fontFamily: 'monospace', letterSpacing: '1px', color: isVigilia ? '#a78bfa' : 'var(--accent-light)' }}>
                       {ticketData.ticketCode}
                     </span>
                   </div>
 
                   <div className="ticket-info-item">
                     <span className="ticket-info-label">Fecha del Evento</span>
-                    <span className="ticket-info-value">Sábado 29 Agosto, 2026</span>
+                    <span className="ticket-info-value">
+                      {isVigilia ? 'Sábado 22 Agosto, 2026' : 'Sábado 29 Agosto, 2026'}
+                    </span>
                   </div>
 
                   <div className="ticket-info-item">
                     <span className="ticket-info-label">Hora de Apertura</span>
-                    <span className="ticket-info-value">03:00 PM</span>
+                    <span className="ticket-info-value">
+                      {isVigilia ? '06:00 PM' : '03:00 PM'}
+                    </span>
                   </div>
 
                   <div className="ticket-info-item">
@@ -322,7 +333,7 @@ const TicketVerification = () => {
                 })()}
 
                 {/* Banner para usuarios que aún no han pedido mercancía */}
-                {(!ticketData.interestedInMerch || ticketData.interestedInMerch !== 'Sí' || !ticketData.merchItems || ticketData.merchItems === 'Ninguno') && (
+                {!isVigilia && (!ticketData.interestedInMerch || ticketData.interestedInMerch !== 'Sí' || !ticketData.merchItems || ticketData.merchItems === 'Ninguno') && (
                   <div className="ticket-no-merch-banner" style={{ marginTop: '1.2rem', padding: '1.2rem', background: 'rgba(255, 255, 255, 0.03)', border: '1px dashed rgba(255, 255, 255, 0.15)', borderRadius: '14px', display: 'flex', flexDirection: 'column', gap: '0.75rem', textAlign: 'left' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#fff', fontWeight: '800', fontSize: '0.95rem' }}>
                       <ShoppingBag size={18} className="text-gradient" />
