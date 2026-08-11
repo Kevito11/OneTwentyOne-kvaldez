@@ -787,3 +787,33 @@
     height: 70vh;
   }
 }
+
+/* Estilos para el carrusel tipo Instagram dentro de las actividades */
+.instagram-carousel-container {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.005);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.instagram-carousel-wrapper {
+  display: flex;
+  transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+  width: 300%;
+}
+
+.instagram-carousel-slide {
+  width: 33.3333%;
+  flex-shrink: 0;
+  padding: 1.5rem 1.25rem;
+  box-sizing: border-box;
+}
+
+@media (max-width: 576px) {
+  .instagram-carousel-slide {
+    padding: 1rem 0.25rem;
+  }
+}
+

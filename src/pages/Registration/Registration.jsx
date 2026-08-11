@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, forwardRef } from 'react';
 import { createPortal } from 'react-dom';
-import { Ticket, User, Mail, Phone, Home, Star, Printer, RotateCcw, MapPin, CheckCircle, X, Check, ShoppingBag, Plus, Minus, Copy } from 'lucide-react';
+import { Ticket, User, Mail, Phone, Home, Star, Printer, RotateCcw, MapPin, CheckCircle, X, Check, ShoppingBag, Plus, Minus, Copy, AlertTriangle } from 'lucide-react';
 import QRCode from 'qrcode';
 import { getImageUrl } from '../../config/images';
 import './Registration.css';
@@ -877,214 +877,21 @@ const Registration = () => {
 
                 {/* Pregunta sobre Mercancía con diseño premium (Solo Conferencia) */}
                 {selectedEvent === 'conferencia' && (
-                  <>
-                    <div className="form-group merch-checkbox-group">
-                      <label className="checkbox-container">
-                        <input
-                          type="checkbox"
-                          name="interestedInMerch"
-                          checked={formData.interestedInMerch}
-                          onChange={handleChange}
-                        />
-                        <span className="checkbox-checkmark"></span>
-                        <span className="checkbox-label-text">¿Te interesa adquirir mercancía oficial de la conferencia?</span>
-                      </label>
+                  <div className="merch-notice-closed glass-panel" style={{ margin: '1.5rem 0', padding: '1rem 1.25rem', background: 'rgba(255, 255, 255, 0.02)', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '12px', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#f59e0b', fontWeight: '700', fontSize: '0.9rem' }}>
+                      <AlertTriangle size={16} />
+                      <span>Reservación de Mercancía Finalizada</span>
                     </div>
-
-                    {/* Galería Visual de Mercancía Interactiva */}
-                    {formData.interestedInMerch && (
-                      <div className="registration-merch-selection animate-fade-in">
-                        <span className="merch-section-title">Selección de Artículos</span>
-                        
-                        <div className="registration-products-list">
-                          {PRODUCTS.map(p => {
-                            const isSel = formData.merchSelections[p.id]?.selected;
-                            
-                            let previewImg = "";
-                            if (p.type === "tshirt" || p.id === 2) {
-                              const activeCol = formData.merchSelections[p.id]?.color || "Negro";
-                              previewImg = regTshirtView === "front" ? p.images[activeCol].front : p.images[activeCol].back;
-                            } else if (p.type === "cap" || p.id === 1) {
-                              previewImg = regCapView === "front" ? p.images["Negro"].front : p.images["Negro"].back;
-                            } else {
-                              previewImg = typeof p.images["Negro"] === "object" ? p.images["Negro"].front : p.images["Negro"];
-                            }
-
-                            return (
-                              <div key={p.id} className={`reg-product-card ${isSel ? 'selected' : ''}`}>
-                                <div className="reg-product-main" onClick={() => handleMerchSelectionToggle(p.id)}>
-                                  <div className="reg-checkbox">
-                                    <div className={`custom-chk ${isSel ? 'checked' : ''}`}>
-                                      {isSel && <Check size={14} />}
-                                    </div>
-                                  </div>
-                                  
-                                  <div style={{ width: '50px', height: '50px', flexShrink: 0 }}>
-                                    <PremiumImageDisplay 
-                                      src={previewImg} 
-                                      localPath={previewImg} 
-                                      alt={p.name} 
-                                      className="reg-product-img"
-                                    />
-                                  </div>
-                                  
-                                  <div className="reg-product-info">
-                                    <span className="reg-product-name">{p.name}</span>
-                                    <span className="reg-product-price">RD$ {p.price.toLocaleString()}</span>
-                                  </div>
-                                </div>
-                                
-                                {isSel && (
-                                  <div className="reg-product-options animate-fade-in">
-                                    {/* Si es gorra, mostrar selector de vista */}
-                                    {(p.type === "cap" || p.id === 1) && (
-                                      <div className="reg-option-group">
-                                        <label>Vista</label>
-                                        <div style={{ display: 'flex', gap: '0.4rem', background: 'rgba(0,0,0,0.4)', padding: '0.2rem', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.06)' }}>
-                                          <button 
-                                            type="button"
-                                            onClick={(e) => { e.stopPropagation(); setRegCapView("front"); }}
-                                            className={`reg-size-chip ${regCapView === "front" ? 'active' : ''}`}
-                                            style={{ padding: '0.25rem 0.6rem', fontSize: '0.75rem', minWidth: 'auto' }}
-                                          >
-                                            Frontal
-                                          </button>
-                                          <button 
-                                            type="button"
-                                            onClick={(e) => { e.stopPropagation(); setRegCapView("back"); }}
-                                            className={`reg-size-chip ${regCapView === "back" ? 'active' : ''}`}
-                                            style={{ padding: '0.25rem 0.6rem', fontSize: '0.75rem', minWidth: 'auto' }}
-                                          >
-                                            Trasera
-                                          </button>
-                                        </div>
-                                      </div>
-                                    )}
-
-                                    {/* Si es camiseta, mostrar selector de color y vista */}
-                                    {(p.type === "tshirt" || p.id === 2) && (
-                                      <>
-                                        {/* Selector de Vista en miniatura */}
-                                        <div className="reg-option-group">
-                                          <label>Vista</label>
-                                          <div style={{ display: 'flex', gap: '0.4rem', background: 'rgba(0,0,0,0.4)', padding: '0.2rem', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.06)' }}>
-                                            <button 
-                                              type="button"
-                                              onClick={(e) => { e.stopPropagation(); setRegTshirtView("front"); }}
-                                              className={`reg-size-chip ${regTshirtView === "front" ? 'active' : ''}`}
-                                              style={{ padding: '0.25rem 0.6rem', fontSize: '0.75rem', minWidth: 'auto' }}
-                                            >
-                                              Frontal
-                                            </button>
-                                            <button 
-                                              type="button"
-                                              onClick={(e) => { e.stopPropagation(); setRegTshirtView("back"); }}
-                                              className={`reg-size-chip ${regTshirtView === "back" ? 'active' : ''}`}
-                                              style={{ padding: '0.25rem 0.6rem', fontSize: '0.75rem', minWidth: 'auto' }}
-                                            >
-                                              Trasera
-                                            </button>
-                                          </div>
-                                        </div>
-
-                                        <div className="reg-option-group">
-                                          <label>Color</label>
-                                          <div className="reg-color-options">
-                                            {p.colors.map(col => (
-                                              <button
-                                                key={col}
-                                                type="button"
-                                                onClick={(e) => { 
-                                                  e.stopPropagation(); 
-                                                  handleMerchOptionChange(p.id, 'color', col); 
-                                                }}
-                                                className={`reg-color-dot ${formData.merchSelections[p.id].color === col ? 'active' : ''}`}
-                                                style={{ 
-                                                  backgroundColor: p.colorHex[col],
-                                                  border: col === 'Blanco' ? '1px solid rgba(255,255,255,0.2)' : 'none'
-                                                }}
-                                                aria-label={`Color ${col}`}
-                                              />
-                                            ))}
-                                          </div>
-                                        </div>
-
-                                        <div className="reg-option-group">
-                                          <label>Talla</label>
-                                          <div className="reg-size-options">
-                                            {p.sizes.map(sz => (
-                                              <button
-                                                key={sz}
-                                                type="button"
-                                                onClick={(e) => { 
-                                                  e.stopPropagation(); 
-                                                  handleMerchOptionChange(p.id, 'size', sz); 
-                                                }}
-                                                className={`reg-size-chip ${formData.merchSelections[p.id].size === sz ? 'active' : ''}`}
-                                              >
-                                                {sz}
-                                              </button>
-                                            ))}
-                                          </div>
-                                        </div>
-                                      </>
-                                    )}
-
-                                    {/* Selector de Cantidad para ambos */}
-                                    <div className="reg-option-group qty-row">
-                                      <label>Cantidad</label>
-                                      <div className="reg-qty-selector">
-                                        <button 
-                                          type="button"
-                                          className="reg-qty-btn" 
-                                          onClick={(e) => { 
-                                            e.stopPropagation(); 
-                                            handleMerchQuantityChange(p.id, -1); 
-                                          }}
-                                          aria-label="Reducir cantidad"
-                                        >
-                                          <Minus size={12} />
-                                        </button>
-                                        <span>{formData.merchSelections[p.id].quantity}</span>
-                                        <button 
-                                          type="button"
-                                          className="reg-qty-btn" 
-                                          onClick={(e) => { 
-                                            e.stopPropagation(); 
-                                            handleMerchQuantityChange(p.id, 1); 
-                                          }}
-                                          aria-label="Aumentar cantidad"
-                                        >
-                                          <Plus size={12} />
-                                        </button>
-                                      </div>
-                                    </div>
-                                  </div>
-                                )}
-                              </div>
-                            );
-                          })}
-                        </div>
-                        
-                        {/* Resumen de Subtotal */}
-                        {(() => {
-                          let total = 0;
-                          PRODUCTS.forEach(p => {
-                            const sel = formData.merchSelections[p.id];
-                            if (sel?.selected) {
-                              total += p.price * sel.quantity;
-                            }
-                          });
-                          return total > 0 ? (
-                            <div className="reg-merch-summary">
-                              <span>Total de Mercancía:</span>
-                              <strong>RD$ {total.toLocaleString()}</strong>
-                            </div>
-                          ) : null;
-                        })()}
-                      </div>
-                    )}
-                  </>
+                    <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', margin: 0, lineHeight: '1.4' }}>
+                      La fecha límite para reservar mercancía oficial ha concluido. Recuerda que estos artículos solo estuvieron disponibles bajo la modalidad de reservación previa.
+                    </p>
+                    <span style={{ fontSize: '0.75rem', color: 'var(--text-muted, #aaa)', fontWeight: '600', marginTop: '0.25rem' }}>Síguenos en Instagram, donde comunicaremos cualquier novedad:</span>
+                    <div style={{ display: 'flex', gap: '0.6rem', marginTop: '0.25rem' }}>
+                      <a href="https://www.instagram.com/jovenes_icc/" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--accent-color)', fontSize: '0.8rem', fontWeight: '700', textDecoration: 'none' }}>@jovenes_icc</a>
+                      <span style={{ color: 'rgba(255,255,255,0.2)' }}>|</span>
+                      <a href="https://www.instagram.com/onetwentyoneicc/" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--accent-color)', fontSize: '0.8rem', fontWeight: '700', textDecoration: 'none' }}>@onetwentyoneicc</a>
+                    </div>
+                  </div>
                 )}
 
                 <button type="submit" className="submit-btn" disabled={isSubmitting}>

@@ -1,73 +1,62 @@
 import { useState, useEffect, useRef, forwardRef } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Check, Ticket, HelpCircle, X, ChevronLeft, ChevronRight, ShoppingBag, Sparkles } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { ArrowLeft, X, ChevronLeft, ChevronRight, ShoppingBag, Calendar, ChevronDown, ChevronUp } from 'lucide-react';
 import { getImageUrl } from '../../config/images';
-import AddMerchModal from '../../components/AddMerchModal';
 import './Merch.css';
 
-// Constantes de Productos Oficiales
-const PRODUCTS = [
+// Registro Histórico de Mercancía por Actividades (Solo Sin Filtros por ahora)
+const ACTIVITIES_MERCH = [
   {
-    id: 1,
-    name: "Gorra \"Sin Filtros\"",
-    price: 750,
-    description: "Gorra oficial de la conferencia.",
-    type: "cap",
-    images: {
-      "Negro": {
-        front: "/merch/Merch SIN FILTROS gorra Frontal.jpeg",
-        back: "/merch/Merch SIN FILTROS gorra 2.jpeg"
-      }
-    },
-    colors: ["Negro"],
-    colorHex: {
-      "Negro": "#000000"
-    },
-    sizes: ["Única"]
-  },
-  {
-    id: 2,
-    name: "Camiseta \"Sin Filtros\"",
-    price: 1200,
-    description: "Camiseta oficial de la conferencia.",
-    type: "tshirt",
-    images: {
-      "Negro": {
-        front: "/merch/Merch SIN FILTROS Tshirt frontal 6.jpeg",
-        back: "/merch/Merch SIN FILTROS Tshirt atrs 6.jpeg"
+    id: "sin-filtros-2026",
+    activityName: "Conferencia \"Sin Filtros\"",
+    date: "29 de Agosto, 2026",
+    products: [
+      {
+        id: 1,
+        name: "Gorra \"Sin Filtros\"",
+        description: "Gorra oficial de la conferencia.",
+        type: "cap",
+        images: {
+          "Negro": {
+            front: "/merch/Merch SIN FILTROS gorra Frontal.jpeg",
+            back: "/merch/Merch SIN FILTROS gorra 2.jpeg"
+          }
+        },
+        colors: ["Negro"],
+        colorHex: {
+          "Negro": "#000000"
+        },
+        sizes: ["Única"]
       },
-      "Gris": {
-        front: "/merch/Merch SIN FILTROS Tshirt frontal 4.jpeg",
-        back: "/merch/Merch SIN FILTROS Tshirt atrs 4.jpeg"
-      },
-      "Blanco": {
-        front: "/merch/Merch SIN FILTROS Tshirt frontal 3.jpeg",
-        back: "/merch/Merch SIN FILTROS Tshirt atrs 3.jpeg"
+      {
+        id: 2,
+        name: "Camiseta \"Sin Filtros\"",
+        description: "Camiseta oficial de la conferencia.",
+        type: "tshirt",
+        images: {
+          "Negro": {
+            front: "/merch/Merch SIN FILTROS Tshirt frontal 6.jpeg",
+            back: "/merch/Merch SIN FILTROS Tshirt atrs 6.jpeg"
+          },
+          "Gris": {
+            front: "/merch/Merch SIN FILTROS Tshirt frontal 4.jpeg",
+            back: "/merch/Merch SIN FILTROS Tshirt atrs 4.jpeg"
+          },
+          "Blanco": {
+            front: "/merch/Merch SIN FILTROS Tshirt frontal 3.jpeg",
+            back: "/merch/Merch SIN FILTROS Tshirt atrs 3.jpeg"
+          }
+        },
+        colors: ["Negro", "Gris", "Blanco"],
+        colorHex: {
+          "Negro": "#121212",
+          "Gris": "#8A8A8A",
+          "Blanco": "#FFFFFF"
+        },
+        sizes: ["S", "M", "L", "XL"]
       }
-    },
-    colors: ["Negro", "Gris", "Blanco"],
-    colorHex: {
-      "Negro": "#121212",
-      "Gris": "#8A8A8A",
-      "Blanco": "#FFFFFF"
-    },
-    sizes: ["S", "M", "L", "XL"]
+    ]
   }
-];
-
-// Lista de combinaciones de imágenes para navegación secuencial
-const capImagesList = [
-  { color: "Negro", view: "front" },
-  { color: "Negro", view: "back" }
-];
-
-const tshirtImagesList = [
-  { color: "Negro", view: "front" },
-  { color: "Negro", view: "back" },
-  { color: "Gris", view: "front" },
-  { color: "Gris", view: "back" },
-  { color: "Blanco", view: "front" },
-  { color: "Blanco", view: "back" }
 ];
 
 // Componente para manejar imágenes con fallback local y detección instantánea de caché
@@ -143,159 +132,42 @@ const PremiumImageDisplay = ({ src, localPath, alt, className, style, onClick })
 };
 
 const Merch = () => {
-  const navigate = useNavigate();
-  const [isAddMerchModalOpen, setIsAddMerchModalOpen] = useState(false);
+  const [expandedActivity, setExpandedActivity] = useState(null);
+  const [currentSlide, setCurrentSlide] = useState(0); // 0: Logo, 1: Aviso
 
-  // Estados para el selector de producto
-  const [activeColor, setActiveColor] = useState("Negro"); // Negro, Gris, Blanco
-  const [activeView, setActiveView] = useState("front"); // front, back
-  const [capActiveView, setCapActiveView] = useState("front"); // front, back
-  const [tshirtSize, setTshirtSize] = useState("M");
-  const [lightboxImage, setLightboxImage] = useState(null);
-
-  const handleAddMerchSuccess = (updatedData) => {
-    if (updatedData && updatedData.ticketCode) {
-      navigate(`/ticket/${updatedData.ticketCode}`);
-    }
-  };
-
-  // Lógica de Deslizamiento (Swipe) para el Lightbox
-  const [touchStart, setTouchStart] = useState(null);
-  const [touchEnd, setTouchEnd] = useState(null);
-  const [dragStart, setDragStart] = useState(null);
-  const isDragging = useRef(false);
-
-  const handleSwipe = (isNext) => {
-    if (lightboxImage) {
-      const currentList = lightboxImage.type === 'tshirt' ? tshirtImagesList : capImagesList;
-      const currentIndex = currentList.findIndex(
-        item => item.color === lightboxImage.color && item.view === lightboxImage.view
-      );
-      if (isNext && currentIndex < currentList.length - 1) {
-        const nextItem = currentList[currentIndex + 1];
-        setLightboxImage({ type: lightboxImage.type, color: nextItem.color, view: nextItem.view });
-        if (lightboxImage.type === 'tshirt') {
-          setActiveColor(nextItem.color);
-          setActiveView(nextItem.view);
-        } else {
-          setCapActiveView(nextItem.view);
-        }
-      } else if (!isNext && currentIndex > 0) {
-        const prevItem = currentList[currentIndex - 1];
-        setLightboxImage({ type: lightboxImage.type, color: prevItem.color, view: prevItem.view });
-        if (lightboxImage.type === 'tshirt') {
-          setActiveColor(prevItem.color);
-          setActiveView(prevItem.view);
-        } else {
-          setCapActiveView(prevItem.view);
-        }
-      }
-    }
-  };
-
-  const onTouchStart = (e) => {
-    setTouchStart(e.targetTouches[0].clientX);
-    isDragging.current = false;
-  };
-
-  const onTouchMove = (e) => {
-    setTouchEnd(e.targetTouches[0].clientX);
-    if (touchStart && Math.abs(touchStart - e.targetTouches[0].clientX) > 10) {
-      isDragging.current = true;
-    }
-  };
-
-  const onTouchEnd = () => {
-    if (!touchStart || !touchEnd) return;
-    const distance = touchStart - touchEnd;
-    if (Math.abs(distance) > 50) {
-      handleSwipe(distance > 0); // distance > 0 means swiped left (Next)
-    }
-    setTouchStart(null);
-    setTouchEnd(null);
-  };
-
-  const onMouseDown = (e) => {
-    setDragStart(e.clientX);
-    isDragging.current = false;
-  };
-
-  const onMouseUp = (e) => {
-    if (!dragStart) return;
-    const distance = dragStart - e.clientX;
-    if (Math.abs(distance) > 10) {
-      isDragging.current = true;
-    }
-    if (Math.abs(distance) > 50) {
-      handleSwipe(distance > 0); // distance > 0 means swiped left (Next)
-    }
-    setDragStart(null);
-  };
-
-
-  // Bloquear scroll cuando el lightbox está abierto y escuchar teclado
   useEffect(() => {
-    if (lightboxImage) {
-      document.body.style.overflow = 'hidden';
-      document.body.classList.add('lightbox-active');
-      // Desenfocar cualquier elemento activo para evitar conflictos con el teclado al abrir el lightbox
-      if (document.activeElement && typeof document.activeElement.blur === 'function') {
-        document.activeElement.blur();
-      }
-    } else {
-      document.body.style.overflow = '';
-      document.body.classList.remove('lightbox-active');
+    setCurrentSlide(0);
+  }, [expandedActivity]);
+
+  // Lógica de Deslizamiento (Swipe) para el Carrusel de Actividades (Instagram-style)
+  const [carouselTouchStart, setCarouselTouchStart] = useState(null);
+  const [carouselTouchEnd, setCarouselTouchEnd] = useState(null);
+
+  const handleCarouselSwipe = (isNext) => {
+    if (isNext && currentSlide < 1) {
+      setCurrentSlide(prev => prev + 1);
+    } else if (!isNext && currentSlide > 0) {
+      setCurrentSlide(prev => prev - 1);
     }
+  };
 
-    const handleKeyDown = (e) => {
-      if (!lightboxImage) return;
+  const onCarouselTouchStart = (e) => {
+    setCarouselTouchStart(e.targetTouches[0].clientX);
+  };
 
-      if (e.key === 'Escape') {
-        e.preventDefault();
-        setLightboxImage(null);
-      } else if (e.key === 'ArrowRight') {
-        const currentList = lightboxImage.type === 'tshirt' ? tshirtImagesList : capImagesList;
-        const currentIndex = currentList.findIndex(
-          item => item.color === lightboxImage.color && item.view === lightboxImage.view
-        );
-        if (currentIndex < currentList.length - 1) {
-          e.preventDefault();
-          const nextItem = currentList[currentIndex + 1];
-          setLightboxImage({ type: lightboxImage.type, color: nextItem.color, view: nextItem.view });
-          if (lightboxImage.type === 'tshirt') {
-            setActiveColor(nextItem.color);
-            setActiveView(nextItem.view);
-          } else {
-            setCapActiveView(nextItem.view);
-          }
-        }
-      } else if (e.key === 'ArrowLeft') {
-        const currentList = lightboxImage.type === 'tshirt' ? tshirtImagesList : capImagesList;
-        const currentIndex = currentList.findIndex(
-          item => item.color === lightboxImage.color && item.view === lightboxImage.view
-        );
-        if (currentIndex > 0) {
-          e.preventDefault();
-          const prevItem = currentList[currentIndex - 1];
-          setLightboxImage({ type: lightboxImage.type, color: prevItem.color, view: prevItem.view });
-          if (lightboxImage.type === 'tshirt') {
-            setActiveColor(nextItem.color);
-            setActiveView(nextItem.view);
-          } else {
-            setCapActiveView(nextItem.view);
-          }
-        }
-      }
-    };
+  const onCarouselTouchMove = (e) => {
+    setCarouselTouchEnd(e.targetTouches[0].clientX);
+  };
 
-    window.addEventListener('keydown', handleKeyDown);
-
-    return () => {
-      document.body.style.overflow = '';
-      document.body.classList.remove('lightbox-active');
-      window.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [lightboxImage]);
+  const onCarouselTouchEnd = () => {
+    if (!carouselTouchStart || !carouselTouchEnd) return;
+    const distance = carouselTouchStart - carouselTouchEnd;
+    if (Math.abs(distance) > 50) {
+      handleCarouselSwipe(distance > 0);
+    }
+    setCarouselTouchStart(null);
+    setCarouselTouchEnd(null);
+  };
 
   return (
     <div className="merch-page animate-fade-in section-padding">
@@ -306,336 +178,241 @@ const Merch = () => {
           <Link to="/" className="btn-secondary" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', marginBottom: '2rem', padding: '0.6rem 1.2rem', borderRadius: '50px', textDecoration: 'none', fontSize: '0.9rem' }}>
             <ArrowLeft size={16} /> Volver al Inicio
           </Link>
-          <span className="subtitle">Colección Oficial</span>
-          <h1 className="title">Mercancía <span className="text-gradient">Sin Filtros</span></h1>
+          <span className="subtitle">Colección e Historial</span>
+          <h1 className="title">Registro de <span className="text-gradient">Mercancía</span></h1>
           <p className="description">
-            Explora los artículos oficiales de la conferencia de jóvenes <strong>"Sin Filtros" 2026</strong>. Para adquirir y reservar tus piezas, haz clic en el botón de reserva o utiliza tu código de boleto existente.
+            Explora el catálogo histórico de la mercancía oficial que hemos promovido a lo largo del tiempo en nuestras actividades.
           </p>
 
-          {/* Banner para Asistentes Ya Registrados */}
-          <div className="merch-already-registered-banner glass-panel" style={{ margin: '2rem auto 1rem auto', maxWidth: '640px', padding: '1.25rem 1.5rem', background: 'rgba(255, 255, 255, 0.03)', border: '1px dashed rgba(255, 255, 255, 0.18)', borderRadius: '16px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.75rem', textAlign: 'center' }}>
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', color: '#fff', fontWeight: '800', fontSize: '1.05rem' }}>
-              <Sparkles size={20} className="text-gradient" />
-              <span>¿Ya te registraste para la conferencia?</span>
-            </div>
-            <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', margin: 0, lineHeight: '1.5', maxWidth: '520px' }}>
-              No necesitas registrarte de nuevo. Si ya tienes tu boleto de entrada, puedes pedir tu mercancía usando tu <strong>código de boleto</strong>.
-            </p>
-            <button
-              onClick={() => setIsAddMerchModalOpen(true)}
-              style={{ marginTop: '0.25rem', background: '#ffffff', color: '#000000', border: 'none', padding: '0.7rem 1.5rem', borderRadius: '50px', fontWeight: '800', fontSize: '0.9rem', display: 'inline-flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', transition: 'transform 0.2s' }}
-            >
-              <ShoppingBag size={18} /> Pedir Mercancía con mi Código de Boleto
-            </button>
-          </div>
         </div>
 
-        {/* Productos Grid */}
-        <div className="products-grid">
-          {PRODUCTS.map(product => {
-            if (product.type === "tshirt") {
-              const activeColorImg = activeView === "front" 
-                ? product.images[activeColor].front 
-                : product.images[activeColor].back;
+        {/* Acordeón / Pestaña de Actividades */}
+        <div style={{ maxWidth: '420px', margin: '0 auto 4rem auto' }}>
+          {ACTIVITIES_MERCH.map(activity => {
+            const isActivityOpen = expandedActivity === activity.id;
+            return (
+              <div 
+                key={activity.id} 
+                className="activity-accordion-item glass-panel animate-fade-in" 
+                style={{ 
+                  borderRadius: '16px', 
+                  overflow: 'hidden', 
+                  border: '1px solid rgba(255, 255, 255, 0.08)',
+                  background: 'rgba(255, 255, 255, 0.01)',
+                  transition: 'all 0.3s ease',
+                  marginBottom: '1.5rem'
+                }}
+              >
+                {/* Cabecera de la pestaña (Clickable) */}
+                <button
+                  onClick={() => setExpandedActivity(isActivityOpen ? null : activity.id)}
+                  style={{
+                    width: '100%',
+                    background: isActivityOpen ? 'rgba(255, 255, 255, 0.03)' : 'transparent',
+                    border: 'none',
+                    padding: '1.25rem 1.5rem',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    cursor: 'pointer',
+                    color: '#fff',
+                    textAlign: 'left',
+                    outline: 'none',
+                    transition: 'background-color 0.2s'
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                    <div 
+                      style={{ 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        justifyContent: 'center', 
+                        width: '40px', 
+                        height: '40px', 
+                        borderRadius: '50%', 
+                        background: 'rgba(255, 255, 255, 0.05)',
+                        color: 'var(--accent-color, #ffffff)',
+                        flexShrink: 0
+                      }}
+                    >
+                      <ShoppingBag size={18} />
+                    </div>
+                    <div>
+                      <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: '800', fontFamily: 'var(--font-heading)' }}>
+                        {activity.activityName}
+                      </h3>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginTop: '0.25rem', fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
+                        <Calendar size={13} style={{ color: 'var(--accent-color, #ffffff)' }} />
+                        <span>Fecha de la Actividad: <strong>{activity.date}</strong></span>
+                      </div>
+                    </div>
+                  </div>
+                  <div style={{ color: 'var(--text-secondary)', flexShrink: 0 }}>
+                    {isActivityOpen ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+                  </div>
+                </button>
 
-              return (
-                <div key={product.id} className="product-card glass-panel animate-fade-in">
-                  <div 
-                    className="product-image-container" 
-                    style={{ position: 'relative', cursor: 'zoom-in' }}
-                    onClick={() => setLightboxImage({ type: 'tshirt', color: activeColor, view: activeView })}
-                    title="Click para ampliar"
-                  >
-                    <PremiumImageDisplay 
-                      src={activeColorImg} 
-                      localPath={activeColorImg} 
-                      alt={`${product.name} - ${activeColor}`} 
-                      className="product-image"
-                    />
+                {/* Contenido (Productos Grid / Poster / Aviso) */}
+                {isActivityOpen && (
+                  <div className="accordion-content animate-fade-in" style={{ padding: '2rem 1.5rem', borderTop: '1px solid rgba(255, 255, 255, 0.06)' }}>
                     
-                    {/* Switch de Vista Frontal/Trasera */}
-                    <div className="view-toggle-container" style={{ position: 'absolute', bottom: '1.2rem', left: '50%', transform: 'translateX(-50%)', display: 'flex', gap: '0.4rem', background: 'rgba(0,0,0,0.65)', padding: '0.3rem', borderRadius: '50px', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(8px)', zIndex: '2' }}>
-                      <button 
-                        onClick={(e) => { e.stopPropagation(); setActiveView("front"); }} 
-                        className={`view-toggle-btn ${activeView === "front" ? 'active' : ''}`}
-                        style={{ background: activeView === "front" ? 'white' : 'transparent', color: activeView === "front" ? 'black' : 'var(--text-secondary)', border: 'none', padding: '0.4rem 1rem', borderRadius: '50px', fontSize: '0.75rem', fontWeight: '700', cursor: 'pointer', transition: 'all 0.2s' }}
-                      >
-                        Frontal
-                      </button>
-                      <button 
-                        onClick={(e) => { e.stopPropagation(); setActiveView("back"); }} 
-                        className={`view-toggle-btn ${activeView === "back" ? 'active' : ''}`}
-                        style={{ background: activeView === "back" ? 'white' : 'transparent', color: activeView === "back" ? 'black' : 'var(--text-secondary)', border: 'none', padding: '0.4rem 1rem', borderRadius: '50px', fontSize: '0.75rem', fontWeight: '700', cursor: 'pointer', transition: 'all 0.2s' }}
-                      >
-                        Trasera
-                      </button>
-                    </div>
-                  </div>
-
-                  <div className="product-info">
-                    <div className="product-header">
-                      <h2 className="product-title">{product.name}</h2>
-                      <span className="product-price">RD$ {product.price.toLocaleString()}</span>
-                    </div>
-                    <p className="product-desc">{product.description}</p>
-
-                    {/* Selector de Color */}
-                    <div className="product-option-group">
-                      <span className="option-label">
-                        Color: <span className="option-selected-val">{activeColor}</span>
-                      </span>
-                      <div className="color-options">
-                        {product.colors.map(color => (
-                          <button
-                            key={color}
-                            onClick={() => {
-                              setActiveColor(color);
-                            }}
-                            className={`color-dot-btn ${activeColor === color ? 'active' : ''}`}
+                    {/* Publicación estilo Instagram (Contenedor compacto centrado) */}
+                    <div className="instagram-post-container" style={{ maxWidth: '420px', margin: '0 auto', background: 'rgba(255, 255, 255, 0.015)', borderRadius: '16px', border: '1px solid rgba(255, 255, 255, 0.08)', padding: '1.25rem', overflow: 'hidden', boxShadow: '0 8px 32px rgba(0, 0, 0, 0.2)', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+                      
+                      {/* Indicador de Historias / Diapositivas (Estilo Instagram) */}
+                      <div style={{ display: 'flex', gap: '0.4rem', width: '100%' }}>
+                        {[0, 1].map(idx => (
+                          <div 
+                            key={idx}
+                            onClick={() => setCurrentSlide(idx)}
                             style={{ 
-                              backgroundColor: product.colorHex[color], 
-                              border: color === 'Blanco' ? '1px solid rgba(255,255,255,0.2)' : 'none' 
+                              flex: 1, 
+                              height: '4px', 
+                              background: currentSlide === idx ? 'var(--accent-color, #ffffff)' : (currentSlide > idx ? 'rgba(255, 255, 255, 0.6)' : 'rgba(255,255,255,0.1)'), 
+                              borderRadius: '2px', 
+                              transition: 'all 0.3s',
+                              cursor: 'pointer'
                             }}
-                            aria-label={`Color ${color}`}
-                          />
+                          ></div>
                         ))}
                       </div>
-                    </div>
 
-                    {/* Selector de Talla */}
-                    <div className="product-option-group">
-                      <span className="option-label">
-                        Talla: <span className="option-selected-val">{tshirtSize}</span>
-                      </span>
-                      <div className="size-options">
-                        {product.sizes.map(size => (
-                          <button
-                            key={size}
-                            onClick={() => setTshirtSize(size)}
-                            className={`size-chip-btn ${tshirtSize === size ? 'active' : ''}`}
-                          >
-                            {size}
-                          </button>
-                        ))}
+                      {/* Contenedor del carrusel */}
+                      <div 
+                        className="instagram-carousel-container"
+                        onTouchStart={onCarouselTouchStart}
+                        onTouchMove={onCarouselTouchMove}
+                        onTouchEnd={onCarouselTouchEnd}
+                        style={{ border: 'none', background: 'transparent', borderRadius: '10px' }}
+                      >
+                        <div 
+                          className="instagram-carousel-wrapper" 
+                          style={{ width: '200%', transform: `translateX(-${currentSlide * 50}%)` }}
+                        >
+                          {/* DIAPOSITIVA 0: PÓSTER DE LA ACTIVIDAD (Solo el póster) */}
+                          <div className="instagram-carousel-slide" style={{ width: '50%', padding: 0 }}>
+                            <div style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
+                              <img 
+                                src={getImageUrl('/sin-filtro-poster.jpeg')} 
+                                alt="Poster Conferencia Sin Filtros 2026" 
+                                style={{ width: '100%', height: 'auto', display: 'block', maxHeight: '420px', objectFit: 'contain', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.05)' }} 
+                              />
+                            </div>
+                          </div>
+
+                          {/* DIAPOSITIVA 1: AVISO PLAZO VENCIDO */}
+                          <div className="instagram-carousel-slide" style={{ width: '50%', padding: 0 }}>
+                            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem', textAlign: 'center', padding: '0.5rem 0.25rem' }}>
+                              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', color: '#ef4444', fontWeight: '800', fontSize: '0.9rem', background: 'rgba(239, 68, 68, 0.1)', padding: '0.35rem 0.85rem', borderRadius: '50px' }}>
+                                <X size={15} />
+                                <span>Plazo de Reservación Vencido</span>
+                              </div>
+                              <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', margin: 0, lineHeight: '1.5', padding: '0 0.5rem' }}>
+                                La fecha límite para reservar mercancía oficial ha concluido. Recuerda que estos artículos solo estuvieron disponibles bajo la modalidad de reservación previa.
+                              </p>
+                              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem', marginTop: '0.5rem', width: '100%' }}>
+                                <span style={{ fontSize: '0.75rem', color: 'var(--text-muted, #aaa)', fontWeight: '600', textAlign: 'center' }}>Síguenos en Instagram, donde comunicaremos cualquier novedad:</span>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', width: '100%' }}>
+                                  <a 
+                                    href="https://www.instagram.com/jovenes_icc/" 
+                                    target="_blank" 
+                                    rel="noopener noreferrer"
+                                    style={{ textDecoration: 'none', color: '#fff', fontSize: '0.8rem', fontWeight: '700', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem', padding: '0.5rem 1rem', background: 'linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%)', borderRadius: '30px', boxShadow: '0 4px 15px rgba(220, 39, 67, 0.15)' }}
+                                  >
+                                    @jovenes_icc
+                                  </a>
+                                  <a 
+                                    href="https://www.instagram.com/onetwentyoneicc/" 
+                                    target="_blank" 
+                                    rel="noopener noreferrer"
+                                    style={{ textDecoration: 'none', color: '#fff', fontSize: '0.8rem', fontWeight: '700', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem', padding: '0.5rem 1rem', background: 'linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%)', borderRadius: '30px', boxShadow: '0 4px 15px rgba(220, 39, 67, 0.15)' }}
+                                  >
+                                    @onetwentyoneicc
+                                  </a>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
                       </div>
-                    </div>
 
-                    {/* Fila de Redirección */}
-                    <div className="product-purchase-row" style={{ marginTop: '1.8rem', paddingTop: '1.5rem', borderTop: '1px solid var(--border-color)' }}>
-                      <Link 
-                        to="/registro" 
-                        className="add-to-cart-btn" 
-                        style={{ textDecoration: 'none', width: '100%', maxWidth: 'none', textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}
-                      >
-                        <Ticket size={18} /> Reservar en Registro
-                      </Link>
-                    </div>
-                  </div>
-                </div>
-              );
-            } else {
-              // GORRA
-              const activeCapImg = capActiveView === "front" 
-                ? product.images["Negro"].front 
-                : product.images["Negro"].back;
-              return (
-                <div key={product.id} className="product-card glass-panel animate-fade-in">
-                  <div 
-                    className="product-image-container"
-                    style={{ position: 'relative', cursor: 'zoom-in' }}
-                    onClick={() => setLightboxImage({ type: 'cap', color: 'Negro', view: capActiveView })}
-                    title="Click para ampliar"
-                  >
-                    <PremiumImageDisplay 
-                      src={activeCapImg} 
-                      localPath={activeCapImg} 
-                      alt={product.name} 
-                      className="product-image"
-                    />
+                      {/* Botones de Control de Diapositivas */}
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: '1rem' }}>
+                        <button 
+                          disabled={currentSlide === 0}
+                          onClick={() => setCurrentSlide(prev => prev - 1)}
+                          style={{
+                            background: 'rgba(255,255,255,0.04)',
+                            color: '#fff',
+                            border: 'none',
+                            padding: '0.5rem 1rem',
+                            borderRadius: '30px',
+                            fontWeight: '700',
+                            cursor: currentSlide === 0 ? 'not-allowed' : 'pointer',
+                            opacity: currentSlide === 0 ? 0.3 : 1,
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.3rem',
+                            fontSize: '0.8rem',
+                            transition: 'all 0.2s'
+                          }}
+                        >
+                          <ChevronLeft size={14} /> Atrás
+                        </button>
 
-                    {/* Switch de Vista Frontal/Trasera */}
-                    <div className="view-toggle-container" style={{ position: 'absolute', bottom: '1.2rem', left: '50%', transform: 'translateX(-50%)', display: 'flex', gap: '0.4rem', background: 'rgba(0,0,0,0.65)', padding: '0.3rem', borderRadius: '50px', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(8px)', zIndex: '2' }}>
-                      <button 
-                        onClick={(e) => { e.stopPropagation(); setCapActiveView("front"); }} 
-                        className={`view-toggle-btn ${capActiveView === "front" ? 'active' : ''}`}
-                        style={{ background: capActiveView === "front" ? 'white' : 'transparent', color: capActiveView === "front" ? 'black' : 'var(--text-secondary)', border: 'none', padding: '0.4rem 1rem', borderRadius: '50px', fontSize: '0.75rem', fontWeight: '700', cursor: 'pointer', transition: 'all 0.2s' }}
-                      >
-                        Frontal
-                      </button>
-                      <button 
-                        onClick={(e) => { e.stopPropagation(); setCapActiveView("back"); }} 
-                        className={`view-toggle-btn ${capActiveView === "back" ? 'active' : ''}`}
-                        style={{ background: capActiveView === "back" ? 'white' : 'transparent', color: capActiveView === "back" ? 'black' : 'var(--text-secondary)', border: 'none', padding: '0.4rem 1rem', borderRadius: '50px', fontSize: '0.75rem', fontWeight: '700', cursor: 'pointer', transition: 'all 0.2s' }}
-                      >
-                        Trasera
-                      </button>
-                    </div>
-                  </div>
+                        {/* Dots */}
+                        <div style={{ display: 'flex', gap: '0.4rem' }}>
+                          {[0, 1].map(idx => (
+                            <button
+                              key={idx}
+                              onClick={() => setCurrentSlide(idx)}
+                              style={{
+                                width: '6px',
+                                height: '6px',
+                                borderRadius: '50%',
+                                background: currentSlide === idx ? 'var(--accent-color, #ffffff)' : 'rgba(255,255,255,0.2)',
+                                border: 'none',
+                                padding: 0,
+                                cursor: 'pointer',
+                                transition: 'background-color 0.2s'
+                              }}
+                              aria-label={`Ir a diapositiva ${idx + 1}`}
+                            />
+                          ))}
+                        </div>
 
-                  <div className="product-info">
-                    <div className="product-header">
-                      <h2 className="product-title">{product.name}</h2>
-                      <span className="product-price">RD$ {product.price.toLocaleString()}</span>
-                    </div>
-                    <p className="product-desc">{product.description}</p>
-
-                    {/* Color */}
-                    <div className="product-option-group">
-                      <span className="option-label">
-                        Color: <span className="option-selected-val">Negro</span>
-                      </span>
-                      <div className="color-options">
-                        <button
-                          className="color-dot-btn active"
-                          style={{ backgroundColor: '#000000' }}
-                          disabled
-                          aria-label="Color Negro"
-                        />
-                      </div>
-                    </div>
-
-                    {/* Talla */}
-                    <div className="product-option-group">
-                      <span className="option-label">
-                        Talla: <span className="option-selected-val">Ajustable</span>
-                      </span>
-                      <div className="size-options">
-                        <button className="size-chip-btn active" disabled>
-                          Ajustable
+                        <button 
+                          disabled={currentSlide === 1}
+                          onClick={() => setCurrentSlide(prev => prev + 1)}
+                          style={{
+                            background: '#ffffff',
+                            color: '#000000',
+                            border: 'none',
+                            padding: '0.5rem 1rem',
+                            borderRadius: '30px',
+                            fontWeight: '700',
+                            cursor: currentSlide === 1 ? 'not-allowed' : 'pointer',
+                            opacity: currentSlide === 1 ? 0.3 : 1,
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.3rem',
+                            fontSize: '0.8rem',
+                            transition: 'all 0.2s'
+                          }}
+                        >
+                          Siguiente <ChevronRight size={14} />
                         </button>
                       </div>
+
                     </div>
 
-                    {/* Fila de Redirección */}
-                    <div className="product-purchase-row" style={{ marginTop: '1.8rem', paddingTop: '1.5rem', borderTop: '1px solid var(--border-color)' }}>
-                      <Link 
-                        to="/registro" 
-                        className="add-to-cart-btn" 
-                        style={{ textDecoration: 'none', width: '100%', maxWidth: 'none', textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}
-                      >
-                        <Ticket size={18} /> Reservar en Registro
-                      </Link>
-                    </div>
                   </div>
-                </div>
-              );
-            }
+                )}
+              </div>
+            );
           })}
         </div>
       </div>
-
-      {/* Lightbox Modal con soporte de Swipe */}
-      {lightboxImage && (() => {
-        const product = PRODUCTS.find(p => p.type === lightboxImage.type);
-        const zoomedImgSrc = lightboxImage.type === 'tshirt'
-          ? product.images[lightboxImage.color][lightboxImage.view]
-          : product.images['Negro'][lightboxImage.view];
-        
-        const currentList = lightboxImage.type === 'tshirt' ? tshirtImagesList : capImagesList;
-        const currentIndex = currentList.findIndex(
-          item => item.color === lightboxImage.color && item.view === lightboxImage.view
-        );
-        
-        return (
-          <div 
-            className="lightbox-overlay" 
-            onClick={(e) => {
-              if (isDragging.current) {
-                e.stopPropagation();
-                return;
-              }
-              setLightboxImage(null);
-            }}
-            onTouchStart={onTouchStart}
-            onTouchMove={onTouchMove}
-            onTouchEnd={onTouchEnd}
-            onMouseDown={onMouseDown}
-            onMouseUp={onMouseUp}
-          >
-            <button 
-              className="lightbox-close-btn" 
-              onClick={(e) => {
-                e.stopPropagation();
-                setLightboxImage(null);
-              }}
-              aria-label="Cerrar imagen completa"
-            >
-              <X size={28} />
-            </button>
-            <div className="lightbox-content">
-              <PremiumImageDisplay 
-                src={zoomedImgSrc} 
-                localPath={zoomedImgSrc} 
-                alt="Ampliación de producto" 
-                className="lightbox-image" 
-                onClick={(e) => e.stopPropagation()}
-              />
-            </div>
-            
-            {currentList.length > 1 && (
-              <>
-                {currentIndex > 0 && (
-                  <button 
-                    className="lightbox-nav-btn prev" 
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      const prevItem = currentList[currentIndex - 1];
-                      setLightboxImage({ type: lightboxImage.type, color: prevItem.color, view: prevItem.view });
-                      if (lightboxImage.type === 'tshirt') {
-                        setActiveColor(prevItem.color);
-                        setActiveView(prevItem.view);
-                      } else {
-                        setCapActiveView(prevItem.view);
-                      }
-                    }}
-                    aria-label="Imagen anterior"
-                  >
-                    <ChevronLeft size={36} />
-                  </button>
-                )}
-                {currentIndex < currentList.length - 1 && (
-                  <button 
-                    className="lightbox-nav-btn next" 
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      const nextItem = currentList[currentIndex + 1];
-                      setLightboxImage({ type: lightboxImage.type, color: nextItem.color, view: nextItem.view });
-                      if (lightboxImage.type === 'tshirt') {
-                        setActiveColor(nextItem.color);
-                        setActiveView(nextItem.view);
-                      } else {
-                        setCapActiveView(nextItem.view);
-                      }
-                    }}
-                    aria-label="Imagen siguiente"
-                  >
-                    <ChevronRight size={36} />
-                  </button>
-                )}
-                <div 
-                  className="lightbox-counter" 
-                  onClick={(e) => e.stopPropagation()}
-                  style={{ position: 'absolute', bottom: '2.5rem', left: '50%', transform: 'translateX(-50%)', background: 'rgba(255, 255, 255, 0.1)', color: 'white', padding: '0.35rem 1rem', borderRadius: '50px', fontSize: '0.85rem', fontWeight: '700', border: '1px solid rgba(255, 255, 255, 0.1)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.2rem', userSelect: 'none', backdropFilter: 'blur(10px)', zIndex: '20' }}
-                >
-                  <span style={{ fontSize: '0.8rem' }}>
-                    {lightboxImage.color} - {lightboxImage.view === 'front' ? 'Frontal' : 'Trasera'}
-                  </span>
-                  <span style={{ fontSize: '0.7rem', opacity: 0.6 }}>
-                    ({currentIndex + 1} / {currentList.length})
-                  </span>
-                </div>
-              </>
-            )}
-          </div>
-        );
-      })()}
-
-      {/* Modal para pedir mercancía con código de boleto */}
-      <AddMerchModal
-        isOpen={isAddMerchModalOpen}
-        onClose={() => setIsAddMerchModalOpen(false)}
-        onSuccess={handleAddMerchSuccess}
-      />
     </div>
   );
 };

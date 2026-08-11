@@ -332,29 +332,32 @@ const TicketVerification = () => {
                   ) : null;
                 })()}
 
-                {/* Banner para usuarios que aún no han pedido mercancía */}
+                {/* Banner de Reservación Cerrada en Boleto */}
                 {!isVigilia && (!ticketData.interestedInMerch || ticketData.interestedInMerch !== 'Sí' || !ticketData.merchItems || ticketData.merchItems === 'Ninguno') && (
-                  <div className="ticket-no-merch-banner" style={{ marginTop: '1.2rem', padding: '1.2rem', background: 'rgba(255, 255, 255, 0.03)', border: '1px dashed rgba(255, 255, 255, 0.15)', borderRadius: '14px', display: 'flex', flexDirection: 'column', gap: '0.75rem', textAlign: 'left' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#fff', fontWeight: '800', fontSize: '0.95rem' }}>
-                      <ShoppingBag size={18} className="text-gradient" />
-                      <span>¿Deseas agregar mercancía oficial a tu entrada?</span>
+                  <div className="ticket-no-merch-banner" style={{ marginTop: '1.2rem', padding: '1.2rem', background: 'rgba(255, 255, 255, 0.02)', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '14px', display: 'flex', flexDirection: 'column', gap: '0.6rem', textAlign: 'left' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#f59e0b', fontWeight: '800', fontSize: '0.95rem' }}>
+                      <AlertTriangle size={18} />
+                      <span>Reservación de Mercancía Finalizada</span>
                     </div>
                     <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', margin: 0, lineHeight: '1.5' }}>
-                      Pide tu gorra o camiseta oficial de la conferencia <strong>"Sin Filtros 2026"</strong> usando tu código de boleto <code>{ticketData.ticketCode}</code> sin tener que registrarte de nuevo.
+                      La fecha límite para reservar mercancía oficial ha concluido. Recuerda que estos artículos solo estuvieron disponibles bajo la modalidad de reservación previa.
                     </p>
+                    <span style={{ fontSize: '0.75rem', color: 'var(--text-muted, #aaa)', fontWeight: '600', marginTop: '0.25rem' }}>Síguenos en Instagram, donde comunicaremos cualquier novedad:</span>
                     <div style={{ display: 'flex', gap: '0.8rem', flexWrap: 'wrap', alignItems: 'center', marginTop: '0.2rem' }}>
-                      <button
-                        onClick={() => setIsMerchModalOpen(true)}
-                        style={{ background: '#ffffff', color: '#000000', border: 'none', padding: '0.65rem 1.2rem', borderRadius: '50px', fontWeight: '800', fontSize: '0.85rem', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', transition: 'transform 0.2s' }}
-                      >
-                        <Sparkles size={16} /> Reservar Mercancía Ahora
-                      </button>
                       <Link
                         to="/merch"
                         style={{ color: '#ffffff', border: '1px solid rgba(255, 255, 255, 0.2)', padding: '0.65rem 1.2rem', borderRadius: '50px', fontWeight: '800', fontSize: '0.85rem', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', background: 'rgba(255, 255, 255, 0.05)', transition: 'background-color 0.2s' }}
                       >
-                        <ShoppingBag size={16} /> Ver Catálogo Completo
+                        <ShoppingBag size={16} /> Ver Catálogo de Merch
                       </Link>
+                      <a 
+                        href="https://www.instagram.com/onetwentyoneicc/" 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        style={{ color: 'var(--accent-color)', fontSize: '0.82rem', fontWeight: '700', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '0.2rem' }}
+                      >
+                        Síguenos en Instagram
+                      </a>
                     </div>
                   </div>
                 )}
