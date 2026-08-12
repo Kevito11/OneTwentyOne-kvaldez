@@ -1,5 +1,5 @@
 // Configuración de almacenamiento de imágenes en Supabase Storage
-const USE_SUPABASE_STORAGE = true;
+const USE_SUPABASE_STORAGE = false;
 
 const PROJECT_ID = "ihdgibcvavzjkrcpfscs";
 const BUCKET_NAME = "imagens-OneTwentyOne";
