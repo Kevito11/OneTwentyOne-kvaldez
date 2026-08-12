@@ -21,6 +21,11 @@ export const getImageUrl = (path) => {
   let resolvedPath = path;
   let isLocalOverride = false;
   
+  if (path === "/media-vigilia-reset.jpeg") {
+    resolvedPath = "/media-vigilia-reset.jpeg";
+    isLocalOverride = true;
+  }
+  
   // Dynamic switch starting August 1st, 2026 (yellow) and August 24th, 2026 (orange)
   try {
     const hash = typeof window !== "undefined" ? window.location.hash : "";

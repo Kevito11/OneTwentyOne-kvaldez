@@ -705,23 +705,23 @@ body.vigilia-details-open .navbar {
 /* Local Theme Variables (applied to Card and Modal Overlay) */
 .activity-card.vigilia-theme,
 .modal-overlay.vigilia-theme {
-  --accent-color: #a78bfa; /* Lavender Purple */
-  --accent-light: #c4b5fd; /* Soft Purple Light */
-  --accent-blue: #a78bfa; /* Lavender Purple */
-  --accent-gradient: linear-gradient(135deg, #c4b5fd 0%, #7c3aed 50%, #4c1d95 100%);
-  --accent-glow: rgba(124, 58, 237, 0.08);
-  --blue-glow: rgba(124, 58, 237, 0.12);
+  --accent-color: #FF3800; /* Neon Red-Orange */
+  --accent-light: #fddfd6; /* Peach Accent */
+  --accent-blue: #FF3800; /* Neon Red-Orange */
+  --accent-gradient: linear-gradient(135deg, #fddfd6 0%, #FF3800 50%, #7c2d12 100%);
+  --accent-glow: rgba(255, 56, 0, 0.08);
+  --blue-glow: rgba(255, 56, 0, 0.12);
 }
 
 /* Specific Card Styling to make RESET stand out in the grid list */
 .activity-card.vigilia-theme {
-  border-color: rgba(167, 139, 250, 0.25);
-  box-shadow: 0 15px 40px rgba(124, 58, 237, 0.04);
+  border-color: rgba(255, 56, 0, 0.25);
+  box-shadow: 0 15px 40px rgba(255, 56, 0, 0.04);
 }
 
 .activity-card.vigilia-theme:hover {
-  border-color: rgba(167, 139, 250, 0.45);
-  box-shadow: 0 15px 40px rgba(124, 58, 237, 0.1);
+  border-color: rgba(255, 56, 0, 0.45);
+  box-shadow: 0 15px 40px rgba(255, 56, 0, 0.1);
 }
 
 /* Stacking Context correction to place active modals on top of the navbar */

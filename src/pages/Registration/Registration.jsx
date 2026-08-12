@@ -675,14 +675,14 @@ const Registration = () => {
                     <Star size={16} style={{ color: 'var(--accent-blue)', marginRight: '5px', verticalAlign: 'middle' }} />
                     Pre-Conferencia 2026
                   </span>
-                  <h1 className="title">Prepárate en <span className="text-gradient" style={{ background: 'linear-gradient(90deg, #c4b5fd 0%, #7c3aed 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>RESET</span></h1>
+                  <h1 className="title">Prepárate en <span className="text-gradient" style={{ background: 'linear-gradient(90deg, #fddfd6 0%, #FF3800 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>RESET</span></h1>
                   <p className="description">
                     Acompáñanos el <strong>22 de Agosto a las 06:00 PM</strong> en nuestra <strong>Media Vigilia "RESET"</strong>. Un tiempo enfocado en la oración unida, intercesión y preparación de nuestros corazones para la conferencia.
                   </p>
 
                   <div className="ticket-perks">
                     <div className="perk-item">
-                      <div className="perk-icon" style={{ background: 'rgba(124, 58, 237, 0.1)', color: 'var(--accent-blue)' }}><Ticket size={24} /></div>
+                      <div className="perk-icon" style={{ background: 'rgba(255, 56, 0, 0.1)', color: 'var(--accent-blue)' }}><Ticket size={24} /></div>
                       <div>
                         <h3>Oración & Clamor</h3>
                         <p>Clamaremos juntos por el impacto de la Palabra de Dios en nuestra generación.</p>
@@ -690,7 +690,7 @@ const Registration = () => {
                     </div>
 
                     <div className="perk-item">
-                      <div className="perk-icon" style={{ background: 'rgba(124, 58, 237, 0.1)', color: 'var(--accent-blue)' }}><Star size={24} /></div>
+                      <div className="perk-icon" style={{ background: 'rgba(255, 56, 0, 0.1)', color: 'var(--accent-blue)' }}><Star size={24} /></div>
                       <div>
                         <h3>Preparación Espiritual</h3>
                         <p>Un espacio de consagración previo al gran día de la conferencia.</p>
@@ -698,7 +698,7 @@ const Registration = () => {
                     </div>
 
                     <div className="perk-item">
-                      <div className="perk-icon" style={{ background: 'rgba(124, 58, 237, 0.1)', color: 'var(--accent-blue)' }}><Star size={24} /></div>
+                      <div className="perk-icon" style={{ background: 'rgba(255, 56, 0, 0.1)', color: 'var(--accent-blue)' }}><Star size={24} /></div>
                       <div>
                         <h3>Experiencia Organizada</h3>
                         <p>Es necesario registrarse previamente para poder brindarte una experiencia más cómoda y coordinada.</p>
@@ -712,15 +712,13 @@ const Registration = () => {
                     <span className="badge-note">* Registro requerido para control de capacidad en el templo.</span>
                   </div>
 
-                  {/* Portada abstracta premium para RESET */}
-                  <div className="registration-poster-wrapper glass-panel" style={{ height: '320px', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', position: 'relative' }}>
-                    <div className="reset-placeholder-wrap" style={{ position: 'absolute', width: '100%', height: '100%', top: 0, left: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: 'radial-gradient(circle at center, rgba(30, 30, 45, 0.95) 0%, rgba(10, 10, 15, 0.98) 100%)' }}>
-                      <div className="reset-glow-1"></div>
-                      <div className="reset-glow-2"></div>
-                      <span style={{ fontSize: '0.75rem', fontWeight: '800', color: 'var(--text-secondary)', letterSpacing: '3px', textTransform: 'uppercase', marginBottom: '0.4rem', zIndex: 1 }}>MEDIA VIGILIA</span>
-                      <h2 className="text-gradient" style={{ fontSize: '3.2rem', fontWeight: '900', fontFamily: 'var(--font-heading)', letterSpacing: '-2px', margin: 0, zIndex: 1, filter: 'drop-shadow(0 2px 10px rgba(255,255,255,0.15))' }}>RESET</h2>
-                      <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: '0.8rem', fontWeight: '600', letterSpacing: '1px', zIndex: 1 }}>22 DE AGOSTO, 6:00 PM</span>
-                    </div>
+                  {/* Portada premium para RESET */}
+                  <div className="registration-poster-wrapper glass-panel">
+                    <img 
+                      src={getImageUrl('/media-vigilia-reset.jpeg')} 
+                      alt="Afiche Media Vigilia RESET" 
+                      className="featured-card-poster"
+                    />
                   </div>
                 </>
               )}
@@ -958,7 +956,7 @@ const Registration = () => {
 
                   <div className="ticket-info-item">
                     <span className="ticket-info-label">Código de Entrada</span>
-                    <span className="ticket-info-value" style={{ fontFamily: 'monospace', letterSpacing: '1px', color: selectedEvent === 'vigilia' ? '#a78bfa' : 'var(--accent-light)' }}>
+                    <span className="ticket-info-value" style={{ fontFamily: 'monospace', letterSpacing: '1px', color: selectedEvent === 'vigilia' ? '#FF3800' : 'var(--accent-light)' }}>
                       {ticketCode}
                     </span>
                   </div>

@@ -431,37 +431,12 @@ const Home = () => {
                       style={{ cursor: 'pointer' }}
                       title="Haz clic para ver detalles de RESET"
                     >
-                      <div className="reset-placeholder-wrap">
-                        <div className="reset-glow-1"></div>
-                        <div className="reset-glow-2"></div>
-                        <span style={{
-                          fontSize: '0.75rem',
-                          fontWeight: '800',
-                          color: 'var(--text-secondary)',
-                          letterSpacing: '3px',
-                          textTransform: 'uppercase',
-                          marginBottom: '0.4rem',
-                          opacity: 0.8,
-                          zIndex: 1
-                        }}>MEDIA VIGILIA</span>
-                        <h2 className="text-gradient" style={{
-                          fontSize: '3.6rem',
-                          fontWeight: '900',
-                          fontFamily: 'var(--font-heading)',
-                          letterSpacing: '-2px',
-                          margin: 0,
-                          zIndex: 1,
-                          filter: 'drop-shadow(0 2px 10px rgba(255, 255, 255, 0.15))'
-                        }}>RESET</h2>
-                        <span style={{
-                          fontSize: '0.85rem',
-                          color: 'var(--text-secondary)',
-                          marginTop: '0.8rem',
-                          fontWeight: '600',
-                          letterSpacing: '1px',
-                          zIndex: 1
-                        }}>SÁB. 22 AGOSTO</span>
-                      </div>
+                      <img 
+                        src={getImageUrl('/media-vigilia-reset.jpeg')} 
+                        alt="Afiche Media Vigilia RESET" 
+                        className="featured-card-poster"
+                        style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+                      />
                       <div className="featured-card-badge" style={{ background: 'var(--accent-gradient)', color: '#12100e' }}>PRE-CONFERENCIA</div>
                     </div>
                     <div className="featured-card-details">

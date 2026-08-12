@@ -5,9 +5,9 @@ function doPost(e) {
   try {
     var jsonString = e.postData.contents;
     var data = JSON.parse(jsonString);
-    
+
     var activeSpreadsheet = SpreadsheetApp.getActiveSpreadsheet();
-    
+
     // Si la acción es actualizar mercancía para un boleto existente
     if (data.action === 'updateMerch') {
       var codeToFind = data.ticketCode;
@@ -19,24 +19,24 @@ function doPost(e) {
       var sheet = activeSpreadsheet.getSheetByName("Conferencia") || activeSpreadsheet.getActiveSheet();
       var values = sheet.getDataRange().getValues();
       var foundRowIndex = -1;
-      
+
       for (var i = 1; i < values.length; i++) {
         if (String(values[i][2]).trim() === String(codeToFind).trim()) {
           foundRowIndex = i + 1; // 1-indexed row en Google Sheets
           break;
         }
       }
-      
+
       if (foundRowIndex === -1) {
         return ContentService.createTextOutput(JSON.stringify({ status: 'not_found', message: 'Código de boleto no encontrado en los registros.' }))
           .setMimeType(ContentService.MimeType.JSON);
       }
-      
+
       // Actualizar columnas J (10: Interés), K (11: Items), L (12: Total)
       sheet.getRange(foundRowIndex, 10).setValue('Sí');
       sheet.getRange(foundRowIndex, 11).setValue(data.merchItems || 'Ninguno');
       sheet.getRange(foundRowIndex, 12).setValue(data.merchTotal || 0);
-      
+
       // Construir objeto con datos de la fila + nueva mercancía
       var rowData = values[foundRowIndex - 1];
       var updatedData = {
@@ -56,38 +56,38 @@ function doPost(e) {
         ticketUrl: data.ticketUrl || ("https://ministeriodejovenesicc.netlify.app/ticket/" + codeToFind),
         activeTheme: data.activeTheme // Sincronizado
       };
-      
+
       try {
         enviarCorreoConfirmacion(updatedData);
       } catch (emailError) {
         console.error("Error al enviar correo de actualización: " + emailError.toString());
       }
-      
-      return ContentService.createTextOutput(JSON.stringify({ 
-        status: 'success', 
+
+      return ContentService.createTextOutput(JSON.stringify({
+        status: 'success',
         message: 'Mercancía actualizada correctamente.',
         updatedData: updatedData
       })).setMimeType(ContentService.MimeType.JSON);
     }
-    
+
     // Nueva Inscripción
     var isVigilia = data.eventType === "vigilia" || (data.ticketCode && data.ticketCode.indexOf("RESET") !== -1);
     var targetSheetName = isVigilia ? "Media Vigilia" : "Conferencia";
     var sheet = activeSpreadsheet.getSheetByName(targetSheetName);
-    
+
     if (!sheet) {
       sheet = activeSpreadsheet.insertSheet(targetSheetName);
-      var headers = isVigilia 
+      var headers = isVigilia
         ? ["Fecha", "Hora", "Código de Boleto", "Nombre", "Apellido", "Correo", "Teléfono", "Iglesia", "Rango de Edad", "Nombre del Evento"]
         : ["Fecha", "Hora", "Código de Boleto", "Nombre", "Apellido", "Correo", "Teléfono", "Iglesia", "Rango de Edad", "Interés en Mercancía", "Artículos de Mercancía", "Total de Venta", "Nombre del Evento"];
       sheet.appendRow(headers);
     }
-    
+
     var now = new Date();
     var timezone = Session.getScriptTimeZone();
     var dateFormatted = Utilities.formatDate(now, timezone, "dd/MM/yyyy");
     var timeFormatted = Utilities.formatDate(now, timezone, "hh:mm:ss a");
-    
+
     var rowData;
     if (isVigilia) {
       // Omit J, K, L columns (no merch)
@@ -121,15 +121,15 @@ function doPost(e) {
         data.event || 'Conferencia Sin Filtros' // Nombre del Evento (Columna M)
       ];
     }
-    
+
     sheet.appendRow(rowData);
-    
+
     try {
       enviarCorreoConfirmacion(data);
     } catch (emailError) {
       console.error("Error al enviar el correo: " + emailError.toString());
     }
-    
+
     return ContentService.createTextOutput(JSON.stringify({ status: 'success' }))
       .setMimeType(ContentService.MimeType.JSON);
   } catch (error) {
@@ -148,17 +148,17 @@ function doGet(e) {
       return ContentService.createTextOutput(JSON.stringify({ status: 'error', message: 'Falta el código de boleto' }))
         .setMimeType(ContentService.MimeType.JSON);
     }
-    
+
     var sheets = SpreadsheetApp.getActiveSpreadsheet().getSheets();
-    
+
     for (var s = 0; s < sheets.length; s++) {
       var sheet = sheets[s];
       var data = sheet.getDataRange().getValues();
-      
+
       for (var i = 1; i < data.length; i++) {
         if (String(data[i][2]).trim() === String(codeToFind).trim()) {
           var isVigiliaSheet = sheet.getName() === "Media Vigilia";
-          
+
           var result = {
             status: 'success',
             date: data[i][0],
@@ -171,7 +171,7 @@ function doGet(e) {
             church: data[i][7],
             ageGroup: data[i][8]
           };
-          
+
           if (isVigiliaSheet) {
             // Media Vigilia columns (no merch)
             result.interestedInMerch = 'No';
@@ -185,16 +185,16 @@ function doGet(e) {
             result.merchTotal = data[i][11];
             result.event = data[i][12] || 'Conferencia Sin Filtros';
           }
-          
+
           return ContentService.createTextOutput(JSON.stringify(result))
             .setMimeType(ContentService.MimeType.JSON);
         }
       }
     }
-    
+
     return ContentService.createTextOutput(JSON.stringify({ status: 'not_found', message: 'Boleto no encontrado' }))
       .setMimeType(ContentService.MimeType.JSON);
-      
+
   } catch (error) {
     return ContentService.createTextOutput(JSON.stringify({ status: 'error', message: error.toString() }))
       .setMimeType(ContentService.MimeType.JSON);
@@ -207,36 +207,36 @@ function doGet(e) {
 function enviarCorreoConfirmacion(data) {
   var email = data.email;
   console.log("Intentando enviar correo a: " + email);
-  
+
   // Detectar si el registro es para la Media Vigilia
   var isVigilia = data.eventType === "vigilia" || (data.ticketCode && data.ticketCode.indexOf("RESET") !== -1);
-  
-  var subject = isVigilia 
+
+  var subject = isVigilia
     ? "🔥 ¡Registro Confirmado! Prepárate para la Media Vigilia RESET 2026"
     : "🎫 Tu Boleto de Entrada - Sin Filtros 2026";
-  
+
   var ticketUrl = data.ticketUrl;
   if (!ticketUrl) {
     ticketUrl = "https://ministeriodejovenesicc.netlify.app/ticket/" + data.ticketCode;
   }
-  
+
   var qrCodeUrl = "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=" + encodeURIComponent(ticketUrl);
-  
+
   var eventSubtitle = isVigilia ? "Pre-Conferencia: Media Vigilia" : "Conferencia de Jóvenes ICC";
   var eventNameText = isVigilia ? "RESET" : "SIN FILTROS 2026";
-  var welcomeText = isVigilia 
+  var welcomeText = isVigilia
     ? "¡Hola <strong>" + data.firstName + "</strong>! 👋 ¡Que Dios te bendiga mucho!<br><br>¡Tu registro para la Media Vigilia <strong>RESET</strong> ha sido completado con éxito! 🎉<br><br>Estamos muy emocionados de que nos acompañes en este tiempo tan especial. Creemos firmemente que antes de la gran conferencia <em>Sin Filtros 2026</em>, necesitamos buscar al Señor en oración unida, interceder por la juventud y pedirle que 'reinicie' (RESET) nuestros corazones en Su presencia. ¡Ven con el corazón expectante! 🙌✨"
     : "¡Tu registro para la conferencia de jóvenes <strong>Sin Filtros 2026</strong> ha sido completado con éxito!";
   var dateTimeText = isVigilia
     ? "Sábado 22 Agosto, 2026 - 06:00 PM"
     : "Sábado 29 Agosto, 2026 - 03:00 PM";
-  
-  var headerColor = isVigilia ? "#7c3aed" : "#f59e0b"; // Púrpura para RESET, Oro para Sin Filtros
+
+  var headerColor = isVigilia ? "#FF3800" : "#f59e0b"; // Naranja-rojo para RESET, Oro para Sin Filtros
 
   var merchHtml = "";
   if (!isVigilia && data.interestedInMerch === "Sí" && data.merchTotal > 0) {
     var totalVal = "RD$ " + Number(data.merchTotal).toLocaleString();
-    
+
     // Generar bloque HTML de imágenes si vienen en data
     var imagesHtml = "";
     if (data.merchImageUrls) {
@@ -251,7 +251,7 @@ function enviarCorreoConfirmacion(data) {
       }
       imagesHtml += '</div>';
     }
-    
+
     merchHtml = `
       <tr>
         <td style="padding-top: 16px;">
@@ -399,7 +399,7 @@ function enviarCorreoConfirmacion(data) {
     htmlBody: htmlBody,
     name: isVigilia ? "Media Vigilia RESET" : "Sin Filtros 2026"
   });
-  
+
   console.log("Correo enviado con éxito.");
 }
 
@@ -418,9 +418,9 @@ function probarPermisos() {
 function enviarCorreoPruebaAdmin() {
   var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Conferencia") || SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
   var data = sheet.getDataRange().getValues();
-  
+
   var sampleRecord = null;
-  
+
   // Buscar el primer registro de la conferencia con mercancía y sin pagar
   for (var i = 1; i < data.length; i++) {
     var ticketCode = data[i][2];
@@ -428,9 +428,9 @@ function enviarCorreoPruebaAdmin() {
     var merchTotal = Number(data[i][11] || 0);
     var event = data[i][12] || '';
     var pago = String(data[i][13] || '').trim(); // Columna N
-    
+
     var isVigilia = (ticketCode && ticketCode.indexOf("RESET") !== -1) || (event.indexOf("RESET") !== -1);
-    
+
     if (!isVigilia && interestedInMerch === "Sí" && merchTotal > 0 && pago !== "Si") {
       sampleRecord = {
         firstName: data[i][3],
@@ -442,7 +442,7 @@ function enviarCorreoPruebaAdmin() {
       break;
     }
   }
-  
+
   // Si no hay registros que coincidan, usamos datos ficticios de prueba
   if (!sampleRecord) {
     sampleRecord = {
@@ -453,10 +453,10 @@ function enviarCorreoPruebaAdmin() {
       merchTotal: 750
     };
   }
-  
+
   // Sobrescribimos el correo para que sea el de Kevin para la prueba
   sampleRecord.email = "kevito.valdez@gmail.com";
-  
+
   enviarCorreoNotificacionExtension(sampleRecord);
   SpreadsheetApp.getUi().alert("Correo de prueba enviado a kevito.valdez@gmail.com con el código de boleto: " + sampleRecord.ticketCode);
 }
@@ -471,15 +471,15 @@ function enviarNotificacionExtensionPago() {
     '¿Estás seguro de que deseas enviar el correo de extensión de pago a todos los registrados que tienen mercancía reservada y NO han pagado (Columna N no contiene "Si")?',
     ui.ButtonSet.YES_NO
   );
-  
+
   if (response !== ui.Button.YES) {
     return;
   }
-  
+
   var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Conferencia") || SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
   var data = sheet.getDataRange().getValues();
   var count = 0;
-  
+
   for (var i = 1; i < data.length; i++) {
     var email = data[i][5]; // Columna F
     var ticketCode = data[i][2]; // Columna C
@@ -490,9 +490,9 @@ function enviarNotificacionExtensionPago() {
     var merchTotal = Number(data[i][11] || 0); // Columna L
     var event = data[i][12] || ''; // Columna M
     var pago = String(data[i][13] || '').trim(); // Columna N
-    
+
     var isConferencia = (event === "Conferencia Sin Filtros") && (ticketCode && ticketCode.indexOf("RESET") === -1);
-    
+
     if (isConferencia && interestedInMerch === "Sí" && merchTotal > 0 && pago !== "Si" && email) {
       try {
         enviarCorreoNotificacionExtension({
@@ -510,7 +510,7 @@ function enviarNotificacionExtensionPago() {
       }
     }
   }
-  
+
   ui.alert("Proceso completado", "Se han enviado " + count + " correos de notificación de extensión.", ui.ButtonSet.OK);
 }
 
@@ -520,10 +520,10 @@ function enviarNotificacionExtensionPago() {
 function enviarCorreoNotificacionExtension(data) {
   var email = data.email;
   var subject = "👕 ¡Aún estás a tiempo! Nueva fecha de pago para tu mercancía de Sin Filtros 2026";
-  
+
   var ticketUrl = "https://ministeriodejovenesicc.netlify.app/ticket/" + data.ticketCode;
   var totalVal = "RD$ " + Number(data.merchTotal).toLocaleString();
-  
+
   var theme = getEmailTheme(false, data.activeTheme);
 
   var htmlBody = `
@@ -641,7 +641,7 @@ function enviarCorreoPruebaInvitacionAdmin() {
     ticketCode: "121-ICC-5727",
     email: "kevito.valdez@gmail.com"
   };
-  
+
   enviarCorreoInvitacionMercancia(sampleRecord);
   SpreadsheetApp.getUi().alert("Correo de prueba de invitación enviado a kevito.valdez@gmail.com con el código de boleto: " + sampleRecord.ticketCode);
 }
@@ -656,15 +656,15 @@ function enviarNotificacionInvitacionMercancia() {
     '¿Estás seguro de que deseas enviar el correo de invitación de mercancía a todos los registrados que NO marcaron interés y tienen la columna de pago vacía (Columna J no es "Sí" y Columna N está vacía)?',
     ui.ButtonSet.YES_NO
   );
-  
+
   if (response !== ui.Button.YES) {
     return;
   }
-  
+
   var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Conferencia") || SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
   var data = sheet.getDataRange().getValues();
   var count = 0;
-  
+
   for (var i = 1; i < data.length; i++) {
     var email = data[i][5]; // Columna F
     var ticketCode = data[i][2]; // Columna C
@@ -673,9 +673,9 @@ function enviarNotificacionInvitacionMercancia() {
     var interestedInMerch = data[i][9]; // Columna J
     var event = data[i][12] || ''; // Columna M
     var pago = String(data[i][13] || '').trim(); // Columna N
-    
+
     var isConferencia = (event === "Conferencia Sin Filtros") && (ticketCode && ticketCode.indexOf("RESET") === -1);
-    
+
     // Condición: Es conferencia, no mostró interés en mercancía ("Sí") y la columna de pago está vacía, y tiene correo
     if (isConferencia && interestedInMerch !== "Sí" && pago === "" && email) {
       try {
@@ -692,7 +692,7 @@ function enviarNotificacionInvitacionMercancia() {
       }
     }
   }
-  
+
   ui.alert("Proceso completado", "Se han enviado " + count + " correos de invitación de mercancía.", ui.ButtonSet.OK);
 }
 
@@ -702,9 +702,9 @@ function enviarNotificacionInvitacionMercancia() {
 function enviarCorreoInvitacionMercancia(data) {
   var email = data.email;
   var subject = "👕 ¡Completa tu outfit para Sin Filtros 2026! Mira la mercancía oficial disponible";
-  
+
   var ticketUrl = "https://ministeriodejovenesicc.netlify.app/ticket/" + data.ticketCode;
-  
+
   var theme = getEmailTheme(false, data.activeTheme);
 
   var htmlBody = `
@@ -785,7 +785,7 @@ function enviarCorreoPruebaPagoConfirmadoAdmin() {
     merchTotal: 1950,
     email: "kevito.valdez@gmail.com"
   };
-  
+
   enviarCorreoPagoConfirmado(sampleRecord);
   SpreadsheetApp.getUi().alert("Correo de prueba de confirmación de pago enviado a kevito.valdez@gmail.com con el código de boleto: " + sampleRecord.ticketCode);
 }
@@ -800,15 +800,15 @@ function enviarNotificacionConfirmacionPago() {
     '¿Estás seguro de que deseas enviar la confirmación de pago recibido a todos los registrados que tienen mercancía pagada (Columna N contiene "Si")?',
     ui.ButtonSet.YES_NO
   );
-  
+
   if (response !== ui.Button.YES) {
     return;
   }
-  
+
   var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Conferencia") || SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
   var data = sheet.getDataRange().getValues();
   var count = 0;
-  
+
   for (var i = 1; i < data.length; i++) {
     var email = data[i][5]; // Columna F
     var ticketCode = data[i][2]; // Columna C
@@ -819,9 +819,9 @@ function enviarNotificacionConfirmacionPago() {
     var merchTotal = Number(data[i][11] || 0); // Columna L
     var event = data[i][12] || ''; // Columna M
     var pago = String(data[i][13] || '').trim(); // Columna N
-    
+
     var isConferencia = (event === "Conferencia Sin Filtros") && (ticketCode && ticketCode.indexOf("RESET") === -1);
-    
+
     // Condición: Es conferencia, tiene mercancía y la columna de pago contiene "Si", y tiene correo
     if (isConferencia && interestedInMerch === "Sí" && pago.toLowerCase() === "si" && email) {
       try {
@@ -840,7 +840,7 @@ function enviarNotificacionConfirmacionPago() {
       }
     }
   }
-  
+
   ui.alert("Proceso completado", "Se han enviado " + count + " correos de confirmación de pago.", ui.ButtonSet.OK);
 }
 
@@ -850,10 +850,10 @@ function enviarNotificacionConfirmacionPago() {
 function enviarCorreoPagoConfirmado(data) {
   var email = data.email;
   var subject = "✅ ¡Pago Recibido! Tu mercancía para Sin Filtros 2026 está asegurada";
-  
+
   var ticketUrl = "https://ministeriodejovenesicc.netlify.app/ticket/" + data.ticketCode;
   var totalVal = "RD$ " + Number(data.merchTotal).toLocaleString();
-  
+
   var theme = getEmailTheme(false, data.activeTheme);
 
   var htmlBody = `
@@ -977,15 +977,15 @@ function getEmailTheme(isVigilia, activeThemeOverride) {
   };
 
   if (isVigilia) {
-    theme.outerBg = "#05050b";
-    theme.cardBg = "#0c0a15";
-    theme.cardBorderColor = "#3c2d66";
-    theme.detailsBg = "#151224";
-    theme.detailsBorderColor = "#4c3785";
-    theme.accentColorText = "#a78bfa";
-    theme.textColorMuted = "#8c7eb3";
-    theme.textCodeColor = "#d1c4e9";
-    theme.headerColor = "#7c3aed"; // RESET Purple
+    theme.outerBg = "#030202";
+    theme.cardBg = "#0b0a0a";
+    theme.cardBorderColor = "#3c1910";
+    theme.detailsBg = "#141110";
+    theme.detailsBorderColor = "#542013";
+    theme.accentColorText = "#FF3800";
+    theme.textColorMuted = "#a69385";
+    theme.textCodeColor = "#fddfd6";
+    theme.headerColor = "#FF3800"; // RESET Red-Orange
   } else if (isOrange) {
     // Stage 3: Orange Theme
     theme.outerBg = "#030202"; // Negro PDF

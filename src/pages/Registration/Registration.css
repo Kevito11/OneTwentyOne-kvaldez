@@ -1398,16 +1398,16 @@ body.orange-theme .ticket-card .t-logo-sub {
 
 /* Custom RESET Ticket Theme */
 .ticket-card.ticket-reset {
-  border: 1.5px solid rgba(167, 139, 250, 0.35);
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), 0 0 30px rgba(167, 139, 250, 0.12);
+  border: 1.5px solid rgba(255, 56, 0, 0.35);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), 0 0 30px rgba(255, 56, 0, 0.12);
 }
 
 .ticket-card.ticket-reset .ticket-event-label {
-  color: #a78bfa;
+  color: #FF3800;
 }
 
 .ticket-card.ticket-reset .t-logo-sub {
-  color: #a78bfa;
+  color: #FF3800;
 }
 
 /* Event Selector Container & Centering */
@@ -1447,19 +1447,19 @@ body.orange-theme .ticket-card .t-logo-sub {
 body.yellow-theme .ticket-success-container.vigilia-theme,
 body.orange-theme .ticket-success-container.vigilia-theme,
 .ticket-success-container.vigilia-theme {
-  --accent-color: #a78bfa !important;
-  --accent-light: #c4b5fd !important;
-  --accent-blue: #a78bfa !important;
-  --accent-gradient: linear-gradient(135deg, #c4b5fd 0%, #7c3aed 50%, #4c1d95 100%) !important;
-  --accent-glow: rgba(124, 58, 237, 0.08) !important;
-  --blue-glow: rgba(124, 58, 237, 0.12) !important;
-  background-color: #040208 !important;
+  --accent-color: #FF3800 !important;
+  --accent-light: #fddfd6 !important;
+  --accent-blue: #FF3800 !important;
+  --accent-gradient: linear-gradient(135deg, #fddfd6 0%, #FF3800 50%, #7c2d12 100%) !important;
+  --accent-glow: rgba(255, 56, 0, 0.08) !important;
+  --blue-glow: rgba(255, 56, 0, 0.12) !important;
+  background-color: #030202 !important;
   background-image: 
-    radial-gradient(at 15% 15%, rgba(124, 58, 237, 0.15) 0px, transparent 60%),
-    radial-gradient(at 85% 20%, rgba(79, 70, 229, 0.12) 0px, transparent 60%),
-    radial-gradient(at 50% 50%, rgba(124, 58, 237, 0.04) 0px, transparent 70%),
-    radial-gradient(at 85% 85%, rgba(124, 58, 237, 0.14) 0px, transparent 60%),
-    radial-gradient(at 15% 80%, rgba(99, 102, 241, 0.10) 0px, transparent 60%) !important;
+    radial-gradient(at 15% 15%, rgba(255, 56, 0, 0.15) 0px, transparent 60%),
+    radial-gradient(at 85% 20%, rgba(249, 115, 22, 0.12) 0px, transparent 60%),
+    radial-gradient(at 50% 50%, rgba(255, 56, 0, 0.04) 0px, transparent 70%),
+    radial-gradient(at 85% 85%, rgba(255, 56, 0, 0.14) 0px, transparent 60%),
+    radial-gradient(at 15% 80%, rgba(249, 115, 22, 0.10) 0px, transparent 60%) !important;
 }
 
 body.yellow-theme .ticket-success-container.vigilia-theme .ticket-card,
@@ -1467,8 +1467,8 @@ body.orange-theme .ticket-success-container.vigilia-theme .ticket-card,
 body.yellow-theme .ticket-card.ticket-reset,
 body.orange-theme .ticket-card.ticket-reset,
 .ticket-card.ticket-reset {
-  border-color: rgba(167, 139, 250, 0.35) !important;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), 0 0 30px rgba(167, 139, 250, 0.12) !important;
+  border-color: rgba(255, 56, 0, 0.35) !important;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), 0 0 30px rgba(255, 56, 0, 0.12) !important;
 }
 
 body.yellow-theme .ticket-success-container.vigilia-theme .ticket-top::before,
@@ -1481,7 +1481,7 @@ body.orange-theme .ticket-card.ticket-reset .ticket-top::before,
 body.orange-theme .ticket-card.ticket-reset .ticket-top::after,
 .ticket-card.ticket-reset .ticket-top::before,
 .ticket-card.ticket-reset .ticket-top::after {
-  border-color: rgba(167, 139, 250, 0.35) !important;
+  border-color: rgba(255, 56, 0, 0.35) !important;
 }
 
 body.yellow-theme .ticket-success-container.vigilia-theme .ticket-event-label,
@@ -1489,7 +1489,7 @@ body.orange-theme .ticket-success-container.vigilia-theme .ticket-event-label,
 body.yellow-theme .ticket-card.ticket-reset .ticket-event-label,
 body.orange-theme .ticket-card.ticket-reset .ticket-event-label,
 .ticket-card.ticket-reset .ticket-event-label {
-  color: #a78bfa !important;
+  color: #FF3800 !important;
 }
 
 body.yellow-theme .ticket-success-container.vigilia-theme .t-logo-sub,
@@ -1497,5 +1497,5 @@ body.orange-theme .ticket-success-container.vigilia-theme .t-logo-sub,
 body.yellow-theme .ticket-card.ticket-reset .t-logo-sub,
 body.orange-theme .ticket-card.ticket-reset .t-logo-sub,
 .ticket-card.ticket-reset .t-logo-sub {
-  color: #a78bfa !important;
+  color: #FF3800 !important;
 }

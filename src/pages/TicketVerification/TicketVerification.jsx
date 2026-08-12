@@ -203,7 +203,7 @@ const TicketVerification = () => {
 
                   <div className="ticket-info-item">
                     <span className="ticket-info-label">Código de Entrada</span>
-                    <span className="ticket-info-value" style={{ fontFamily: 'monospace', letterSpacing: '1px', color: isVigilia ? '#a78bfa' : 'var(--accent-light)' }}>
+                    <span className="ticket-info-value" style={{ fontFamily: 'monospace', letterSpacing: '1px', color: isVigilia ? '#FF3800' : 'var(--accent-light)' }}>
                       {ticketData.ticketCode}
                     </span>
                   </div>

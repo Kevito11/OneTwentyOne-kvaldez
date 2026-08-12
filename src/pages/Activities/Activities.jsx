@@ -374,6 +374,39 @@ const Activities = () => {
                 </>
               )}
 
+              {/* Media Vigilia RESET specific section: Show poster */}
+              {selectedActivity.id === 3 && (
+                <div className="modal-section" style={{ marginBottom: '3rem' }}>
+                  <h3 className="modal-section-title">Afiche Oficial</h3>
+                  <div 
+                    style={{ 
+                      display: 'flex', 
+                      justifyContent: 'center', 
+                      alignItems: 'center' 
+                    }}
+                  >
+                    <div 
+                      className="glass-panel" 
+                      style={{ 
+                        overflow: 'hidden', 
+                        borderRadius: '16px', 
+                        border: '1px solid rgba(255, 255, 255, 0.08)',
+                        background: 'rgba(10, 10, 10, 0.5)',
+                        boxShadow: '0 10px 30px rgba(0, 0, 0, 0.5)',
+                        maxWidth: '360px',
+                        width: '100%'
+                      }}
+                    >
+                      <img 
+                        src={getImageUrl("/media-vigilia-reset.jpeg")} 
+                        alt="Afiche Oficial Media Vigilia RESET" 
+                        style={{ width: '100%', display: 'block', height: 'auto', objectFit: 'cover' }} 
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {/* JPC specific section: Show Instagram info */}
               {selectedActivity.id === 1 && (
                 <div className="modal-section" style={{ marginBottom: '3rem' }}>
