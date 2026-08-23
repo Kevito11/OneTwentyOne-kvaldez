@@ -582,7 +582,7 @@ const Registration = () => {
     <div className="registration-page animate-fade-in section-padding">
       <div className="container">
 
-         {/*
+         {/*   
         {!isRegistered && (
           <div className="registration-selector-container animate-fade-in">
             <h2 className="registration-select-title">Elige el evento para registrarte</h2>
@@ -592,9 +592,9 @@ const Registration = () => {
                 className={`reg-tab-btn ${selectedEvent === 'vigilia' ? 'active' : ''}`}
                 onClick={() => handleEventChange('vigilia')}
               >
-              
            Media Vigilia RESET
               </button>
+              > */}
               <button
                 type="button"
                 className={`reg-tab-btn ${selectedEvent === 'conferencia' ? 'active' : ''}`}
@@ -602,7 +602,7 @@ const Registration = () => {
               
                 Conferencia Sin Filtros
               </button>
-              > */}
+              
             </div>
           </div>
         )}
