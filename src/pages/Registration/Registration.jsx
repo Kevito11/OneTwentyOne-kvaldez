@@ -593,7 +593,7 @@ const Registration = () => {
                 
                 type="button"
                 className={`reg-tab-btn ${selectedEvent === 'vigilia' ? 'active' : ''}`}
-                onClick={() => handleEventChange('vigilia')} *
+                onClick={() => handleEventChange('vigilia')}
               >
            Media Vigilia RESET
               </button>
