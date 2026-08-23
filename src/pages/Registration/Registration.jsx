@@ -586,18 +586,19 @@ const Registration = () => {
           <div className="registration-selector-container animate-fade-in">
             <h2 className="registration-select-title">Elige el evento para registrarte</h2>
             <div className="registration-event-tabs centered">
-              <button
+         //     <button
                 type="button"
                 className={`reg-tab-btn ${selectedEvent === 'vigilia' ? 'active' : ''}`}
                 onClick={() => handleEventChange('vigilia')}
               >
-                Media Vigilia RESET
+           {/*    
+           Media Vigilia RESET
               </button>
               <button
                 type="button"
                 className={`reg-tab-btn ${selectedEvent === 'conferencia' ? 'active' : ''}`}
                 onClick={() => handleEventChange('conferencia')}
-              >
+              > */}
                 Conferencia Sin Filtros
               </button>
             </div>
