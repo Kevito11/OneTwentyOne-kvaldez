@@ -272,8 +272,10 @@ const Registration = () => {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const eventParam = params.get('event');
-    if (eventParam === 'vigilia') {
-      setSelectedEvent('vigilia');
+    if (eventParam === 'cena') {
+      setSelectedEvent('cena');
+    } else if (eventParam === 'campamento') {
+      setSelectedEvent('campamento');
     } else {
       setSelectedEvent('conferencia');
     }
@@ -365,11 +367,51 @@ const Registration = () => {
     }
   }, [ticketCode]);
 
+  const getEventTicketDetails = () => {
+    switch (selectedEvent) {
+      case 'cena':
+        return {
+          label: 'Pre-Registro Cena ICC',
+          name: 'CENA DE JÓVENES ICC 2026',
+          subtitle: 'Celebración Fin de Año ICC',
+          date: 'Sábado 5 de Diciembre, 2026',
+          time: '07:00 PM',
+          color: '#db2777',
+          cardClass: 'ticket-cena'
+        };
+      case 'campamento':
+        return {
+          label: 'Pre-Registro Campamento ICC',
+          name: 'CAMPAMENTO JÓVENES ICC 2027',
+          subtitle: 'Campamento de Jóvenes ICC',
+          date: '16 al 18 de Abril, 2027',
+          time: 'Salida 02:00 PM',
+          color: '#059669',
+          cardClass: 'ticket-camp'
+        };
+      default:
+        return {
+          label: 'Boleto de Entrada',
+          name: 'SIN FILTROS 2026',
+          subtitle: 'Conferencia de Jóvenes ICC',
+          date: 'Sábado 29 de Agosto, 2026',
+          time: '03:00 PM',
+          color: 'var(--accent-light)',
+          cardClass: ''
+        };
+    }
+  };
+  const eventDetails = getEventTicketDetails();
+
   // Change document title for printing/PDF generation
   useEffect(() => {
     if (isRegistered && ticketCode) {
       const originalTitle = document.title;
-      const eventTitle = selectedEvent === 'vigilia' ? 'RESET Media Vigilia' : 'Sin Filtros 2026';
+      const eventTitle = selectedEvent === 'cena' 
+        ? 'Cena de Jóvenes ICC 2026' 
+        : selectedEvent === 'campamento' 
+          ? 'Campamento de Jóvenes ICC 2027' 
+          : 'Sin Filtros 2026';
       document.title = `${ticketCode} - ${eventTitle}`;
       return () => {
         document.title = originalTitle;
@@ -415,7 +457,7 @@ const Registration = () => {
 
   const handleEventChange = (event) => {
     setSelectedEvent(event);
-    if (event === 'vigilia') {
+    if (event !== 'conferencia') {
       setFormData(prev => ({ ...prev, interestedInMerch: false }));
     }
   };
@@ -469,7 +511,11 @@ const Registration = () => {
     setSubmitError('');
 
     const randomCode = Math.floor(1000 + Math.random() * 9000);
-    const generatedCode = selectedEvent === 'vigilia' ? `121-RESET-${randomCode}` : `121-ICC-${randomCode}`;
+    const generatedCode = selectedEvent === 'cena' 
+      ? `121-CENA-${randomCode}` 
+      : selectedEvent === 'campamento' 
+        ? `121-CAMP-${randomCode}` 
+        : `121-ICC-${randomCode}`;
     const sheetUrl = import.meta.env.VITE_SHEETS_API_URL;
 
     // Calcular merch seleccionada (solo si es conferencia)
@@ -523,7 +569,11 @@ const Registration = () => {
           merchItems,
           merchTotal,
           merchImageUrls,
-          event: selectedEvent === 'vigilia' ? 'Media Vigilia RESET' : 'Conferencia Sin Filtros',
+          event: selectedEvent === 'cena' 
+            ? 'Cena de Jóvenes 2026' 
+            : selectedEvent === 'campamento' 
+              ? 'Campamento de Jóvenes 2027' 
+              : 'Conferencia Sin Filtros 2026',
           eventType: selectedEvent,
           ticketUrl: `${window.location.origin}/ticket/${generatedCode}`,
           ticketLink: `${window.location.origin}/ticket/${generatedCode}`,
@@ -583,22 +633,29 @@ const Registration = () => {
       <div className="container">
 
         {!isRegistered && (
-          <div className="registration-selector-container animate-fade-in">
+          <div className="registration-selector-container animate-fade-in" style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
             <h2 className="registration-select-title">Elige el evento para registrarte</h2>
-            <div className="registration-event-tabs centered">
-              <button
-                type="button"
-                className={`reg-tab-btn ${selectedEvent === 'vigilia' ? 'active' : ''}`}
-                onClick={() => handleEventChange('vigilia')}
-              >
-                Media Vigilia RESET
-              </button>
+            <div className="registration-event-tabs centered" style={{ marginTop: '1.2rem' }}>
               <button
                 type="button"
                 className={`reg-tab-btn ${selectedEvent === 'conferencia' ? 'active' : ''}`}
                 onClick={() => handleEventChange('conferencia')}
               >
-                Conferencia Sin Filtros
+                Conferencia
+              </button>
+              <button
+                type="button"
+                className={`reg-tab-btn ${selectedEvent === 'cena' ? 'active' : ''}`}
+                onClick={() => handleEventChange('cena')}
+              >
+                Cena de Jóvenes
+              </button>
+              <button
+                type="button"
+                className={`reg-tab-btn ${selectedEvent === 'campamento' ? 'active' : ''}`}
+                onClick={() => handleEventChange('campamento')}
+              >
+                Campamento
               </button>
             </div>
           </div>
@@ -609,7 +666,7 @@ const Registration = () => {
 
             {/* Info Column */}
             <div className="registration-info animate-fade-in" key={selectedEvent}>
-              {selectedEvent === 'conferencia' ? (
+              {selectedEvent === 'conferencia' && (
                 <>
                   <span className="subtitle">
                     <Star size={16} style={{ color: 'var(--accent-color)', marginRight: '5px', verticalAlign: 'middle' }} />
@@ -669,56 +726,94 @@ const Registration = () => {
                     </div>
                   </div>
                 </>
-              ) : (
+              )}
+
+              {selectedEvent === 'cena' && (
                 <>
-                  <span className="subtitle">
-                    <Star size={16} style={{ color: 'var(--accent-blue)', marginRight: '5px', verticalAlign: 'middle' }} />
-                    Pre-Conferencia 2026
+                  <span className="subtitle" style={{ color: '#db2777' }}>
+                    <Star size={16} style={{ color: '#db2777', marginRight: '5px', verticalAlign: 'middle' }} />
+                    Pre-Registro: Cena de Jóvenes 2026
                   </span>
-                  <h1 className="title">Prepárate en <span className="text-gradient" style={{ background: 'linear-gradient(90deg, #fddfd6 0%, #FF3800 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>RESET</span></h1>
+                  <h1 className="title">Cena de <span className="text-gradient-cena">Jóvenes</span></h1>
                   <p className="description">
-                    Acompáñanos el <strong>22 de Agosto a las 06:00 PM</strong> en nuestra <strong>Media Vigilia "RESET"</strong>. Un tiempo enfocado en la oración unida, intercesión y preparación de nuestros corazones para la conferencia.
+                    Acompáñanos el <strong>Sábado 5 de Diciembre</strong> en nuestra tradicional Cena de Jóvenes. Un tiempo especial de comunión, cena compartida, dinámicas de grupo y agradecimiento al Señor por este año transcurrido.
                   </p>
 
                   <div className="ticket-perks">
                     <div className="perk-item">
-                      <div className="perk-icon" style={{ background: 'rgba(255, 56, 0, 0.1)', color: 'var(--accent-blue)' }}><Ticket size={24} /></div>
+                      <div className="perk-icon" style={{ background: 'rgba(219, 39, 119, 0.1)', color: '#db2777' }}><Star size={24} /></div>
                       <div>
-                        <h3>Oración & Clamor</h3>
-                        <p>Clamaremos juntos por el impacto de la Palabra de Dios en nuestra generación.</p>
+                        <h3>Cena & Compañerismo</h3>
+                        <p>Disfrutaremos de una deliciosa comida juntos y un ambiente de celebración en comunidad.</p>
                       </div>
                     </div>
 
                     <div className="perk-item">
-                      <div className="perk-icon" style={{ background: 'rgba(255, 56, 0, 0.1)', color: 'var(--accent-blue)' }}><Star size={24} /></div>
+                      <div className="perk-icon" style={{ background: 'rgba(219, 39, 119, 0.1)', color: '#db2777' }}><Star size={24} /></div>
                       <div>
-                        <h3>Preparación Espiritual</h3>
-                        <p>Un espacio de consagración previo al gran día de la conferencia.</p>
+                        <h3>Dinámicas & Sorpresas</h3>
+                        <p>Actividades interactivas preparadas especialmente para celebrar este año de fe.</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="free-pass-badge" style={{ borderLeft: '4px solid #db2777' }}>
+                    <span className="badge-title">Pre-Registro Abierto</span>
+                    <span className="badge-price" style={{ fontSize: '1.8rem', color: '#db2777' }}>POR ANUNCIAR</span>
+                    <span className="badge-note">* Esta actividad tendrá un costo. Al pre-registrarte aseguras tu cupo, y te avisaremos por correo y redes una vez se abran las inscripciones formales con los montos y métodos de pago.</span>
+                  </div>
+
+                  <div className="registration-poster-wrapper glass-panel" style={{ border: '1px dashed rgba(219, 39, 119, 0.3)', padding: '3.5rem 2rem', textAlign: 'center', background: 'rgba(219, 39, 119, 0.02)', borderRadius: '16px' }}>
+                    <div style={{ fontSize: '2.5rem', marginBottom: '1rem' }}>🎉</div>
+                    <h4 style={{ fontSize: '1.2rem', marginBottom: '0.5rem', fontWeight: '700' }}>Portada en Proceso</h4>
+                    <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', lineHeight: '1.5' }}>
+                      La portada oficial de la Cena de Jóvenes estará disponible próximamente.
+                    </p>
+                  </div>
+                </>
+              )}
+
+              {selectedEvent === 'campamento' && (
+                <>
+                  <span className="subtitle" style={{ color: '#059669' }}>
+                    <Star size={16} style={{ color: '#059669', marginRight: '5px', verticalAlign: 'middle' }} />
+                    Pre-Registro: Campamento 2027
+                  </span>
+                  <h1 className="title">Campamento <span className="text-gradient-camp">Jóvenes ICC</span></h1>
+                  <p className="description">
+                    Reserva tu cupo para el Campamento de Jóvenes 2027, del <strong>16 al 18 de Abril de 2027</strong>. Tres días apartados para buscar al Señor, estudiar Su palabra y disfrutar de actividades en comunidad.
+                  </p>
+
+                  <div className="ticket-perks">
+                    <div className="perk-item">
+                      <div className="perk-icon" style={{ background: 'rgba(5, 150, 105, 0.1)', color: '#059669' }}><Star size={24} /></div>
+                      <div>
+                        <h3>Devocionales & Plenarias</h3>
+                        <p>Tiempo de instrucción profunda enfocado en la vida cristiana y edificación mutua.</p>
                       </div>
                     </div>
 
                     <div className="perk-item">
-                      <div className="perk-icon" style={{ background: 'rgba(255, 56, 0, 0.1)', color: 'var(--accent-blue)' }}><Star size={24} /></div>
+                      <div className="perk-icon" style={{ background: 'rgba(5, 150, 105, 0.1)', color: '#059669' }}><Star size={24} /></div>
                       <div>
-                        <h3>Experiencia Organizada</h3>
-                        <p>Es necesario registrarse previamente para poder brindarte una experiencia más cómoda y coordinada.</p>
+                        <h3>Deportes & Fogatas</h3>
+                        <p>Juegos de equipo, fogatas nocturnas y dinámicas competitivas al aire libre.</p>
                       </div>
                     </div>
                   </div>
 
-                  <div className="free-pass-badge" style={{ borderLeft: '4px solid var(--accent-blue)' }}>
-                    <span className="badge-title">Tipo de Entrada</span>
-                    <span className="badge-price">GRATIS</span>
-                    <span className="badge-note">* Registro requerido para control de capacidad en el templo.</span>
+                  <div className="free-pass-badge" style={{ borderLeft: '4px solid #059669' }}>
+                    <span className="badge-title">Pre-Registro Abierto</span>
+                    <span className="badge-price" style={{ fontSize: '1.8rem', color: '#059669' }}>POR ANUNCIAR</span>
+                    <span className="badge-note">* Esta actividad tendrá un costo. Al pre-registrarte aseguras tu cupo, y te avisaremos por correo y redes una vez se abran las inscripciones formales con los montos y métodos de pago.</span>
                   </div>
 
-                  {/* Portada premium para RESET */}
-                  <div className="registration-poster-wrapper glass-panel">
-                    <img 
-                      src={getImageUrl('/media-vigilia-reset.jpeg')} 
-                      alt="Afiche Media Vigilia RESET" 
-                      className="featured-card-poster"
-                    />
+                  <div className="registration-poster-wrapper glass-panel" style={{ border: '1px dashed rgba(5, 150, 105, 0.3)', padding: '3.5rem 2rem', textAlign: 'center', background: 'rgba(5, 150, 105, 0.02)', borderRadius: '16px' }}>
+                    <div style={{ fontSize: '2.5rem', marginBottom: '1rem' }}>🏕️</div>
+                    <h4 style={{ fontSize: '1.2rem', marginBottom: '0.5rem', fontWeight: '700' }}>Portada en Proceso</h4>
+                    <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', lineHeight: '1.5' }}>
+                      La portada oficial del Campamento estará disponible próximamente.
+                    </p>
                   </div>
                 </>
               )}
@@ -924,27 +1019,36 @@ const Registration = () => {
             </button>
             <div style={{ width: '100%', maxWidth: '700px', display: 'flex', flexDirection: 'column', gap: '2.5rem', alignItems: 'center' }}>
             <div className="success-header">
-              <CheckCircle size={64} style={{ color: 'var(--accent-color)', margin: '0 auto 1rem auto' }} />
-              <h2>¡Registro Exitoso!</h2>
-              <p>Tu boleto de entrada gratuito ha sido generado. Por favor, tómale una captura o imprímelo para presentarlo en la entrada. <strong>Te hemos enviado tu ticket por correo</strong> con toda la información del evento{formData.interestedInMerch ? ' y las instrucciones de pago de tu mercancía reservada' : ''} (si no lo recibes, revisa la carpeta de Spam).</p>
+              <CheckCircle size={64} style={{ color: selectedEvent === 'conferencia' ? 'var(--accent-color)' : eventDetails.color, margin: '0 auto 1rem auto' }} />
+              {selectedEvent === 'conferencia' ? (
+                <>
+                  <h2>¡Registro Exitoso!</h2>
+                  <p>Tu boleto de entrada gratuito ha sido generado. Por favor, tómale una captura o imprímelo para presentarlo en la entrada. <strong>Te hemos enviado tu ticket por correo</strong> con toda la información del evento{formData.interestedInMerch ? ' y las instrucciones de pago de tu mercancía reservada' : ''} (si no lo recibes, revisa la carpeta de Spam).</p>
+                </>
+              ) : (
+                <>
+                  <h2>¡Pre-Registro Completado!</h2>
+                  <p>Tu cupo de pre-registro para la <strong>{eventDetails.name}</strong> ha sido reservado con éxito. <strong>Te hemos enviado una confirmación por correo</strong>. Más adelante, te notificaremos por correo electrónico y redes sociales con los montos del evento y las instrucciones para realizar tu registro y pago formal.</p>
+                </>
+              )}
             </div>
 
             {/* Virtual Ticket Card */}
-            <div className={`ticket-card animate-fade-in ${selectedEvent === 'vigilia' ? 'ticket-reset' : ''}`} onClick={(e) => e.stopPropagation()}>
+            <div className={`ticket-card animate-fade-in ${eventDetails.cardClass}`} onClick={(e) => e.stopPropagation()}>
               <div className="ticket-top">
                 <div className="ticket-header">
                   <div className="ticket-event-info">
-                    <span className="ticket-event-label">{selectedEvent === 'vigilia' ? 'Boleto Media Vigilia' : 'Boleto de Entrada'}</span>
-                    <span className="ticket-event-name text-gradient">
-                      {selectedEvent === 'vigilia' ? 'RESET' : 'SIN FILTROS 2026'}
+                    <span className="ticket-event-label">{eventDetails.label}</span>
+                    <span className="ticket-event-name text-gradient" style={selectedEvent !== 'conferencia' ? { backgroundImage: `linear-gradient(90deg, #fff 0%, ${eventDetails.color} 100%)` } : {}}>
+                      {eventDetails.name}
                     </span>
                     <span className="ticket-event-subtitle">
-                      {selectedEvent === 'vigilia' ? 'Pre-Conferencia Jóvenes ICC' : 'Conferencia de Jóvenes ICC'}
+                      {eventDetails.subtitle}
                     </span>
                   </div>
                   <div className="ticket-logo">
                     <span className="t-logo-text">Jóvenes</span>
-                    <div className="t-logo-sub">I C C</div>
+                    <div className="t-logo-sub" style={selectedEvent !== 'conferencia' ? { color: eventDetails.color } : {}}>I C C</div>
                   </div>
                 </div>
 
@@ -955,8 +1059,10 @@ const Registration = () => {
                   </div>
 
                   <div className="ticket-info-item">
-                    <span className="ticket-info-label">Código de Entrada</span>
-                    <span className="ticket-info-value" style={{ fontFamily: 'monospace', letterSpacing: '1px', color: selectedEvent === 'vigilia' ? '#FF3800' : 'var(--accent-light)' }}>
+                    <span className="ticket-info-label">
+                      {selectedEvent === 'conferencia' ? 'Código de Entrada' : 'Código de Pre-Registro'}
+                    </span>
+                    <span className="ticket-info-value" style={{ fontFamily: 'monospace', letterSpacing: '1px', color: eventDetails.color }}>
                       {ticketCode}
                     </span>
                   </div>
@@ -964,20 +1070,26 @@ const Registration = () => {
                   <div className="ticket-info-item">
                     <span className="ticket-info-label">Fecha del Evento</span>
                     <span className="ticket-info-value">
-                      {selectedEvent === 'vigilia' ? 'Sábado 22 Agosto, 2026' : 'Sábado 29 Agosto, 2026'}
+                      {eventDetails.date}
                     </span>
                   </div>
 
                   <div className="ticket-info-item">
                     <span className="ticket-info-label">Hora de Apertura</span>
                     <span className="ticket-info-value">
-                      {selectedEvent === 'vigilia' ? '06:00 PM' : '03:00 PM'}
+                      {eventDetails.time}
                     </span>
                   </div>
 
                   <div className="ticket-info-item">
                     <span className="ticket-info-label">Costo</span>
-                    <span className="ticket-info-value free-badge">TOTALMENTE GRATIS</span>
+                    {selectedEvent === 'conferencia' ? (
+                      <span className="ticket-info-value free-badge">TOTALMENTE GRATIS</span>
+                    ) : (
+                      <span className="ticket-info-value free-badge" style={{ background: 'rgba(255, 255, 255, 0.05)', color: 'var(--text-secondary)', border: '1px solid rgba(255, 255, 255, 0.1)' }}>
+                        POR ANUNCIAR
+                      </span>
+                    )}
                   </div>
 
                   <div className="ticket-info-item">

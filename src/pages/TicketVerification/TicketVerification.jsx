@@ -137,6 +137,16 @@ const TicketVerification = () => {
     )) || (ticketData.ticketCode && ticketData.ticketCode.indexOf('RESET') !== -1)
   );
 
+  const isCena = ticketData && (
+    (ticketData.event && ticketData.event.toLowerCase().includes('cena')) || 
+    (ticketData.ticketCode && ticketData.ticketCode.indexOf('CENA') !== -1)
+  );
+
+  const isCampamento = ticketData && (
+    (ticketData.event && ticketData.event.toLowerCase().includes('campamento')) || 
+    (ticketData.ticketCode && ticketData.ticketCode.indexOf('CAMP') !== -1)
+  );
+
   return (
     <div className="verification-page animate-fade-in section-padding" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '2rem 0' }}>
       <div className="container" style={{ maxWidth: '550px', margin: '0 auto', width: '100%', padding: '0 1.5rem', boxSizing: 'border-box' }}>
@@ -172,26 +182,32 @@ const TicketVerification = () => {
           <div className="verification-success-wrapper animate-fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '2rem', width: '100%', boxSizing: 'border-box' }}>
             
             {/* Cabecera de Estatus */}
-            <div className="status-header glass-panel" style={{ display: 'flex', alignItems: 'center', gap: '1rem', width: '100%', padding: '1.2rem 1.5rem', border: '1px solid rgba(16, 185, 129, 0.35)', background: 'rgba(16, 185, 129, 0.05)', borderRadius: '16px', boxSizing: 'border-box' }}>
-              <ShieldCheck className="success-icon" size={32} style={{ color: '#10b981' }} />
+            <div className="status-header glass-panel" style={{ display: 'flex', alignItems: 'center', gap: '1rem', width: '100%', padding: '1.2rem 1.5rem', border: `1px solid ${isCena ? 'rgba(219, 39, 119, 0.35)' : (isCampamento ? 'rgba(5, 150, 105, 0.35)' : 'rgba(16, 185, 129, 0.35)')}`, background: `${isCena ? 'rgba(219, 39, 119, 0.05)' : (isCampamento ? 'rgba(5, 150, 105, 0.05)' : 'rgba(16, 185, 129, 0.05)')}`, borderRadius: '16px', boxSizing: 'border-box' }}>
+              <ShieldCheck className="success-icon" size={32} style={{ color: isCena ? '#db2777' : (isCampamento ? '#059669' : '#10b981') }} />
               <div style={{ display: 'flex', flexDirection: 'column', textAlign: 'left' }}>
-                <span className="status-label" style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '1.5px' }}>Boleto Verificado</span>
-                <span className="status-badge" style={{ fontSize: '1.25rem', fontWeight: '900', color: '#10b981', letterSpacing: '0.5px' }}>ACCESO VÁLIDO</span>
+                <span className="status-label" style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '1.5px' }}>
+                  {isCena || isCampamento ? 'Pre-Registro Verificado' : 'Boleto Verificado'}
+                </span>
+                <span className="status-badge" style={{ fontSize: '1.25rem', fontWeight: '900', color: isCena ? '#db2777' : (isCampamento ? '#059669' : '#10b981'), letterSpacing: '0.5px' }}>
+                  {isCena || isCampamento ? 'CUPO RESERVADO' : 'ACCESO VÁLIDO'}
+                </span>
               </div>
             </div>
 
             {/* Tarjeta de Entrada de Cristal (Idéntica a la de registro) */}
-            <div className={`ticket-card animate-fade-in ${isVigilia ? 'ticket-reset' : ''}`} style={{ textAlign: 'left' }}>
+            <div className={`ticket-card animate-fade-in ${isVigilia ? 'ticket-reset' : (isCena ? 'ticket-cena' : (isCampamento ? 'ticket-camp' : ''))}`} style={{ textAlign: 'left' }}>
               <div className="ticket-top">
                 <div className="ticket-header">
                   <div className="ticket-event-info">
-                    <span className="ticket-event-label">{isVigilia ? 'Boleto Media Vigilia' : 'Boleto de Entrada'}</span>
-                    <span className="ticket-event-name text-gradient">{isVigilia ? 'RESET' : 'SIN FILTROS 2026'}</span>
-                    <span className="ticket-event-subtitle">{isVigilia ? 'Pre-Conferencia Jóvenes ICC' : 'Conferencia de Jóvenes ICC'}</span>
+                    <span className="ticket-event-label">{isVigilia ? 'Boleto Media Vigilia' : (isCena ? 'Pre-Registro Cena ICC' : (isCampamento ? 'Pre-Registro Campamento ICC' : 'Boleto de Entrada'))}</span>
+                    <span className="ticket-event-name text-gradient" style={isCena ? { backgroundImage: 'linear-gradient(90deg, #fff 0%, #db2777 100%)' } : (isCampamento ? { backgroundImage: 'linear-gradient(90deg, #fff 0%, #059669 100%)' } : {})}>
+                      {isVigilia ? 'RESET' : (isCena ? 'CENA DE JÓVENES ICC' : (isCampamento ? 'CAMPAMENTO JÓVENES ICC' : 'SIN FILTROS 2026'))}
+                    </span>
+                    <span className="ticket-event-subtitle">{isVigilia ? 'Pre-Conferencia Jóvenes ICC' : (isCena ? 'Celebración Fin de Año ICC' : (isCampamento ? 'Campamento de Jóvenes ICC' : 'Conferencia de Jóvenes ICC'))}</span>
                   </div>
                   <div className="ticket-logo">
                     <span className="t-logo-text">Jóvenes</span>
-                    <div className="t-logo-sub">I C C</div>
+                    <div className="t-logo-sub" style={isCena ? { color: '#db2777' } : (isCampamento ? { color: '#059669' } : {})}>I C C</div>
                   </div>
                 </div>
 
@@ -202,8 +218,10 @@ const TicketVerification = () => {
                   </div>
 
                   <div className="ticket-info-item">
-                    <span className="ticket-info-label">Código de Entrada</span>
-                    <span className="ticket-info-value" style={{ fontFamily: 'monospace', letterSpacing: '1px', color: isVigilia ? '#FF3800' : 'var(--accent-light)' }}>
+                    <span className="ticket-info-label">
+                      {isCena || isCampamento ? 'Código de Pre-Registro' : 'Código de Entrada'}
+                    </span>
+                    <span className="ticket-info-value" style={{ fontFamily: 'monospace', letterSpacing: '1px', color: isVigilia ? '#FF3800' : (isCena ? '#db2777' : (isCampamento ? '#059669' : 'var(--accent-light)')) }}>
                       {ticketData.ticketCode}
                     </span>
                   </div>
@@ -211,20 +229,34 @@ const TicketVerification = () => {
                   <div className="ticket-info-item">
                     <span className="ticket-info-label">Fecha del Evento</span>
                     <span className="ticket-info-value">
-                      {isVigilia ? 'Sábado 22 Agosto, 2026' : 'Sábado 29 Agosto, 2026'}
+                      {isVigilia 
+                        ? 'Sábado 22 Agosto, 2026' 
+                        : (isCena 
+                            ? 'Sábado 5 de Diciembre, 2026' 
+                            : (isCampamento 
+                                ? '16 al 18 de Abril, 2027' 
+                                : 'Sábado 29 Agosto, 2026'))}
                     </span>
                   </div>
 
-                  <div className="ticket-info-item">
-                    <span className="ticket-info-label">Hora de Apertura</span>
-                    <span className="ticket-info-value">
-                      {isVigilia ? '06:00 PM' : '03:00 PM'}
-                    </span>
-                  </div>
+                  {!isCena && !isCampamento && (
+                    <div className="ticket-info-item">
+                      <span className="ticket-info-label">Hora de Apertura</span>
+                      <span className="ticket-info-value">
+                        {isVigilia ? '06:00 PM' : '03:00 PM'}
+                      </span>
+                    </div>
+                  )}
 
                   <div className="ticket-info-item">
                     <span className="ticket-info-label">Costo</span>
-                    <span className="ticket-info-value free-badge">TOTALMENTE GRATIS</span>
+                    {isCena || isCampamento ? (
+                      <span className="ticket-info-value free-badge" style={{ background: 'rgba(255, 255, 255, 0.05)', color: 'var(--text-secondary)', border: '1px solid rgba(255, 255, 255, 0.1)' }}>
+                        POR ANUNCIAR
+                      </span>
+                    ) : (
+                      <span className="ticket-info-value free-badge">TOTALMENTE GRATIS</span>
+                    )}
                   </div>
 
                   <div className="ticket-info-item">
@@ -333,7 +365,7 @@ const TicketVerification = () => {
                 })()}
 
                 {/* Banner de Reservación Cerrada en Boleto */}
-                {!isVigilia && (!ticketData.interestedInMerch || ticketData.interestedInMerch !== 'Sí' || !ticketData.merchItems || ticketData.merchItems === 'Ninguno') && (
+                {!isVigilia && !isCena && !isCampamento && (!ticketData.interestedInMerch || ticketData.interestedInMerch !== 'Sí' || !ticketData.merchItems || ticketData.merchItems === 'Ninguno') && (
                   <div className="ticket-no-merch-banner" style={{ marginTop: '1.2rem', padding: '1.2rem', background: 'rgba(255, 255, 255, 0.02)', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '14px', display: 'flex', flexDirection: 'column', gap: '0.6rem', textAlign: 'left' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#f59e0b', fontWeight: '800', fontSize: '0.95rem' }}>
                       <AlertTriangle size={18} />
@@ -397,7 +429,7 @@ const TicketVerification = () => {
             <div className="ticket-actions-bar" style={{ width: '100%', flexWrap: 'wrap', gap: '0.8rem' }}>
               <button onClick={handlePrint} className="ticket-action-btn print">
                 <Printer size={18} />
-                Imprimir Boleto / PDF
+                {isCena || isCampamento ? 'Imprimir Pre-Registro / PDF' : 'Imprimir Boleto / PDF'}
               </button>
 
               <a
@@ -411,14 +443,16 @@ const TicketVerification = () => {
                 Cómo llegar (Maps)
               </a>
 
-              <Link
-                to="/merch"
-                className="ticket-action-btn nav"
-                style={{ textDecoration: 'none' }}
-              >
-                <ShoppingBag size={18} style={{ color: 'var(--accent-color)' }} />
-                Ver Todo el Merch
-              </Link>
+              {!isVigilia && !isCena && !isCampamento && (
+                <Link
+                  to="/merch"
+                  className="ticket-action-btn nav"
+                  style={{ textDecoration: 'none' }}
+                >
+                  <ShoppingBag size={18} style={{ color: 'var(--accent-color)' }} />
+                  Ver Todo el Merch
+                </Link>
+              )}
 
               <Link to="/" className="ticket-action-btn nav" style={{ textDecoration: 'none' }}>
                 <RotateCcw size={18} />

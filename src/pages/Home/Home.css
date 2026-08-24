@@ -319,13 +319,13 @@
 /* Countdown Section */
 .countdown-section {
   position: relative;
-  margin-top: -6rem;
+  margin-top: -4.5rem;
   z-index: 10;
   padding-bottom: 2rem;
 }
 
 .countdown-wrapper {
-  padding: 3rem;
+  padding: 4.5rem 3rem 3rem 3rem;
   text-align: center;
   display: flex;
   flex-direction: column;
@@ -1829,4 +1829,147 @@
 @keyframes resetPulseGlow {
   0% { transform: scale(0.9) translate(0, 0); opacity: 0.7; }
   100% { transform: scale(1.15) translate(8px, -8px); opacity: 1; }
+}
+
+/* Pre-registrations Section */
+.pre-registrations-section {
+  position: relative;
+  overflow: hidden;
+}
+
+.pre-regs-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 2rem;
+  margin-top: 2.5rem;
+}
+
+.pre-reg-card {
+  display: flex;
+  flex-direction: column;
+  border-radius: 16px;
+  padding: 2rem;
+  text-align: left;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s ease, border-color 0.3s ease;
+}
+
+.pre-reg-card.cena {
+  border: 1px solid rgba(219, 39, 119, 0.15);
+  background: rgba(219, 39, 119, 0.015);
+}
+
+.pre-reg-card.campamento {
+  border: 1px solid rgba(5, 150, 105, 0.15);
+  background: rgba(5, 150, 105, 0.015);
+}
+
+.pre-reg-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3);
+}
+
+.pre-reg-card.cena:hover {
+  border-color: rgba(219, 39, 119, 0.45);
+  box-shadow: 0 12px 30px rgba(219, 39, 119, 0.08);
+}
+
+.pre-reg-card.campamento:hover {
+  border-color: rgba(5, 150, 105, 0.45);
+  box-shadow: 0 12px 30px rgba(5, 150, 105, 0.08);
+}
+
+.pre-reg-badge {
+  position: absolute;
+  top: 1.2rem;
+  right: 1.2rem;
+  padding: 0.4rem 0.8rem;
+  border-radius: 30px;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+}
+
+.pre-reg-card.cena .pre-reg-badge {
+  background: rgba(219, 39, 119, 0.1);
+  color: #db2777;
+  border: 1px solid rgba(219, 39, 119, 0.25);
+}
+
+.pre-reg-card.campamento .pre-reg-badge {
+  background: rgba(5, 150, 105, 0.1);
+  color: #059669;
+  border: 1px solid rgba(5, 150, 105, 0.25);
+}
+
+.pre-reg-title {
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin-top: 0.5rem;
+  margin-bottom: 0.75rem;
+  padding-right: 6.5rem; /* Prevent text overlap with badge */
+}
+
+.pre-reg-desc {
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  flex-grow: 1;
+  margin-bottom: 1.5rem;
+}
+
+.pre-reg-meta-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding-top: 1rem;
+  margin-bottom: 1.5rem;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.pre-reg-meta-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.pre-reg-btn {
+  width: 100%;
+  margin: 0;
+  padding: 0.75rem 1rem;
+  font-size: 0.85rem;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  color: #ffffff !important;
+  border-radius: 50px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.pre-reg-card.cena .pre-reg-btn {
+  background: #db2777;
+}
+
+.pre-reg-card.cena .pre-reg-btn:hover {
+  background: #ec4899;
+  box-shadow: 0 0 15px rgba(219, 39, 119, 0.4);
+  transform: scale(1.02);
+}
+
+.pre-reg-card.campamento .pre-reg-btn {
+  background: #059669;
+}
+
+.pre-reg-card.campamento .pre-reg-btn:hover {
+  background: #10b981;
+  box-shadow: 0 0 15px rgba(5, 150, 105, 0.4);
+  transform: scale(1.02);
 }

@@ -72,12 +72,23 @@ function doPost(e) {
 
     // Nueva Inscripción
     var isVigilia = data.eventType === "vigilia" || (data.ticketCode && data.ticketCode.indexOf("RESET") !== -1);
-    var targetSheetName = isVigilia ? "Media Vigilia" : "Conferencia";
+    var isCena = data.eventType === "cena";
+    var isCampamento = data.eventType === "campamento";
+
+    var targetSheetName = "Conferencia";
+    if (isVigilia) {
+      targetSheetName = "Media Vigilia";
+    } else if (isCena) {
+      targetSheetName = "Cena de Jóvenes";
+    } else if (isCampamento) {
+      targetSheetName = "Campamento";
+    }
+
     var sheet = activeSpreadsheet.getSheetByName(targetSheetName);
 
     if (!sheet) {
       sheet = activeSpreadsheet.insertSheet(targetSheetName);
-      var headers = isVigilia
+      var headers = (isVigilia || isCena || isCampamento)
         ? ["Fecha", "Hora", "Código de Boleto", "Nombre", "Apellido", "Correo", "Teléfono", "Iglesia", "Rango de Edad", "Nombre del Evento"]
         : ["Fecha", "Hora", "Código de Boleto", "Nombre", "Apellido", "Correo", "Teléfono", "Iglesia", "Rango de Edad", "Interés en Mercancía", "Artículos de Mercancía", "Total de Venta", "Nombre del Evento"];
       sheet.appendRow(headers);
@@ -89,7 +100,7 @@ function doPost(e) {
     var timeFormatted = Utilities.formatDate(now, timezone, "hh:mm:ss a");
 
     var rowData;
-    if (isVigilia) {
+    if (isVigilia || isCena || isCampamento) {
       // Omit J, K, L columns (no merch)
       rowData = [
         dateFormatted,                // Fecha (Columna A)
@@ -101,7 +112,7 @@ function doPost(e) {
         data.phone,                   // Teléfono (Columna G)
         data.church,                  // Iglesia (Columna H)
         data.ageGroup,                // Rango de Edad (Columna I)
-        data.event || 'Media Vigilia RESET' // Nombre del Evento (Columna J)
+        data.event || (isCena ? 'Cena de Jóvenes ICC 2026' : (isCampamento ? 'Campamento de Jóvenes ICC 2027' : 'Media Vigilia RESET')) // Nombre del Evento (Columna J)
       ];
     } else {
       // Standard Conferencia columns
@@ -157,7 +168,8 @@ function doGet(e) {
 
       for (var i = 1; i < data.length; i++) {
         if (String(data[i][2]).trim() === String(codeToFind).trim()) {
-          var isVigiliaSheet = sheet.getName() === "Media Vigilia";
+          var sheetName = sheet.getName();
+          var isNoMerchSheet = sheetName === "Media Vigilia" || sheetName === "Cena de Jóvenes" || sheetName === "Campamento";
 
           var result = {
             status: 'success',
@@ -172,12 +184,12 @@ function doGet(e) {
             ageGroup: data[i][8]
           };
 
-          if (isVigiliaSheet) {
-            // Media Vigilia columns (no merch)
+          if (isNoMerchSheet) {
+            // Media Vigilia, Cena, Campamento columns (no merch)
             result.interestedInMerch = 'No';
             result.merchItems = 'Ninguno';
             result.merchTotal = 0;
-            result.event = data[i][9] || 'Media Vigilia RESET';
+            result.event = data[i][9] || (sheetName === 'Cena de Jóvenes' ? 'Cena de Jóvenes 2026' : (sheetName === 'Campamento' ? 'Campamento de Jóvenes 2027' : 'Media Vigilia RESET'));
           } else {
             // Conferencia columns (with merch)
             result.interestedInMerch = data[i][9];
@@ -210,10 +222,19 @@ function enviarCorreoConfirmacion(data) {
 
   // Detectar si el registro es para la Media Vigilia
   var isVigilia = data.eventType === "vigilia" || (data.ticketCode && data.ticketCode.indexOf("RESET") !== -1);
+  var isCena = data.eventType === "cena";
+  var isCampamento = data.eventType === "campamento";
 
-  var subject = isVigilia
-    ? "🔥 ¡Registro Confirmado! Prepárate para la Media Vigilia RESET 2026"
-    : "🎫 Tu Boleto de Entrada - Sin Filtros 2026";
+  var subject = "";
+  if (isVigilia) {
+    subject = "🔥 ¡Registro Confirmado! Prepárate para la Media Vigilia RESET 2026";
+  } else if (isCena) {
+    subject = "🍽️ ¡Pre-Registro Recibido! - Cena de Jóvenes ICC 2026";
+  } else if (isCampamento) {
+    subject = "🏕️ ¡Pre-Registro Recibido! - Campamento de Jóvenes ICC 2027";
+  } else {
+    subject = "🎫 Tu Boleto de Entrada - Sin Filtros 2026";
+  }
 
   var ticketUrl = data.ticketUrl;
   if (!ticketUrl) {
@@ -222,19 +243,42 @@ function enviarCorreoConfirmacion(data) {
 
   var qrCodeUrl = "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=" + encodeURIComponent(ticketUrl);
 
-  var eventSubtitle = isVigilia ? "Pre-Conferencia: Media Vigilia" : "Conferencia de Jóvenes ICC";
-  var eventNameText = isVigilia ? "RESET" : "SIN FILTROS 2026";
-  var welcomeText = isVigilia
-    ? "¡Hola <strong>" + data.firstName + "</strong>! 👋 ¡Que Dios te bendiga mucho!<br><br>¡Tu registro para la Media Vigilia <strong>RESET</strong> ha sido completado con éxito! 🎉<br><br>Estamos muy emocionados de que nos acompañes en este tiempo tan especial. Creemos firmemente que antes de la gran conferencia <em>Sin Filtros 2026</em>, necesitamos buscar al Señor en oración unida, interceder por la juventud y pedirle que 'reinicie' (RESET) nuestros corazones en Su presencia. ¡Ven con el corazón expectante! 🙌✨"
-    : "¡Tu registro para la conferencia de jóvenes <strong>Sin Filtros 2026</strong> ha sido completado con éxito!";
-  var dateTimeText = isVigilia
-    ? "Sábado 22 Agosto, 2026 - 06:00 PM"
-    : "Sábado 29 Agosto, 2026 - 03:00 PM";
+  var eventSubtitle = "Conferencia de Jóvenes ICC";
+  var eventNameText = "SIN FILTROS 2026";
+  var welcomeText = "";
+  var dateTimeText = "";
+  var ticketLabelText = "Código de Entrada";
+  var buttonText = "Ver mi Boleto en Línea";
+  var qrNoteText = "Presenta este código QR en la entrada";
 
-  var headerColor = isVigilia ? "#FF3800" : "#f59e0b"; // Naranja-rojo para RESET, Oro para Sin Filtros
+  if (isVigilia) {
+    eventSubtitle = "Pre-Conferencia: Media Vigilia";
+    eventNameText = "RESET";
+    welcomeText = "¡Hola <strong>" + data.firstName + "</strong>! 👋 ¡Que Dios te bendiga mucho!<br><br>¡Tu registro para la Media Vigilia <strong>RESET</strong> ha sido completado con éxito! 🎉<br><br>Estamos muy emocionados de que nos acompañes en este tiempo tan especial. Creemos firmemente que antes de la gran conferencia <em>Sin Filtros 2026</em>, necesitamos buscar al Señor en oración unida, interceder por la juventud y pedirle que 'reinicie' (RESET) nuestros corazones en Su presencia. ¡Ven con el corazón expectante! 🙌✨";
+    dateTimeText = "Sábado 22 Agosto, 2026 - 06:00 PM";
+  } else if (isCena) {
+    eventSubtitle = "Pre-Registro: Cena de Jóvenes ICC";
+    eventNameText = "CENA DE JÓVENES ICC 2026";
+    welcomeText = "¡Hola <strong>" + data.firstName + "</strong>! 👋 ¡Que Dios te bendiga mucho!<br><br>Hemos recibido con éxito tu solicitud de pre-registro para la <strong>Cena de Jóvenes ICC 2026</strong>. 🎉<br><br>Te recordamos que esta actividad tendrá un costo. Una vez se abran las inscripciones formales, te notificaremos por correo electrónico y a través de nuestras redes sociales con los montos del evento y las instrucciones de pago para completar tu inscripción formal. ¡Asegura tu cupo temprano y acompáñanos a celebrar juntos este año de fe! 🍽️✨";
+    dateTimeText = "Sábado 5 Diciembre, 2026 - 07:00 PM";
+    ticketLabelText = "Código de Pre-Reserva";
+    buttonText = "Ver mi Pre-Registro en Línea";
+    qrNoteText = "Código QR de referencia para tu pre-registro";
+  } else if (isCampamento) {
+    eventSubtitle = "Pre-Registro: Campamento ICC 2027";
+    eventNameText = "CAMPAMENTO JÓVENES ICC 2027";
+    welcomeText = "¡Hola <strong>" + data.firstName + "</strong>! 👋 ¡Que Dios te bendiga mucho!<br><br>Hemos recibido con éxito tu solicitud de pre-registro para el <strong>Campamento de Jóvenes ICC 2027</strong>. 🏕️<br><br>Te recordamos que esta actividad tendrá un costo. Una vez se abran las inscripciones formales, te notificaremos por correo electrónico y a través de nuestras redes sociales con los montos del evento y las instrucciones de pago para completar tu inscripción formal. ¡Asegura tu cupo temprano para que vivamos juntos este hermoso tiempo de búsqueda del Señor! 🙌🔥";
+    dateTimeText = "16 al 18 de Abril, 2027 - Salida 02:00 PM";
+    ticketLabelText = "Código de Pre-Reserva";
+    buttonText = "Ver mi Pre-Registro en Línea";
+    qrNoteText = "Código QR de referencia para tu pre-registro";
+  } else {
+    welcomeText = "¡Tu registro para la conferencia de jóvenes <strong>Sin Filtros 2026</strong> ha sido completado con éxito!";
+    dateTimeText = "Sábado 29 Agosto, 2026 - 03:00 PM";
+  }
 
   var merchHtml = "";
-  if (!isVigilia && data.interestedInMerch === "Sí" && data.merchTotal > 0) {
+  if (!isVigilia && !isCena && !isCampamento && data.interestedInMerch === "Sí" && data.merchTotal > 0) {
     var totalVal = "RD$ " + Number(data.merchTotal).toLocaleString();
 
     // Generar bloque HTML de imágenes si vienen en data
@@ -297,6 +341,33 @@ function enviarCorreoConfirmacion(data) {
 
   // Design variables matching the specific event (Vigilia vs Conferencia stages)
   var theme = getEmailTheme(isVigilia, data.activeTheme);
+  
+  if (isCena) {
+    theme = {
+      outerBg: "#030202",
+      cardBg: "#0b0a0a",
+      cardBorderColor: "#3c102a",
+      detailsBg: "#141012",
+      detailsBorderColor: "#54133b",
+      accentColorText: "#db2777",
+      textColorMuted: "#a68597",
+      textCodeColor: "#fdd6eb",
+      headerColor: "#db2777"
+    };
+  } else if (isCampamento) {
+    theme = {
+      outerBg: "#020302",
+      cardBg: "#0a0b0a",
+      cardBorderColor: "#103c20",
+      detailsBg: "#101411",
+      detailsBorderColor: "#13542b",
+      accentColorText: "#059669",
+      textColorMuted: "#85a68e",
+      textCodeColor: "#d6fde3",
+      headerColor: "#059669"
+    };
+  }
+
   var outerBg = theme.outerBg;
   var cardBg = theme.cardBg;
   var cardBorderColor = theme.cardBorderColor;
@@ -341,7 +412,7 @@ function enviarCorreoConfirmacion(data) {
                       <td style="font-size: 15px; font-weight: bold; color: #ffffff; padding-bottom: 12px;">${data.firstName} ${data.lastName}</td>
                     </tr>
                     <tr>
-                      <td style="font-size: 11px; color: ${textColorMuted}; padding-bottom: 2px;">Código de Entrada</td>
+                      <td style="font-size: 11px; color: ${textColorMuted}; padding-bottom: 2px;">${ticketLabelText}</td>
                     </tr>
                     <tr>
                       <td style="font-size: 16px; font-weight: bold; font-family: monospace; color: ${textCodeColor}; padding-bottom: 12px; letter-spacing: 0.5px;">${data.ticketCode}</td>
@@ -364,8 +435,8 @@ function enviarCorreoConfirmacion(data) {
                     <tr>
                       <td align="center" style="padding-top: 16px; border-top: 1px solid ${cardBorderColor};">
                         <img src="${qrCodeUrl}" alt="QR Entrada" width="150" height="150" style="border: 4px solid #ffffff; border-radius: 6px; display: block; margin: 0 auto;" />
-                        <span style="font-size: 11px; color: ${textColorMuted}; display: block; margin-top: 8px; margin-bottom: 8px;">Presenta este código QR en la entrada</span>
-                        <a href="${ticketUrl}" target="_blank" style="font-size: 13px; color: ${accentColorText}; font-weight: bold; text-decoration: underline; display: block;">Ver mi Boleto en Línea</a>
+                        <span style="font-size: 11px; color: ${textColorMuted}; display: block; margin-top: 8px; margin-bottom: 8px;">${qrNoteText}</span>
+                        <a href="${ticketUrl}" target="_blank" style="font-size: 13px; color: ${accentColorText}; font-weight: bold; text-decoration: underline; display: block;">${buttonText}</a>
                       </td>
                     </tr>
                   </table>
@@ -374,7 +445,263 @@ function enviarCorreoConfirmacion(data) {
               ${merchHtml}
               <tr>
                 <td style="padding-top: 24px; font-size: 12px; color: ${textColorMuted}; line-height: 1.5; border-top: 1px solid ${cardBorderColor}; margin-top: 24px;">
-                  Si tienes alguna duda o necesitas modificar tus datos de registro, escríbenos a nuestra cuenta de Instagram <a href="https://instagram.com/onetwentyone.icc" target="_blank" style="color: #ffffff; text-decoration: underline;">@onetwentyone.icc</a>.
+                  Si tienes alguna duda o necesitas modificar tus datos de registro, escríbenos a nuestra cuenta de Instagram <a href="https://www.instagram.com/onetwentyoneicc" target="_blank" style="color: #ffffff; text-decoration: underline;">@onetwentyoneicc</a>.
+                </td>
+              </tr>
+            </table>
+            <table width="100%" max-width="500" border="0" cellspacing="0" cellpadding="0" style="max-width: 500px; text-align: center; margin-top: 20px;">
+              <tr>
+                <td style="font-size: 10px; color: #555555; line-height: 1.4;">
+                  Este correo fue enviado automáticamente por tu registro en la plataforma de OneTwentyOne.<br>
+                  © 2026 Iglesia de Convertidos a Cristo. Todos los derechos reservados.
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+      </table>
+    </body>
+    </html>
+  `;
+
+  var senderName = "Sin Filtros 2026";
+  if (isVigilia) senderName = "Media Vigilia RESET";
+  else if (isCena) senderName = "Cena de Jóvenes";
+  else if (isCampamento) senderName = "Campamento de Jóvenes";
+
+  MailApp.sendEmail({
+    to: email,
+    subject: subject,
+    htmlBody: htmlBody,
+    name: senderName
+  });
+
+  console.log("Correo enviado con éxito.");
+}
+
+/**
+ * 4. FUNCIÓN AUXILIAR PARA FORZAR PERMISOS
+ */
+function probarPermisos() {
+  MailApp.sendEmail(Session.getActiveUser().getEmail(), "Prueba de Permisos", "Si lees esto, los permisos están activos.");
+}
+
+/**
+ * 5. MENÚ DE ADMINISTRACIÓN EN GOOGLE SHEETS
+ * Aparece en la barra superior al abrir o recargar la hoja de cálculo.
+ */
+function onOpen() {
+  var ui = SpreadsheetApp.getUi();
+
+  // Submenú para pruebas de Media Vigilia
+  var pruebasVigiliaMenu = ui.createMenu('Pruebas')
+    .addItem('1. Enviar Prueba: Mañana nos encontramos', 'enviarPruebaVigiliaManana')
+    .addItem('2. Enviar Prueba: Hoy es el día', 'enviarPruebaVigiliaHoy');
+
+  // Menú principal de Media Vigilia
+  var vigiliaMenu = ui.createMenu('Media Vigilia')
+    .addItem('1. Enviar Masivo: Mañana nos encontramos', 'enviarMasivoVigiliaManana')
+    .addItem('2. Enviar Masivo: Hoy es el día', 'enviarMasivoVigiliaHoy')
+    .addSeparator()
+    .addSubMenu(pruebasVigiliaMenu);
+
+  // Submenú para pruebas de Conferencia
+  var pruebasConferenciaMenu = ui.createMenu('Pruebas')
+    .addItem('1. Enviar Prueba: Extensión de Pago', 'enviarCorreoPruebaAdmin')
+    .addItem('2. Enviar Prueba: Invitación de Mercancía', 'enviarCorreoPruebaInvitacionAdmin')
+    .addItem('3. Enviar Prueba: Confirmación de Pago', 'enviarCorreoPruebaPagoConfirmadoAdmin');
+
+  // Menú principal de Conferencia
+  var conferenciaMenu = ui.createMenu('Conferencia Sin Filtros')
+    .addItem('1. Enviar Masivo: Extensión de Pago (A NO PAGADOS)', 'enviarNotificacionExtensionPago')
+    .addItem('2. Enviar Masivo: Invitación de Mercancía (A NO INTERESADOS)', 'enviarNotificacionInvitacionMercancia')
+    .addItem('3. Enviar Masivo: Confirmación de Pago (A PAGADOS)', 'enviarNotificacionConfirmacionPago')
+    .addSeparator()
+    .addSubMenu(pruebasConferenciaMenu);
+
+  // Registrar el menú principal en la interfaz
+  ui.createMenu('OneTwentyOne - Admin')
+    .addSubMenu(vigiliaMenu)
+    .addSubMenu(conferenciaMenu)
+    .addToUi();
+}
+
+/**
+ * Envía una prueba del correo de "Mañana nos encontramos" al administrador.
+ */
+function enviarPruebaVigiliaManana() {
+  var adminEmail = "kevito.valdez@gmail.com";
+  try {
+    enviarCorreoRecordatorioVigilia(adminEmail, "Kevin (Prueba)", "Valdez", false);
+    SpreadsheetApp.getUi().alert("Correo de prueba (Mañana nos encontramos) enviado a " + adminEmail);
+  } catch (e) {
+    SpreadsheetApp.getUi().alert("Error al enviar prueba: " + e.toString());
+  }
+}
+
+/**
+ * Envía una prueba del correo de "Hoy es el día" al administrador.
+ */
+function enviarPruebaVigiliaHoy() {
+  var adminEmail = "kevito.valdez@gmail.com";
+  try {
+    enviarCorreoRecordatorioVigilia(adminEmail, "Kevin (Prueba)", "Valdez", true);
+    SpreadsheetApp.getUi().alert("Correo de prueba (Hoy es el día) enviado a " + adminEmail);
+  } catch (e) {
+    SpreadsheetApp.getUi().alert("Error al enviar prueba: " + e.toString());
+  }
+}
+
+/**
+ * Envía el correo de "Mañana nos encontramos" de forma masiva a todos los inscritos en la Media Vigilia.
+ */
+function enviarMasivoVigiliaManana() {
+  var ui = SpreadsheetApp.getUi();
+  var response = ui.alert(
+    'Confirmación de envío masivo (Mañana nos encontramos)',
+    '¿Estás seguro de que deseas enviar el mensaje "Mañana nos encontramos" a todos los inscritos en la hoja "Media Vigilia"?',
+    ui.ButtonSet.YES_NO
+  );
+
+  if (response !== ui.Button.YES) {
+    return;
+  }
+
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Media Vigilia");
+  if (!sheet) {
+    ui.alert("Error", "No se encontró la hoja con el nombre 'Media Vigilia'. Asegúrate de que existe.", ui.ButtonSet.OK);
+    return;
+  }
+
+  var data = sheet.getDataRange().getValues();
+  var count = 0;
+
+  for (var i = 1; i < data.length; i++) {
+    var firstName = data[i][3]; // Columna D
+    var lastName = data[i][4]; // Columna E
+    var email = data[i][5]; // Columna F
+
+    if (email && email.trim() !== "") {
+      try {
+        enviarCorreoRecordatorioVigilia(email.trim(), firstName, lastName, false);
+        count++;
+        Utilities.sleep(150); // Pausa prudente para respetar límites de cuota de Apps Script
+      } catch (e) {
+        console.error("Error enviando correo a " + email + ": " + e.toString());
+      }
+    }
+  }
+
+  ui.alert("Proceso completado", "Se han enviado " + count + " correos de recordatorio (Mañana nos encontramos).", ui.ButtonSet.OK);
+}
+
+/**
+ * Envía el correo de "Hoy es el día" de forma masiva a todos los inscritos en la Media Vigilia.
+ */
+function enviarMasivoVigiliaHoy() {
+  var ui = SpreadsheetApp.getUi();
+  var response = ui.alert(
+    'Confirmación de envío masivo (Hoy es el día)',
+    '¿Estás seguro de que deseas enviar el mensaje "Hoy es el día" a todos los inscritos en la hoja "Media Vigilia"?',
+    ui.ButtonSet.YES_NO
+  );
+
+  if (response !== ui.Button.YES) {
+    return;
+  }
+
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Media Vigilia");
+  if (!sheet) {
+    ui.alert("Error", "No se encontró la hoja con el nombre 'Media Vigilia'. Asegúrate de que existe.", ui.ButtonSet.OK);
+    return;
+  }
+
+  var data = sheet.getDataRange().getValues();
+  var count = 0;
+
+  for (var i = 1; i < data.length; i++) {
+    var firstName = data[i][3]; // Columna D
+    var lastName = data[i][4]; // Columna E
+    var email = data[i][5]; // Columna F
+
+    if (email && email.trim() !== "") {
+      try {
+        enviarCorreoRecordatorioVigilia(email.trim(), firstName, lastName, true);
+        count++;
+        Utilities.sleep(150); // Pausa prudente para respetar límites de cuota de Apps Script
+      } catch (e) {
+        console.error("Error enviando correo a " + email + ": " + e.toString());
+      }
+    }
+  }
+
+  ui.alert("Proceso completado", "Se han enviado " + count + " correos de recordatorio (Hoy es el día).", ui.ButtonSet.OK);
+}
+
+function enviarCorreoRecordatorioVigilia(email, firstName, lastName, isHoy) {
+  var subject = isHoy
+    ? "🔥 Hoy es el día 🤍 | Media Vigilia RESET"
+    : "🔔 Mañana nos encontramos 🤍 | Media Vigilia RESET";
+
+  var htmlMessage = isHoy
+    ? `<strong>Hoy es el día. 🤍</strong><br><br>
+       En pocas horas estaremos juntos en nuestra Media Vigilia: <span style="color: #FF3800; font-weight: bold;">+ Cristo − yo</span>.<br><br>
+       A las 6:00 p. m. comenzamos, y queremos recordarte algo sencillo: ven con un corazón dispuesto.<br><br>
+       Dispuesto a escuchar.<br>
+       Dispuesto a ser confrontado por la Palabra.<br>
+       Dispuesto a dejar a un lado el ruido, las cargas y el “yo”, para poner nuestra mirada en Cristo.<br><br>
+       No vengas esperando simplemente una actividad más.<br>
+       Ven esperando que Dios use Su Palabra para trabajar en tu corazón.<br><br>
+       Si el “yo” mengua, Cristo crece.<br><br>
+       🕕 <strong>Hoy | 6:00 p. m.</strong><br><br>
+       Nos vemos en unas horas.<br><br>
+       <span style="color: #FF3800; font-weight: bold; font-size: 18px;">+ Cristo</span><br>
+       <span style="color: #a69385; font-weight: bold; font-size: 18px;">− yo</span>`
+    : `<strong>Mañana nos encontramos. 🤍</strong><br><br>
+       Estamos a solo un día de nuestra Media Vigilia: <span style="color: #FF3800; font-weight: bold;">+ Cristo − yo</span>.<br><br>
+       Más que una actividad, queremos que sea un tiempo para detenernos, silenciar el ruido y volver nuestra atención a quien verdaderamente importa: Cristo.<br><br>
+       No tienes que llevar nada especial.<br>
+       Solo preséntate dispuesto a escuchar a Cristo, a ser confrontado por Su Palabra y a rendir aquello que todavía ocupa demasiado espacio en ti.<br><br>
+       Porque mientras Cristo crece en nosotros, el “yo” debe menguar.<br><br>
+       📅 <strong>Mañana, sábado 22 de agosto</strong><br>
+       🕕 <strong>Iniciamos a las 6:00 p. m.</strong><br><br>
+       Ven con un corazón dispuesto.<br><br>
+       <span style="color: #FF3800; font-weight: bold; font-size: 18px;">+ Cristo</span><br>
+       <span style="color: #a69385; font-weight: bold; font-size: 18px;">− yo</span>`;
+
+  var htmlBody = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+    </head>
+    <body style="background-color: #030202; color: #ffffff; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+      <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #030202; padding: 40px 20px;">
+        <tr>
+          <td align="center">
+            <table width="100%" max-width="500" border="0" cellspacing="0" cellpadding="0" style="max-width: 500px; background-color: #0b0a0a; border: 1px solid #FF3800; border-radius: 16px; padding: 32px; text-align: left;">
+              <tr>
+                <td align="center" style="padding-bottom: 24px; border-bottom: 1px solid #FF3800;">
+                  <div style="color: #a69385; font-size: 11px; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 6px;">Pre-Conferencia: Media Vigilia</div>
+                  <div style="font-size: 24px; font-weight: 800; color: #FF3800; letter-spacing: -0.5px;">RESET</div>
+                  <div style="color: #666666; font-size: 13px; margin-top: 4px;">OneTwentyOne</div>
+                </td>
+              </tr>
+              <!-- Portada de la Media Vigilia -->
+              <tr>
+                <td align="center" style="padding-top: 24px;">
+                  <img src="https://ministeriodejovenesicc.netlify.app/media-vigilia-reset.jpeg" alt="Media Vigilia RESET 2026" style="width: 100%; max-width: 100%; height: auto; border-radius: 8px; border: 1px solid #FF3800; display: block;" />
+                </td>
+              </tr>
+              <tr>
+                <td style="font-size: 15px; color: #dddddd; line-height: 1.6; padding: 24px 0 16px 0;">
+                  ¡Hola <strong>${firstName}</strong>! 👋<br><br>
+                  ${htmlMessage}
+                </td>
+              </tr>
+              <tr>
+                <td style="padding-top: 24px; font-size: 12px; color: #a69385; line-height: 1.5; border-top: 1px solid #FF3800; margin-top: 24px;">
+                  Si tienes alguna duda o necesitas asistencia, escríbenos a nuestra cuenta de Instagram <a href="https://www.instagram.com/onetwentyoneicc" target="_blank" style="color: #ffffff; text-decoration: underline;">@onetwentyoneicc</a>.
                 </td>
               </tr>
             </table>
@@ -397,17 +724,8 @@ function enviarCorreoConfirmacion(data) {
     to: email,
     subject: subject,
     htmlBody: htmlBody,
-    name: isVigilia ? "Media Vigilia RESET" : "Sin Filtros 2026"
+    name: "Media Vigilia RESET"
   });
-
-  console.log("Correo enviado con éxito.");
-}
-
-/**
- * 4. FUNCIÓN AUXILIAR PARA FORZAR PERMISOS
- */
-function probarPermisos() {
-  MailApp.sendEmail(Session.getActiveUser().getEmail(), "Prueba de Permisos", "Si lees esto, los permisos están activos.");
 }
 
 
@@ -604,7 +922,7 @@ function enviarCorreoNotificacionExtension(data) {
               </tr>
               <tr>
                 <td style="padding-top: 24px; font-size: 12px; color: ${theme.textColorMuted}; line-height: 1.5; border-top: 1px solid ${theme.cardBorderColor}; margin-top: 24px;">
-                  Si tienes alguna duda o necesitas modificar tus datos de registro, escríbenos a nuestra cuenta de Instagram <a href="https://instagram.com/onetwentyone.icc" target="_blank" style="color: #ffffff; text-decoration: underline;">@onetwentyone.icc</a>.
+                  Si tienes alguna duda o necesitas modificar tus datos de registro, escríbenos a nuestra cuenta de Instagram <a href="https://www.instagram.com/onetwentyoneicc" target="_blank" style="color: #ffffff; text-decoration: underline;">@onetwentyoneicc</a>.
                 </td>
               </tr>
             </table>
@@ -746,7 +1064,7 @@ function enviarCorreoInvitacionMercancia(data) {
               </tr>
               <tr>
                 <td style="padding-top: 24px; font-size: 12px; color: ${theme.textColorMuted}; line-height: 1.5; border-top: 1px solid ${theme.cardBorderColor}; margin-top: 24px;">
-                  Si tienes alguna duda o necesitas asistencia, escríbenos a nuestra cuenta de Instagram <a href="https://instagram.com/onetwentyone.icc" target="_blank" style="color: #ffffff; text-decoration: underline;">@onetwentyone.icc</a>.
+                  Si tienes alguna duda o necesitas asistencia, escríbenos a nuestra cuenta de Instagram <a href="https://www.instagram.com/onetwentyoneicc" target="_blank" style="color: #ffffff; text-decoration: underline;">@onetwentyoneicc</a>.
                 </td>
               </tr>
             </table>
@@ -920,7 +1238,7 @@ function enviarCorreoPagoConfirmado(data) {
               </tr>
               <tr>
                 <td style="padding-top: 24px; font-size: 12px; color: ${theme.textColorMuted}; line-height: 1.5; border-top: 1px solid ${theme.cardBorderColor}; margin-top: 24px;">
-                  Si tienes alguna duda o necesitas asistencia, escríbenos a nuestra cuenta de Instagram <a href="https://instagram.com/onetwentyone.icc" target="_blank" style="color: #ffffff; text-decoration: underline;">@onetwentyone.icc</a>.
+                  Si tienes alguna duda o necesitas asistencia, escríbenos a nuestra cuenta de Instagram <a href="https://www.instagram.com/onetwentyoneicc" target="_blank" style="color: #ffffff; text-decoration: underline;">@onetwentyoneicc</a>.
                 </td>
               </tr>
             </table>

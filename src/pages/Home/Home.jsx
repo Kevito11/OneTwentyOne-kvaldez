@@ -4,6 +4,10 @@ import { Calendar, MapPin, ArrowRight, Clock, Plus, Star, ExternalLink, ChevronL
 import { getImageUrl } from '../../config/images';
 import './Home.css';
 
+// Reemplaza este valor con el ID de la publicación de Instagram (ej. "C_abc123") cuando esté lista.
+// Mientras sea "placeholder", se mostrará un banner informativo con enlace a Instagram.
+const VIGILIA_INSTAGRAM_POST_ID = "placeholder";
+
 // Componente para imágenes del Lightbox con animación fluida onLoad
 const LightboxImage = ({ src, alt }) => {
   const [loaded, setLoaded] = useState(false);
@@ -39,9 +43,6 @@ const getDynamicTargetDate = (month, day, hour = 0, minute = 0) => {
 };
 
 const Home = () => {
-  // Featured Event Card Carousel (Media Vigilia RESET & Conferencia)
-  const [activeFeaturedCard, setActiveFeaturedCard] = useState(0); // 0 = RESET, 1 = Conferencia
-  const [showResetDetails, setShowResetDetails] = useState(false);
   const [showConfDetails, setShowConfDetails] = useState(false);
   const [modalScrolled, setModalScrolled] = useState(false);
 
@@ -55,20 +56,12 @@ const Home = () => {
 
   useEffect(() => {
     setModalScrolled(false);
-  }, [showResetDetails, showConfDetails]);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setActiveFeaturedCard((prev) => (prev + 1) % 2);
-    }, 5000); // Swaps card after 5 seconds of inactivity
-    return () => clearTimeout(timer);
-  }, [activeFeaturedCard]);
+  }, [showConfDetails]);
 
   // Targets
-  const resetTarget = getDynamicTargetDate(8, 22, 18, 0);
   const confTarget = getDynamicTargetDate(8, 29, 15, 0);
 
-  // Countdown Logic (Dynamic based on activeFeaturedCard)
+  // Countdown Logic
   const [timeLeft, setTimeLeft] = useState({
     days: 0,
     hours: 0,
@@ -78,7 +71,7 @@ const Home = () => {
   });
 
   useEffect(() => {
-    const targetDate = activeFeaturedCard === 0 ? resetTarget : confTarget;
+    const targetDate = confTarget;
 
     const calculateTimeLeft = () => {
       const now = new Date().getTime();
@@ -102,7 +95,7 @@ const Home = () => {
     calculateTimeLeft();
     const interval = setInterval(calculateTimeLeft, 1000);
     return () => clearInterval(interval);
-  }, [activeFeaturedCard]);
+  }, []);
 
   // Listen to hash changes for real-time image updates during local testing
   const [, setHashTrigger] = useState(window.location.hash);
@@ -258,12 +251,6 @@ const Home = () => {
       } else if (!isNext && lightboxIndex > 0) {
         setLightboxIndex(prev => prev - 1);
       }
-    } else if (type === 'featured') {
-      if (isNext) {
-        setActiveFeaturedCard((prev) => Math.min(prev + 1, 1));
-      } else {
-        setActiveFeaturedCard((prev) => Math.max(prev - 1, 0));
-      }
     }
   };
 
@@ -317,7 +304,7 @@ const Home = () => {
   // Bloquear el scroll del fondo cuando el lightbox o modal está abierto (sin visual jumps) y escuchar teclado
   useEffect(() => {
     const isLightboxOpen = lightboxIndex !== null || comunidadLightboxIndex !== null;
-    const isModalOpen = showConfDetails || showResetDetails;
+    const isModalOpen = showConfDetails;
     const shouldBlockScroll = isLightboxOpen || isModalOpen;
 
     if (shouldBlockScroll) {
@@ -341,7 +328,6 @@ const Home = () => {
         setLightboxIndex(null);
         setComunidadLightboxIndex(null);
         setShowConfDetails(false);
-        setShowResetDetails(false);
       } else if (isLightboxOpen && e.key === 'ArrowRight') {
         if (comunidadLightboxIndex !== null && comunidadLightboxIndex < comunidadImages.length - 1) {
           e.preventDefault();
@@ -368,7 +354,7 @@ const Home = () => {
       document.body.classList.remove('lightbox-active');
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [lightboxIndex, comunidadLightboxIndex, showConfDetails, showResetDetails]);
+  }, [lightboxIndex, comunidadLightboxIndex, showConfDetails]);
 
   return (
     <div className="home-page animate-fade-in">
@@ -405,198 +391,73 @@ const Home = () => {
                 </a>
               </div>
             </div>
-            
+
             <div className="hero-featured-col">
-              <div 
-                className="hero-featured-card glass-panel"
-                {...getSwipeHandlers('featured')}
-              >
+              <div className="hero-featured-card glass-panel animate-fade-in">
                 <div 
-                  className="featured-carousel-track"
-                  style={{
-                    display: 'flex',
-                    width: '200%',
-                    transform: `translateX(-${activeFeaturedCard * 50}%)`,
-                    transition: 'transform 0.65s cubic-bezier(0.16, 1, 0.3, 1)'
-                  }}
+                  className="featured-card-image-wrap"
+                  onClick={() => setShowConfDetails(true)}
+                  style={{ cursor: 'pointer' }}
+                  title="Haz clic para ver detalles de la conferencia"
                 >
-                  {/* Slide 0: Media Vigilia RESET */}
-                  <div style={{ width: '50%', flexShrink: 0 }} className="vigilia-theme">
-                    <div 
-                      className="featured-card-image-wrap"
-                      onClick={(e) => {
-                        if (isDragging.current) return;
-                        setShowResetDetails(true);
-                      }}
-                      style={{ cursor: 'pointer' }}
-                      title="Haz clic para ver detalles de RESET"
-                    >
-                      <img 
-                        src={getImageUrl('/media-vigilia-reset.jpeg')} 
-                        alt="Afiche Media Vigilia RESET" 
-                        className="featured-card-poster"
-                        style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
-                      />
-                      <div className="featured-card-badge" style={{ background: 'var(--accent-gradient)', color: '#12100e' }}>PRE-CONFERENCIA</div>
+                  <div className="poster-carousel-track">
+                    <div className={`poster-carousel-item ${activePosterIndex === 0 ? 'active' : ''}`}>
+                      <img src={posterImages[0]} alt="Afiche Conferencia Sin Filtros 2026 - Opción 1" className="featured-card-poster" />
                     </div>
-                    <div className="featured-card-details">
-                      <h3>Media Vigilia "RESET"</h3>
-                      <div className="featured-card-meta">
-                        <Clock size={14} style={{ color: 'var(--accent-blue)', flexShrink: 0 }} />
-                        <span>Sáb. 22 de Agosto - 06:00 PM</span>
-                      </div>
-                      <div style={{ display: 'flex', gap: '0.8rem', marginTop: '0.4rem' }}>
-                        <button 
-                          onClick={(e) => {
-                            if (isDragging.current) return;
-                            setShowResetDetails(true);
-                          }} 
-                          className="btn-secondary-sm"
-                          style={{ 
-                            flex: 1, 
-                            fontSize: '0.85rem', 
-                            padding: '0.65rem 1rem', 
-                            borderRadius: '50px',
-                            border: '1px solid rgba(255, 255, 255, 0.15)',
-                            background: 'rgba(255, 255, 255, 0.05)',
-                            color: 'var(--text-primary)',
-                            cursor: 'pointer',
-                            fontWeight: '700',
-                            textAlign: 'center',
-                            transition: 'all 0.2s ease'
-                          }}
-                        >
-                          Ver Info
-                        </button>
-                        <Link 
-                          to="/registro?event=vigilia" 
-                          className="btn-primary-sm"
-                          style={{ flex: 1, margin: 0, padding: '0.65rem 1rem', fontSize: '0.85rem', textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-                          onClick={(e) => {
-                            if (isDragging.current) e.preventDefault();
-                          }}
-                        >
-                          Registrarse
-                        </Link>
-                      </div>
+                    <div className={`poster-carousel-item ${activePosterIndex === 1 ? 'active' : ''}`}>
+                      <img src={posterImages[1]} alt="Afiche Conferencia Sin Filtros 2026 - Opción 2" className="featured-card-poster" />
                     </div>
                   </div>
-
-                  {/* Slide 1: Conferencia */}
-                  <div style={{ width: '50%', flexShrink: 0 }}>
-                    <div 
-                      className="featured-card-image-wrap"
-                      onClick={(e) => {
-                        if (isDragging.current) return;
-                        setShowConfDetails(true);
-                      }}
-                      style={{ cursor: 'pointer' }}
-                      title="Haz clic para ver detalles de la conferencia"
-                    >
-                      <div className="poster-carousel-track">
-                        <div className={`poster-carousel-item ${activePosterIndex === 0 ? 'active' : ''}`}>
-                          <img src={posterImages[0]} alt="Afiche Conferencia Sin Filtros 2026 - Opción 1" className="featured-card-poster" />
-                        </div>
-                        <div className={`poster-carousel-item ${activePosterIndex === 1 ? 'active' : ''}`}>
-                          <img src={posterImages[1]} alt="Afiche Conferencia Sin Filtros 2026 - Opción 2" className="featured-card-poster" />
-                        </div>
-                      </div>
-                      <div className="featured-card-badge">PRÓXIMO EVENTO</div>
-                      <div className="poster-carousel-dots">
-                        {posterImages.map((_, idx) => (
-                          <button 
-                            key={idx} 
-                            className={`poster-dot ${activePosterIndex === idx ? 'active' : ''}`}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              e.preventDefault();
-                              setActivePosterIndex(idx);
-                            }}
-                            aria-label={`Ver afiche ${idx + 1}`}
-                          />
-                        ))}
-                      </div>
-                    </div>
-                    <div className="featured-card-details">
-                      <h3>Conferencia "Sin Filtros" 2026</h3>
-                      <div className="featured-card-meta">
-                        <Clock size={14} style={{ color: 'var(--accent-blue)', flexShrink: 0 }} />
-                        <span>Sáb. 29 de Agosto - 03:00 PM</span>
-                      </div>
-                      <div style={{ display: 'flex', gap: '0.8rem', marginTop: '0.4rem' }}>
-                        <button 
-                          onClick={(e) => {
-                            if (isDragging.current) return;
-                            setShowConfDetails(true);
-                          }} 
-                          className="btn-secondary-sm"
-                          style={{ 
-                            flex: 1, 
-                            fontSize: '0.85rem', 
-                            padding: '0.65rem 1rem', 
-                            borderRadius: '50px',
-                            border: '1px solid rgba(255, 255, 255, 0.15)',
-                            background: 'rgba(255, 255, 255, 0.05)',
-                            color: 'var(--text-primary)',
-                            cursor: 'pointer',
-                            fontWeight: '700',
-                            textAlign: 'center',
-                            transition: 'all 0.2s ease'
-                          }}
-                        >
-                          Ver Info
-                        </button>
-                        <Link 
-                          to="/registro" 
-                          className="btn-primary-sm"
-                          style={{ flex: 1, margin: 0, padding: '0.65rem 1rem', fontSize: '0.85rem' }}
-                          onClick={(e) => {
-                            if (isDragging.current) e.preventDefault();
-                          }}
-                        >
-                          Registrarse
-                        </Link>
-                      </div>
-                    </div>
+                  <div className="featured-card-badge">PRÓXIMO EVENTO</div>
+                  <div className="poster-carousel-dots">
+                    {posterImages.map((_, idx) => (
+                      <button 
+                        key={idx} 
+                        className={`poster-dot ${activePosterIndex === idx ? 'active' : ''}`}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          e.preventDefault();
+                          setActivePosterIndex(idx);
+                        }}
+                        aria-label={`Ver afiche ${idx + 1}`}
+                      />
+                    ))}
                   </div>
                 </div>
-                
-                {/* Carousel navigation indicators at the bottom of the card */}
-                <div style={{
-                  display: 'flex',
-                  justifyContent: 'center',
-                  gap: '0.5rem',
-                  paddingBottom: '1.2rem',
-                  marginTop: '-0.2rem',
-                  position: 'relative',
-                  zIndex: 5
-                }}>
-                  <button 
-                    onClick={() => setActiveFeaturedCard(0)} 
-                    style={{
-                      width: activeFeaturedCard === 0 ? '24px' : '12px',
-                      height: '6px',
-                      borderRadius: '3px',
-                      border: 'none',
-                      background: activeFeaturedCard === 0 ? 'var(--text-primary)' : 'rgba(255, 255, 255, 0.2)',
-                      cursor: 'pointer',
-                      transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)'
-                    }}
-                    aria-label="Ver Media Vigilia RESET"
-                  />
-                  <button 
-                    onClick={() => setActiveFeaturedCard(1)} 
-                    style={{
-                      width: activeFeaturedCard === 1 ? '24px' : '12px',
-                      height: '6px',
-                      borderRadius: '3px',
-                      border: 'none',
-                      background: activeFeaturedCard === 1 ? 'var(--text-primary)' : 'rgba(255, 255, 255, 0.2)',
-                      cursor: 'pointer',
-                      transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)'
-                    }}
-                    aria-label="Ver Conferencia Sin Filtros"
-                  />
+                <div className="featured-card-details">
+                  <h3>Conferencia "Sin Filtros" 2026</h3>
+                  <div className="featured-card-meta">
+                    <Clock size={14} style={{ color: 'var(--accent-blue)', flexShrink: 0 }} />
+                    <span>Sáb. 29 de Agosto - 03:00 PM</span>
+                  </div>
+                  <div style={{ display: 'flex', gap: '0.8rem', marginTop: '0.4rem' }}>
+                    <button 
+                      onClick={() => setShowConfDetails(true)} 
+                      className="btn-secondary-sm"
+                      style={{ 
+                        flex: 1, 
+                        fontSize: '0.85rem', 
+                        padding: '0.65rem 1rem', 
+                        borderRadius: '50px',
+                        border: '1px solid rgba(255, 255, 255, 0.15)',
+                        background: 'rgba(255, 255, 255, 0.05)',
+                        color: 'var(--text-primary)',
+                        cursor: 'pointer',
+                        fontWeight: '700',
+                        textAlign: 'center',
+                        transition: 'all 0.2s ease'
+                      }}
+                    >
+                      Ver Info
+                    </button>
+                    <Link 
+                      to="/registro" 
+                      className="btn-primary-sm"
+                      style={{ flex: 1, margin: 0, padding: '0.65rem 1rem', fontSize: '0.85rem', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}
+                    >
+                      Registrarse
+                    </Link>
+                  </div>
                 </div>
               </div>
             </div>
@@ -607,11 +468,9 @@ const Home = () => {
       {/* Countdown Section */}
       <section className="countdown-section">
         <div className="container">
-          <div className={`countdown-wrapper glass-panel ${activeFeaturedCard === 0 ? 'vigilia-theme' : ''}`}>
+          <div className="countdown-wrapper glass-panel">
             <h2 className="countdown-title">
-              {activeFeaturedCard === 0 
-                ? (timeLeft.isExpired ? "¡La Media Vigilia 'RESET' ya ha comenzado!" : "¡La Media Vigilia 'RESET' está por comenzar!")
-                : (timeLeft.isExpired ? "¡La conferencia 'Sin Filtros' ya ha comenzado!" : "¡La conferencia 'Sin Filtros' está por comenzar!")}
+              {timeLeft.isExpired ? "¡La conferencia 'Sin Filtros' ya ha comenzado!" : "¡La conferencia 'Sin Filtros' está por comenzar!"}
             </h2>
             <div className="countdown-timer">
               <div className="time-block">
@@ -638,6 +497,76 @@ const Home = () => {
         </div>
       </section>
 
+
+      {/* Active Pre-Registrations Section */}
+      <section className="pre-registrations-section section-padding" style={{ backgroundColor: 'rgba(10, 10, 10, 0.25)' }}>
+        <div className="container">
+          <div className="section-header">
+            <h2>Pre-Registros <span className="text-gradient">Disponibles</span></h2>
+            <p>Asegura tu cupo con anticipación en nuestras próximas actividades especiales. Los montos de cobro y métodos de pago se notificarán más adelante.</p>
+          </div>
+
+          <div className="pre-regs-grid">
+            {/* Card 1: Cena de Jóvenes */}
+            <div className="pre-reg-card cena glass-panel">
+              <div className="pre-reg-badge">
+                PRE-REGISTRO
+              </div>
+              <h3 className="pre-reg-title">Cena de Jóvenes ICC 2026</h3>
+              <p className="pre-reg-desc">
+                Acompáñanos a celebrar juntos este año de fe y bendición. Una noche especial llena de comunión, cena y edificación para cerrar el año de la mejor manera.
+              </p>
+              
+              <div className="pre-reg-meta-list">
+                <div className="pre-reg-meta-item">
+                  <Calendar size={14} style={{ color: '#db2777' }} />
+                  <span>Sábado 5 de Diciembre, 2026</span>
+                </div>
+                <div className="pre-reg-meta-item">
+                  <Clock size={14} style={{ color: '#db2777' }} />
+                  <span>Precio: Por anunciar</span>
+                </div>
+              </div>
+
+              <Link 
+                to="/registro?event=cena" 
+                className="pre-reg-btn"
+              >
+                Pre-Registrarse Ahora
+              </Link>
+            </div>
+
+            {/* Card 2: Campamento */}
+            <div className="pre-reg-card campamento glass-panel">
+              <div className="pre-reg-badge">
+                PRE-REGISTRO
+              </div>
+              <h3 className="pre-reg-title">Campamento Jóvenes ICC 2027</h3>
+              <p className="pre-reg-desc">
+                Un tiempo extraordinario en la presencia del Señor, apartados en la naturaleza para la búsqueda y renovación espiritual de nuestro ministerio de jóvenes.
+              </p>
+              
+              <div className="pre-reg-meta-list">
+                <div className="pre-reg-meta-item">
+                  <Calendar size={14} style={{ color: '#059669' }} />
+                  <span>16 al 18 de Abril, 2027</span>
+                </div>
+                <div className="pre-reg-meta-item">
+                  <Clock size={14} style={{ color: '#059669' }} />
+                  <span>Precio: Por anunciar</span>
+                </div>
+              </div>
+
+              <Link 
+                to="/registro?event=campamento" 
+                className="pre-reg-btn"
+              >
+                Pre-Registrarse Ahora
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
 
       {/* FAQ Section */}
       <section className="faq-section section-padding" style={{ backgroundColor: 'rgba(10, 10, 10, 0.45)' }}>
@@ -1145,111 +1074,6 @@ const Home = () => {
                         rel="noopener noreferrer" 
                         className="btn-primary"
                         style={{ width: 'fit-content', padding: '0.7rem 1.5rem', fontSize: '0.9rem' }}
-                      >
-                        <MapPin size={16} />
-                        Abrir en Google Maps
-                      </a>
-                      <a 
-                        href="https://www.convertidosacristo.org/" 
-                        target="_blank" 
-                        rel="noopener noreferrer" 
-                        className="feature-link"
-                        style={{ marginTop: '0.3rem', width: 'fit-content', display: 'flex', alignItems: 'center', gap: '5px', fontSize: '0.85rem' }}
-                      >
-                        Web de la Iglesia <ExternalLink size={12} />
-                      </a>
-                    </div>
-                  </div>
-                  
-                  <div className="location-map-mock" style={{ height: '220px' }}>
-                    <div className="map-mock-bg"></div>
-                    <div className="map-pin-pulse">
-                      <div className="pin-icon-wrap" style={{ width: '40px', height: '40px' }}>
-                        <MapPin size={20} />
-                      </div>
-                      <div className="pin-tag" style={{ fontSize: '0.75rem', padding: '0.3rem 0.8rem' }}>ICC Santo Domingo</div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Modal de Detalles de la Media Vigilia RESET */}
-      {showResetDetails && (
-        <div className="modal-overlay vigilia-theme" onClick={() => setShowResetDetails(false)}>
-          <div className="modal-content glass-panel" onClick={(e) => e.stopPropagation()}>
-            <button 
-              className="modal-close-btn" 
-              onClick={() => setShowResetDetails(false)}
-              aria-label="Cerrar detalles"
-            >
-              <X size={24} />
-            </button>
-            
-            <div className={`modal-compact-header ${modalScrolled ? 'visible' : ''}`}>
-              <span className="compact-header-title" title='Media Vigilia "RESET"'>Media Vigilia "RESET"</span>
-            </div>
-            
-            <div className="modal-body-scroll" onScroll={handleModalScroll}>
-              <div className="modal-header">
-                <span className="modal-subtitle">Pre-Conferencia: Media Vigilia</span>
-                <h2 className="modal-title text-gradient">Media Vigilia "RESET"</h2>
-              </div>
-              <div className="modal-section" style={{ marginBottom: '2.5rem' }}>
-                <p style={{ fontSize: '1.1rem', lineHeight: '1.7', color: 'var(--text-secondary)' }}>
-                  Una actividad especial conectada con la conferencia <strong>"Sin Filtros" 2026</strong>. 
-                  Esta Media Vigilia está diseñada con el propósito de preparar nuestros corazones, buscar al Señor en oración unida, clamar por Su gracia y el impacto espiritual de la conferencia en nuestra juventud. ¡Te esperamos para juntos buscar el rostro del Señor!
-                </p>
-              </div>
-
-              <div className="modal-section" style={{ marginBottom: '2.5rem' }}>
-                <div className="activity-details" style={{ borderTop: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
-                  <div className="detail-item" style={{ fontSize: '1.05rem', display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
-                    <Calendar size={20} className="detail-icon" style={{ color: 'var(--accent-blue)' }} />
-                    <span><strong>Fecha:</strong> Sábado 22 de Agosto, 2026</span>
-                  </div>
-                  <div className="detail-item" style={{ fontSize: '1.05rem', display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
-                    <Clock size={20} className="detail-icon" style={{ color: 'var(--accent-blue)' }} />
-                    <span><strong>Hora:</strong> El registro abre a las 06:00 PM</span>
-                  </div>
-                  <div className="detail-item" style={{ fontSize: '1.05rem', display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
-                    <MapPin size={20} className="detail-icon" style={{ color: 'var(--accent-blue)' }} />
-                    <span><strong>Lugar:</strong> Salón Principal, Iglesia de Convertidos a Cristo (ICC)</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Location Section */}
-              <div className="modal-section" style={{ marginTop: '2rem' }}>
-                <h3 className="modal-section-title">Ubicación del Evento</h3>
-                <div className="location-panel glass-panel" style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '2rem', padding: '2rem' }}>
-                  <div className="location-info-block">
-                    <span className="location-badge">Lugar del Evento</span>
-                    <h3>Iglesia de Convertidos a Cristo</h3>
-                    <p className="location-address" style={{ fontSize: '0.95rem', marginBottom: '1.5rem', lineHeight: '1.6', color: 'var(--text-secondary)' }}>
-                      Calle Dr. Núñez Domínguez #30,<br />
-                      Ensanche La Julia, Santo Domingo 10109,<br />
-                      República Dominicana.
-                    </p>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
-                      <Link 
-                        to="/registro?event=vigilia" 
-                        className="btn-primary"
-                        style={{ width: 'fit-content', padding: '0.7rem 1.5rem', fontSize: '0.9rem', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '8px' }}
-                        onClick={() => setShowResetDetails(false)}
-                      >
-                        <Ticket size={16} />
-                        Registrarse Gratis
-                      </Link>
-                      <a 
-                        href="https://maps.app.goo.gl/jRX8PC4S3oVrPMQz6" 
-                        target="_blank" 
-                        rel="noopener noreferrer" 
-                        className="btn-secondary"
-                        style={{ width: 'fit-content', padding: '0.7rem 1.5rem', fontSize: '0.9rem', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '8px' }}
                       >
                         <MapPin size={16} />
                         Abrir en Google Maps
