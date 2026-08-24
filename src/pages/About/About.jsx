@@ -33,7 +33,7 @@ const About = () => {
           <span className="subtitle">Nuestra Identidad</span>
           <h1 className="title">Jóvenes <span className="text-gradient">ICC</span></h1>
           <p className="description">
-            Somos el ministerio de jóvenes de la <strong>Iglesia de Convertidos a Cristo (ICC)</strong>.
+            Somos el ministerio de jóvenes de la <strong>Iglesia De Convertidos a Cristo (ICC)</strong>.
             Integramos dos grupos enfocados en diferentes etapas de la juventud:
             <strong> Jóvenes Para Cristo (JPC)</strong> para adolescentes y
             <strong> Siervos Para Cristo (OneTwentyOne)</strong> para jóvenes adultos.
@@ -70,9 +70,9 @@ const About = () => {
         {/* The Church Section */}
         <section className="church-section glass-panel">
           <div className="church-content">
-            <h2>Nuestra Casa: Iglesia de Convertidos a Cristo</h2>
+            <h2>Nuestra Casa: Iglesia De Convertidos a Cristo</h2>
             <p>
-              La <strong>Iglesia de Convertidos a Cristo (ICC)</strong> fue fundada el domingo <strong>19 de septiembre de 1982</strong> por el pastor **Arq. José R. Mallén Malla**, quien por gracia de Dios dejó su profesión para dedicarse enteramente al pastoreo y la proclamación del Evangelio. Iniciando en la sala de su propio hogar, la obra creció por la gracia divina y en 1988 se estableció en su local actual en el sector La Julia, en Santo Domingo, República Dominicana.
+              La <strong>Iglesia De Convertidos a Cristo (ICC)</strong> fue fundada el domingo <strong>19 de septiembre de 1982</strong> por el pastor **Arq. José R. Mallén Malla**, quien por gracia de Dios dejó su profesión para dedicarse enteramente al pastoreo y la proclamación del Evangelio. Iniciando en la sala de su propio hogar, la obra creció por la gracia divina y en 1988 se estableció en su local actual en el sector La Julia, en Santo Domingo, República Dominicana.
             </p>
             <p>
               Tras la partida del amado pastor Mallén a la presencia del Señor en junio de 2021, la iglesia continúa fielmente administrada por un fiel cuerpo de pastores y diáconos, manteniendo con celo e integridad su compromiso con la **sana doctrina, la predicación expositiva** y la edificación del cuerpo de Cristo. Todas las prédicas de los domingos se suben a nuestro canal oficial de YouTube para la edificación de la iglesia.

@@ -261,7 +261,7 @@ const TicketVerification = () => {
 
                   <div className="ticket-info-item">
                     <span className="ticket-info-label">Iglesia</span>
-                    <span className="ticket-info-value">{ticketData.church || 'Iglesia de Convertidos a Cristo'}</span>
+                    <span className="ticket-info-value">{ticketData.church || 'Iglesia De Convertidos a Cristo'}</span>
                   </div>
                 </div>
 
@@ -399,7 +399,7 @@ const TicketVerification = () => {
                 <div className="ticket-info-item" style={{ maxWidth: '70%' }}>
                   <span className="ticket-info-label">Ubicación / Lugar</span>
                   <span className="ticket-info-value" style={{ fontSize: '0.9rem', fontWeight: '500' }}>
-                    Iglesia de Convertidos a Cristo (ICC)<br />
+                    Iglesia De Convertidos a Cristo (ICC)<br />
                     C/ Dr. Núñez Domínguez #30, La Julia, Santo Domingo
                   </span>
                 </div>

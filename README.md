@@ -2,7 +2,7 @@
 
 <p align="center">
   <strong>Sitio Web Oficial y Plataforma de Registro de la Conferencia de Jóvenes OneTwentyOne / Siervos Para Cristo</strong><br />
-  <em>Iglesia de Convertidos a Cristo (ICC) — Santo Domingo, República Dominicana</em>
+  <em>Iglesia De Convertidos a Cristo (ICC) — Santo Domingo, República Dominicana</em>
 </p>
 
 <p align="center">
@@ -21,7 +21,7 @@
 
 ## 📄 Descripción
 
-Este repositorio contiene la plataforma web oficial para el ministerio de jóvenes **OneTwentyOne (Siervos Para Cristo)** de la **Iglesia de Convertidos a Cristo (ICC)**. 
+Este repositorio contiene la plataforma web oficial para el ministerio de jóvenes **OneTwentyOne (Siervos Para Cristo)** de la **Iglesia De Convertidos a Cristo (ICC)**. 
 
 El sitio ha sido diseñado con una **estética monocromática (Black & White) de alto contraste** extremadamente elegante y moderna, inspirada en las tendencias de diseño de redes sociales de la juventud actual. Cuenta con un sistema interactivo de **registro completamente gratuito** que genera boletos virtuales dinámicos para los asistentes a la conferencia anual.
 
@@ -38,7 +38,7 @@ El sitio ha sido diseñado con una **estética monocromática (Black & White) de
 *   📅 **Programa y Cronograma Dinámico**: Cronología por pestañas interactivas para visualizar detalladamente las plenarias, talleres especializados y noches de concierto del evento por días.
 *   🕒 **Cuenta Regresiva en Tiempo Real**: Cronómetro responsivo de precisión que marca el tiempo exacto restante para el día de apertura de la conferencia.
 *   📍 **Geolocalización & Ubicación Integrada**: Enlaces rápidos y visualizaciones interactivas de mapa que dirigen al usuario en un solo clic a la ubicación exacta del templo de la ICC en Google Maps.
-*   📖 **Identidad & Historia Institucional**: Sección Nosotros que detalla la base bíblica del ministerio (**Filipenses 1:21**) y la valiosa historia de fe de la Iglesia de Convertidos a Cristo fundada en 1982 por el pastor Arq. José R. Mallén Malla.
+*   📖 **Identidad & Historia Institucional**: Sección Nosotros que detalla la base bíblica del ministerio (**Filipenses 1:21**) y la valiosa historia de fe de la Iglesia De Convertidos a Cristo fundada en 1982 por el pastor Arq. José R. Mallén Malla.
 *   📱 **100% Responsivo (Pixel-Perfect)**: Optimización milimétrica para móviles compactos (desde `320px` como iPhone SE) y de gran formato, incluyendo un menú desplegable vertical de tipo *Apple-style overlay*.
 
 ---
@@ -105,4 +105,4 @@ npm run build
 ---
 
 ## ⛪ Sobre la Iglesia
-La **Iglesia de Convertidos a Cristo (ICC)** es una congregación comprometida con la sana doctrina y la predicación expositiva de la Palabra de Dios. Visita su página oficial para conocer más: [convertidosacristo.org](https://www.convertidosacristo.org/).
+La **Iglesia De Convertidos a Cristo (ICC)** es una congregación comprometida con la sana doctrina y la predicación expositiva de la Palabra de Dios. Visita su página oficial para conocer más: [convertidosacristo.org](https://www.convertidosacristo.org/).

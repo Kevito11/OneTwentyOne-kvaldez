@@ -160,7 +160,7 @@ const MockQRCode = () => (
 );
 
 const CHURCH_OPTIONS = [
-  "Iglesia de Convertidos a Cristo",
+  "Iglesia De Convertidos a Cristo",
   "Iglesia Bautista Cristiana",
   "IBSJ",
   "Iglesia Bautista Internacional",
@@ -562,7 +562,7 @@ const Registration = () => {
           lastName: formData.lastName,
           email: formData.email,
           phone: formData.phone,
-          church: formData.church || 'Iglesia de Convertidos a Cristo',
+          church: formData.church || 'Iglesia De Convertidos a Cristo',
           ageGroup: formData.ageGroup,
           ticketCode: generatedCode,
           interestedInMerch: (selectedEvent === 'conferencia' && formData.interestedInMerch) ? 'Sí' : 'No',
@@ -1096,7 +1096,7 @@ const Registration = () => {
 
                   <div className="ticket-info-item">
                     <span className="ticket-info-label">Iglesia</span>
-                    <span className="ticket-info-value">{formData.church || 'Iglesia de Convertidos a Cristo'}</span>
+                    <span className="ticket-info-value">{formData.church || 'Iglesia De Convertidos a Cristo'}</span>
                   </div>
                 </div>
 
@@ -1197,7 +1197,7 @@ const Registration = () => {
                 <div className="ticket-info-item" style={{ maxWidth: '70%' }}>
                   <span className="ticket-info-label">Ubicación / Lugar</span>
                   <span className="ticket-info-value" style={{ fontSize: '0.9rem', fontWeight: '500' }}>
-                    Iglesia de Convertidos a Cristo (ICC)<br />
+                    Iglesia De Convertidos a Cristo (ICC)<br />
                     C/ Dr. Núñez Domínguez #30, La Julia, Santo Domingo
                   </span>
                 </div>

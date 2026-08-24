@@ -428,7 +428,7 @@ function enviarCorreoConfirmacion(data) {
                     </tr>
                     <tr>
                       <td style="font-size: 13px; color: #ffffff; padding-bottom: 12px; line-height: 1.4;">
-                        Iglesia de Convertidos a Cristo (ICC)<br>
+                        Iglesia De Convertidos a Cristo (ICC)<br>
                         C/ Dr. Núñez Domínguez #30, La Julia, Santo Domingo
                       </td>
                     </tr>
@@ -453,7 +453,7 @@ function enviarCorreoConfirmacion(data) {
               <tr>
                 <td style="font-size: 10px; color: #555555; line-height: 1.4;">
                   Este correo fue enviado automáticamente por tu registro en la plataforma de OneTwentyOne.<br>
-                  © 2026 Iglesia de Convertidos a Cristo. Todos los derechos reservados.
+                  © 2026 Iglesia De Convertidos a Cristo. Todos los derechos reservados.
                 </td>
               </tr>
             </table>
@@ -709,7 +709,7 @@ function enviarCorreoRecordatorioVigilia(email, firstName, lastName, isHoy) {
               <tr>
                 <td style="font-size: 10px; color: #555555; line-height: 1.4;">
                   Este correo fue enviado automáticamente por tu registro en la plataforma de OneTwentyOne.<br>
-                  © 2026 Iglesia de Convertidos a Cristo. Todos los derechos reservados.
+                  © 2026 Iglesia De Convertidos a Cristo. Todos los derechos reservados.
                 </td>
               </tr>
             </table>
@@ -930,7 +930,7 @@ function enviarCorreoNotificacionExtension(data) {
               <tr>
                 <td style="font-size: 10px; color: #555555; line-height: 1.4;">
                   Este correo fue enviado automáticamente para notificar cambios en los plazos de pago.<br>
-                  © 2026 Iglesia de Convertidos a Cristo. Todos los derechos reservados.
+                  © 2026 Iglesia De Convertidos a Cristo. Todos los derechos reservados.
                 </td>
               </tr>
             </table>
@@ -1072,7 +1072,7 @@ function enviarCorreoInvitacionMercancia(data) {
               <tr>
                 <td style="font-size: 10px; color: #555555; line-height: 1.4;">
                   Este correo fue enviado automáticamente por tu registro en la plataforma de OneTwentyOne.<br>
-                  © 2026 Iglesia de Convertidos a Cristo. Todos los derechos reservados.
+                  © 2026 Iglesia De Convertidos a Cristo. Todos los derechos reservados.
                 </td>
               </tr>
             </table>
@@ -1246,7 +1246,7 @@ function enviarCorreoPagoConfirmado(data) {
               <tr>
                 <td style="font-size: 10px; color: #555555; line-height: 1.4;">
                   Este correo fue enviado automáticamente para confirmar tu pago en la plataforma de OneTwentyOne.<br>
-                  © 2026 Iglesia de Convertidos a Cristo. Todos los derechos reservados.
+                  © 2026 Iglesia De Convertidos a Cristo. Todos los derechos reservados.
                 </td>
               </tr>
             </table>

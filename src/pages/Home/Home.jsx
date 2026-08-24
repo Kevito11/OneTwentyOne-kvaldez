@@ -132,7 +132,7 @@ const Home = () => {
     {
       name: "Pr. Luis Valdera Cáceres",
       role: "Pastor",
-      subtitle: "Iglesia Convertidos a Cristo (ICC)",
+      subtitle: "Iglesia De Convertidos a Cristo (ICC)",
       desc: "Nació en La Vega en 1955. Graduado en Contabilidad y Administración de empresas. Fue reconocido como pastor a tiempo completo en el año 2000, sirviendo en la edificación de la congregación y el desarrollo de ministerios.",
       image: getImageUrl("/pastores/Pr-Luis-Valdera-Sept-2024.jpg"),
       initials: "LV"
@@ -140,15 +140,15 @@ const Home = () => {
     {
       name: "Pr. Narciso Nadal Ortíz",
       role: "Pastor",
-      subtitle: "Iglesia Convertidos a Cristo (ICC)",
-      desc: "Nació en 1976 en Santo Domingo. Doctor en Medicina y Maestría en Teología. Fue reconocido como pastor en 2006, sirviendo fielmente en la predicación de la Palabra, la consejería pastoral y el discipulado bíblico.",
+      subtitle: "Iglesia De Convertidos a Cristo (ICC)",
+      desc: "Nació in 1976 en Santo Domingo. Doctor en Medicina y Maestría en Teología. Fue reconocido como pastor en 2006, sirviendo fielmente en la predicación de la Palabra, la consejería pastoral y el discipulado bíblico.",
       image: getImageUrl("/pastores/Pr-Narciso-Nadal-Sept-2024.jpg"),
       initials: "NN"
     },
     {
       name: "Pr. Santiago Peralta",
       role: "Pastor",
-      subtitle: "Iglesia Convertidos a Cristo (ICC)",
+      subtitle: "Iglesia De Convertidos a Cristo (ICC)",
       desc: "Ingeniero en Sistemas Informáticos y Maestría en Teología. Con amplia trayectoria en la educación cristiana y docencia teológica, fue ordenado como pastor de la iglesia en agosto de 2024.",
       image: getImageUrl("/pastores/Pr-Santiago-Peralta-Sept-2024.jpg"),
       initials: "SP"
@@ -195,7 +195,7 @@ const Home = () => {
     },
     {
       question: "¿La iglesia cuenta con estacionamiento y seguridad?",
-      answer: "Sí, las instalaciones de la Iglesia de Convertidos a Cristo (ICC) cuentan con amplios parqueos controlados y un equipo de logística y seguridad para garantizar la tranquilidad de todos los asistentes."
+      answer: "Sí, las instalaciones de la Iglesia De Convertidos a Cristo (ICC) cuentan con amplios parqueos controlados y un equipo de logística y seguridad para garantizar la tranquilidad de todos los asistentes."
     }
   ];
 
@@ -372,7 +372,7 @@ const Home = () => {
                 <span className="text-gradient">Vivir es Cristo</span>
               </h1>
               <p className="hero-description">
-                Somos la comunidad de jóvenes de la <strong>Iglesia Convertidos a Cristo (ICC)</strong>. Nuestro anhelo es ver a una generación apasionada por Jesús, arraigada en Su Palabra, comprometida con la sana doctrina y capacitada para servir al Señor en espíritu y verdad.
+                Somos la comunidad de jóvenes de la <strong>Iglesia De Convertidos a Cristo (ICC)</strong>. Nuestro anhelo es ver a una generación apasionada por Jesús, arraigada en Su Palabra, comprometida con la sana doctrina y capacitada para servir al Señor en espíritu y verdad.
               </p>
               
               <div className="hero-cta">
@@ -680,7 +680,7 @@ const Home = () => {
                       >
                         onetwentyoneicc
                       </a>
-                      <span className="instagram-location">Iglesia de Convertidos a Cristo</span>
+                      <span className="instagram-location">Iglesia De Convertidos a Cristo</span>
                     </div>
                   </div>
                   <button className="instagram-more-btn" aria-label="Más opciones">
@@ -1061,7 +1061,7 @@ const Home = () => {
                 <div className="location-panel glass-panel" style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '2rem', padding: '2rem' }}>
                   <div className="location-info-block">
                     <span className="location-badge">Lugar del Evento</span>
-                    <h3>Iglesia de Convertidos a Cristo</h3>
+                    <h3>Iglesia De Convertidos a Cristo</h3>
                     <p className="location-address" style={{ fontSize: '0.95rem', marginBottom: '1.5rem', lineHeight: '1.6', color: 'var(--text-secondary)' }}>
                       Calle Dr. Núñez Domínguez #30,<br />
                       Ensanche La Julia, Santo Domingo 10109,<br />

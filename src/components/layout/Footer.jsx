@@ -99,7 +99,7 @@ const Footer = () => {
                 >
                   <MapPin size={18} className="contact-icon" />
                   <span>
-                    <strong>Iglesia de Convertidos a Cristo</strong><br/>
+                    <strong>Iglesia De Convertidos a Cristo</strong><br/>
                     C/ Dr. Núñez Domínguez #30<br/>
                     Ens. La Julia, Santo Domingo, R.D.
                   </span>
@@ -127,7 +127,7 @@ const Footer = () => {
         </div>
         
         <div className="footer-bottom">
-          <p>&copy; {new Date().getFullYear()} Ministerio de Jóvenes ICC | Iglesia de Convertidos a Cristo. Todos los derechos reservados.</p>
+          <p>&copy; {new Date().getFullYear()} Ministerio de Jóvenes ICC | Iglesia De Convertidos a Cristo. Todos los derechos reservados.</p>
         </div>
       </div>
     </footer>
