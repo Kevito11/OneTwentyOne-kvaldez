@@ -632,6 +632,7 @@ const Registration = () => {
     <div className="registration-page animate-fade-in section-padding">
       <div className="container">
 
+        
         {!isRegistered && (
           <div className="registration-selector-container animate-fade-in" style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
             <h2 className="registration-select-title">Elige el evento para registrarte</h2>
@@ -657,6 +658,7 @@ const Registration = () => {
               >
                 Campamento
               </button>
+              
             </div>
           </div>
         )}
