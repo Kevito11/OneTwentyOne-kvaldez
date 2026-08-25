@@ -8,6 +8,95 @@ function doPost(e) {
 
     var activeSpreadsheet = SpreadsheetApp.getActiveSpreadsheet();
 
+    // Si la acción es registrar/actualizar pre-orden de comida
+    if (data.action === 'preorderFood') {
+      var codeToFind = data.ticketCode;
+      if (!codeToFind) {
+        return ContentService.createTextOutput(JSON.stringify({ status: 'error', message: 'Falta el código de boleto.' }))
+          .setMimeType(ContentService.MimeType.JSON);
+      }
+
+      var confSheet = activeSpreadsheet.getSheetByName("Conferencia") || activeSpreadsheet.getActiveSheet();
+      var confValues = confSheet.getDataRange().getValues();
+      var foundUser = null;
+
+      for (var i = 1; i < confValues.length; i++) {
+        if (String(confValues[i][2]).trim() === String(codeToFind).trim()) {
+          foundUser = {
+            firstName: confValues[i][3],
+            lastName: confValues[i][4],
+            email: confValues[i][5],
+            phone: confValues[i][6]
+          };
+          break;
+        }
+      }
+
+      if (!foundUser) {
+        return ContentService.createTextOutput(JSON.stringify({ status: 'not_found', message: 'Código de boleto no encontrado en los registros de la Conferencia.' }))
+          .setMimeType(ContentService.MimeType.JSON);
+      }
+
+      var foodSheet = activeSpreadsheet.getSheetByName("Pre-ordenes Comida");
+      if (!foodSheet) {
+        foodSheet = activeSpreadsheet.insertSheet("Pre-ordenes Comida");
+        var headers = ["Fecha", "Hora", "Código de Boleto", "Nombre", "Apellido", "Correo", "Teléfono", "Detalle de Pre-orden", "Negocios Seleccionados", "Total Estimado"];
+        foodSheet.appendRow(headers);
+      }
+
+      var now = new Date();
+      var timezone = Session.getScriptTimeZone();
+      var dateFormatted = Utilities.formatDate(now, timezone, "dd/MM/yyyy");
+      var timeFormatted = Utilities.formatDate(now, timezone, "hh:mm:ss a");
+
+      var foodValues = foodSheet.getDataRange().getValues();
+      var foodRowIndex = -1;
+      for (var j = 1; j < foodValues.length; j++) {
+        if (String(foodValues[j][2]).trim() === String(codeToFind).trim()) {
+          foodRowIndex = j + 1;
+          break;
+        }
+      }
+
+      var rowData = [
+        dateFormatted,
+        timeFormatted,
+        codeToFind,
+        foundUser.firstName,
+        foundUser.lastName,
+        foundUser.email,
+        foundUser.phone,
+        data.preorderDetails || 'Ninguno',
+        data.selectedVendors || 'Ninguno',
+        data.totalEstimated || 0
+      ];
+
+      if (foodRowIndex !== -1) {
+        foodSheet.getRange(foodRowIndex, 1, 1, rowData.length).setValues([rowData]);
+      } else {
+        foodSheet.appendRow(rowData);
+      }
+
+      try {
+        enviarCorreoPreordenComida({
+          email: foundUser.email,
+          firstName: foundUser.firstName,
+          lastName: foundUser.lastName,
+          ticketCode: codeToFind,
+          preorderDetails: data.preorderDetails,
+          totalEstimated: data.totalEstimated,
+          activeTheme: data.activeTheme
+        });
+      } catch (emailError) {
+        console.error("Error al enviar correo de pre-orden de comida: " + emailError.toString());
+      }
+
+      return ContentService.createTextOutput(JSON.stringify({
+        status: 'success',
+        message: 'Pre-orden de comida registrada correctamente.'
+      })).setMimeType(ContentService.MimeType.JSON);
+    }
+
     // Si la acción es actualizar mercancía para un boleto existente
     if (data.action === 'updateMerch') {
       var codeToFind = data.ticketCode;
@@ -1329,4 +1418,103 @@ function getEmailTheme(isVigilia, activeThemeOverride) {
   }
 
   return theme;
+}
+
+/**
+ * Envía un correo de confirmación de pre-orden de comida.
+ */
+function enviarCorreoPreordenComida(data) {
+  var email = data.email;
+  console.log("Intentando enviar correo de pre-orden de comida a: " + email);
+
+  var subject = "🍔 Pre-Orden de Comida Confirmada - Sin Filtros 2026";
+  var theme = getEmailTheme(false, data.activeTheme);
+  
+  var htmlBody = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <title>Pre-Orden de Comida - Conferencia Sin Filtros</title>
+    </head>
+    <body style="margin: 0; padding: 0; background-color: ${theme.outerBg}; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; -webkit-font-smoothing: antialiased;">
+      <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: ${theme.outerBg}; padding: 40px 20px;">
+        <tr>
+          <td align="center">
+            <table width="100%" max-width="500" border="0" cellspacing="0" cellpadding="0" style="max-width: 500px; background-color: ${theme.cardBg}; border: 1px solid ${theme.cardBorderColor}; border-radius: 16px; padding: 32px; text-align: left;">
+              <tr>
+                <td align="center" style="padding-bottom: 24px; border-bottom: 1px solid ${theme.cardBorderColor};">
+                  <div style="color: ${theme.textColorMuted}; font-size: 11px; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 6px;">Pre-Orden de Breaks</div>
+                  <div style="font-size: 24px; font-weight: 800; color: ${theme.headerColor}; letter-spacing: -0.5px;">🍔 COMIDA RESERVADA</div>
+                  <div style="color: #666666; font-size: 13px; margin-top: 4px;">Sin Filtros 2026</div>
+                </td>
+              </tr>
+              <tr>
+                <td style="font-size: 15px; color: #dddddd; line-height: 1.6; padding: 24px 0 16px 0;">
+                  Hola <strong>${data.firstName}</strong>,<br><br>
+                  Hemos registrado con éxito tu pre-orden de comida para los recesos de la conferencia de jóvenes <strong>Sin Filtros 2026</strong>. 🎉<br><br>
+                  Esta pre-orden nos ayuda a coordinar las cantidades necesarias con los negocios invitados para evitar filas y asegurar que haya suficientes raciones para todos los asistentes.
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: ${theme.detailsBg}; border: 1px solid ${theme.detailsBorderColor}; border-radius: 12px; padding: 20px;">
+                    <tr>
+                      <td style="font-size: 11px; color: ${theme.textColorMuted}; padding-bottom: 2px;">Asistente</td>
+                    </tr>
+                    <tr>
+                      <td style="font-size: 15px; font-weight: bold; color: #ffffff; padding-bottom: 12px;">${data.firstName} ${data.lastName}</td>
+                    </tr>
+                    <tr>
+                      <td style="font-size: 11px; color: ${theme.textColorMuted}; padding-bottom: 2px;">Código de Entrada</td>
+                    </tr>
+                    <tr>
+                      <td style="font-size: 16px; font-weight: bold; font-family: monospace; color: ${theme.textCodeColor}; padding-bottom: 12px; letter-spacing: 0.5px;">${data.ticketCode}</td>
+                    </tr>
+                    <tr>
+                      <td style="font-size: 11px; color: ${theme.textColorMuted}; padding-bottom: 2px;">Detalle de Pre-Orden</td>
+                    </tr>
+                    <tr>
+                      <td style="font-size: 14px; color: #ffffff; padding-bottom: 12px; line-height: 1.4;">${data.preorderDetails}</td>
+                    </tr>
+                    <tr>
+                      <td style="font-size: 11px; color: ${theme.textColorMuted}; padding-bottom: 2px;">Total Estimado a Pagar</td>
+                    </tr>
+                    <tr>
+                      <td style="font-size: 16px; font-weight: bold; color: ${theme.headerColor};">RD$ ${Number(data.totalEstimated).toLocaleString()}</td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+              <tr>
+                <td style="padding-top: 24px; font-size: 12px; color: ${theme.textColorMuted}; line-height: 1.5; border-top: 1px solid ${theme.cardBorderColor}; margin-top: 24px;">
+                  <strong>⚠️ Recordatorio de Pago:</strong><br>
+                  No necesitas pagar nada en este sitio web. Pagarás tu orden directamente en efectivo o transferencia a los stands correspondientes durante los Breaks de la Conferencia el sábado 29 de agosto.<br><br>
+                  Si tienes alguna duda o necesitas modificar tu pre-orden, escríbenos a nuestra cuenta de Instagram <a href="https://www.instagram.com/onetwentyoneicc" target="_blank" style="color: #ffffff; text-decoration: underline;">@onetwentyoneicc</a>.
+                </td>
+              </tr>
+            </table>
+            <table width="100%" max-width="500" border="0" cellspacing="0" cellpadding="0" style="max-width: 500px; text-align: center; margin-top: 20px;">
+              <tr>
+                <td style="font-size: 10px; color: #555555; line-height: 1.4;">
+                  Este correo fue enviado automáticamente por tu pre-orden de comida en la plataforma de OneTwentyOne.<br>
+                  © 2026 Iglesia De Convertidos a Cristo. Todos los derechos reservados.
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+      </table>
+    </body>
+    </html>
+  `;
+
+  MailApp.sendEmail({
+    to: email,
+    subject: subject,
+    htmlBody: htmlBody,
+    name: "Sin Filtros 2026"
+  });
+
+  console.log("Correo de pre-orden de comida enviado con éxito.");
 }

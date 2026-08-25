@@ -42,9 +42,27 @@ const getDynamicTargetDate = (month, day, hour = 0, minute = 0) => {
   return target;
 };
 
+const CONFERENCIA_SCHEDULE = [
+  { time: "03:00 PM", type: "Registro", title: "Registro y Recepción", desc: "Recepción de participantes y entrega de acreditaciones." },
+  { time: "04:00 PM", type: "Inicio", title: "Bienvenida e Inicio", desc: "Apertura oficial de la Conferencia Juvenil Sin Filtros." },
+  { time: "04:10 PM", type: "Adoración", title: "Tiempo de Alabanzas", desc: "Tiempo dedicado a cantar al Señor en comunidad." },
+  { time: "04:25 PM", type: "Sesión 1", title: "La Máscara de la Apariencia", desc: "Primera sesión plenaria de la conferencia." },
+  { time: "05:10 PM", type: "Receso", title: "Break", desc: "Un receso para descansar y compartir un refrigerio." },
+  { time: "05:45 PM", type: "Sesión 2", title: "Lo que Dios ve en Secreto", desc: "Segunda sesión plenaria de la conferencia." },
+  { time: "06:30 PM", type: "Adoración", title: "Tiempo de Alabanzas", desc: "Tiempo dedicado a cantar al Señor en comunidad." },
+  { time: "06:40 PM", type: "Receso", title: "Break", desc: "Un receso para descansar y compartir un refrigerio." },
+  { time: "07:10 PM", type: "Actividad", title: "El Aplatana'o", desc: "Espacio dinámico y participativo de la conferencia." },
+  { time: "07:15 PM", type: "Adoración", title: "Tiempo de Alabanzas", desc: "Tiempo dedicado a cantar al Señor en comunidad." },
+  { time: "07:25 PM", type: "Sesión 3", title: "Una Generación Auténtica", desc: "Tercera sesión plenaria de la conferencia." },
+  { time: "08:10 PM", type: "Interacción", title: "Preguntas y Respuestas", desc: "Sección interactiva para resolver dudas con los expositores." },
+  { time: "08:40 PM", type: "Adoración", title: "Tiempo de Alabanzas", desc: "Tiempo dedicado a cantar al Señor en comunidad." },
+  { time: "08:50 PM", type: "Cierre", title: "Cierre", desc: "Palabras finales y despedida del evento." }
+];
+
 const Home = () => {
   const [showConfDetails, setShowConfDetails] = useState(false);
   const [modalScrolled, setModalScrolled] = useState(false);
+  const [showFullSchedule, setShowFullSchedule] = useState(false);
 
   const handleModalScroll = (e) => {
     if (e.target.scrollTop > 40) {
@@ -56,6 +74,9 @@ const Home = () => {
 
   useEffect(() => {
     setModalScrolled(false);
+    if (!showConfDetails) {
+      setShowFullSchedule(false);
+    }
   }, [showConfDetails]);
 
   // Targets
@@ -376,10 +397,15 @@ const Home = () => {
               </p>
               
               <div className="hero-cta">
-                <Link to="/registro" className="btn-primary">
-                  Registro Gratis
+                <a 
+                  href="https://www.youtube.com/@ICCRD/streams"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn-primary"
+                >
+                  Ver Transmisión
                   <ArrowRight size={20} />
-                </Link>
+                </a>
                 <a 
                   href="https://maps.app.goo.gl/jRX8PC4S3oVrPMQz6" 
                   target="_blank" 
@@ -408,7 +434,7 @@ const Home = () => {
                       <img src={posterImages[1]} alt="Afiche Conferencia Sin Filtros 2026 - Opción 2" className="featured-card-poster" />
                     </div>
                   </div>
-                  <div className="featured-card-badge">PRÓXIMO EVENTO</div>
+                  <div className="featured-card-badge" style={{ background: 'rgba(239, 68, 68, 0.85)', color: '#fff' }}>CUPOS AGOTADOS</div>
                   <div className="poster-carousel-dots">
                     {posterImages.map((_, idx) => (
                       <button 
@@ -450,13 +476,16 @@ const Home = () => {
                     >
                       Ver Info
                     </button>
-                    <Link 
-                      to="/registro" 
+                    <a 
+                      href="https://www.youtube.com/@ICCRD/streams"
+                      target="_blank"
+                      rel="noopener noreferrer"
                       className="btn-primary-sm"
-                      style={{ flex: 1, margin: 0, padding: '0.65rem 1rem', fontSize: '0.85rem', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}
+                      style={{ flex: 1, margin: 0, padding: '0.65rem 1rem', fontSize: '0.85rem', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '5px' }}
                     >
-                      Registrarse
-                    </Link>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+                      YouTube Live
+                    </a>
                   </div>
                 </div>
               </div>
@@ -1042,16 +1071,74 @@ const Home = () => {
               <div className="modal-section">
                 <h3 className="modal-section-title">Programa de la Conferencia</h3>
                 <div className="timeline-container">
-                  <div className="timeline-item glass-panel">
-                    <div className="timeline-time">
-                      <span className="time-hour">03:00 PM</span>
-                      <span className="time-type">Registro</span>
+                  {(showFullSchedule ? CONFERENCIA_SCHEDULE : CONFERENCIA_SCHEDULE.slice(0, 3)).map((item, idx) => (
+                    <div key={idx} className="timeline-item glass-panel animate-fade-in">
+                      <div className="timeline-time">
+                        <span className="time-hour">{item.time}</span>
+                        <span className="time-type">{item.type}</span>
+                      </div>
+                      <div className="timeline-details">
+                        <h3>{item.title}</h3>
+                        <p>{item.desc}</p>
+                      </div>
                     </div>
-                    <div className="timeline-details">
-                      <h3>Apertura & Registro</h3>
-                      <p>El registro de participantes inicia a las 03:00 PM. Los detalles del programa completo se anunciarán próximamente.</p>
-                    </div>
-                  </div>
+                  ))}
+                </div>
+
+                <div style={{ display: 'flex', justifyContent: 'center', marginTop: '2rem' }}>
+                  <button 
+                    onClick={() => setShowFullSchedule(!showFullSchedule)}
+                    className="btn-secondary-sm"
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                      padding: '0.65rem 1.5rem',
+                      borderRadius: '50px',
+                      border: '1px solid rgba(255, 255, 255, 0.15)',
+                      background: 'rgba(255, 255, 255, 0.05)',
+                      color: 'var(--text-primary)',
+                      cursor: 'pointer',
+                      fontWeight: '700',
+                      transition: 'all 0.2s ease',
+                      fontSize: '0.88rem'
+                    }}
+                  >
+                    <span>{showFullSchedule ? 'Ver Menos' : 'Ver Programa Completo'}</span>
+                    <span style={{ fontSize: '0.8rem', transform: showFullSchedule ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s ease' }}>▼</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Food Pre-Order Section */}
+              <div className="modal-section" style={{ marginTop: '3rem', borderTop: '1px solid var(--border-color)', paddingTop: '2rem' }}>
+                <h3 className="modal-section-title">🍔 Pre-Orden de Comida (Breaks)</h3>
+                <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem', marginBottom: '1.5rem', lineHeight: '1.6' }}>
+                  Durante la conferencia contaremos con varios negocios invitados en los recesos. Si ya estás registrado o vas a registrarte ahora, podrás pre-ordenar tus platos con anticipación para asegurar tu comida y agilizar la entrega.
+                </p>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
+                  <button 
+                    disabled
+                    className="btn-primary"
+                    style={{ 
+                      display: 'inline-flex', 
+                      padding: '0.8rem 2rem', 
+                      textDecoration: 'none', 
+                      alignItems: 'center', 
+                      gap: '8px', 
+                      width: 'fit-content',
+                      opacity: 0.6,
+                      cursor: 'not-allowed',
+                      background: 'rgba(255, 255, 255, 0.1)',
+                      color: 'var(--text-muted)',
+                      border: '1px solid rgba(255, 255, 255, 0.1)'
+                    }}
+                  >
+                    <span>Habilitado Próximamente</span>
+                  </button>
+                  <span style={{ fontSize: '0.85rem', color: 'var(--accent-light)', fontStyle: 'italic' }}>
+                    * Esta opción estará disponible próximamente. Se les notificará vía correo electrónico a todas las personas que ya se encuentren registradas.
+                  </span>
                 </div>
               </div>
 

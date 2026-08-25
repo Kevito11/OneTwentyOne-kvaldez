@@ -11,10 +11,13 @@ import Activities from './pages/Activities/Activities';
 import About from './pages/About/About';
 import Merch from './pages/Merch/Merch';
 import TicketVerification from './pages/TicketVerification/TicketVerification';
+import PreOrderMenu from './pages/PreOrderMenu/PreOrderMenu';
 
 function AppContent() {
   const location = useLocation();
   const isTicketPage = location.pathname.startsWith('/ticket/');
+  const isPreorderPage = location.pathname.startsWith('/menu-preorden');
+  const hideLayout = isTicketPage || isPreorderPage;
 
   return (
     <div className="app-container">
@@ -26,7 +29,7 @@ function AppContent() {
         <path d="M 500,550 L 650,620 L 600,700 L 720,780" opacity="0.3" strokeWidth="1.5" />
       </svg>
 
-      {!isTicketPage && <Navbar />}
+      {!hideLayout && <Navbar />}
       <main className="main-content">
         <Routes>
           <Route path="/" element={<Home />} />
@@ -35,9 +38,10 @@ function AppContent() {
           <Route path="/nosotros" element={<About />} />
           <Route path="/merch" element={<Merch />} />
           <Route path="/ticket/:code" element={<TicketVerification />} />
+          <Route path="/menu-preorden" element={<PreOrderMenu />} />
         </Routes>
       </main>
-      {!isTicketPage && <Footer />}
+      {!hideLayout && <Footer />}
     </div>
   );
 }

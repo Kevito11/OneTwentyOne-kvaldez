@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, forwardRef } from 'react';
 import { createPortal } from 'react-dom';
+import { Link } from 'react-router-dom';
 import { Ticket, User, Mail, Phone, Home, Star, Printer, RotateCcw, MapPin, CheckCircle, X, Check, ShoppingBag, Plus, Minus, Copy, AlertTriangle } from 'lucide-react';
 import QRCode from 'qrcode';
 import { getImageUrl } from '../../config/images';
@@ -255,6 +256,10 @@ const MerchPaymentInstructions = () => {
     </div>
   );
 };
+
+// Cambia a false para reabrir el registro de la conferencia
+const CONFERENCIA_CLOSED = true;
+const YOUTUBE_CHANNEL_URL = 'https://www.youtube.com/@ICCRD/streams';
 
 const Registration = () => {
   // Listen to hash changes for real-time image updates during local testing
@@ -670,63 +675,116 @@ const Registration = () => {
             <div className="registration-info animate-fade-in" key={selectedEvent}>
               {selectedEvent === 'conferencia' && (
                 <>
-                  <span className="subtitle">
-                    <Star size={16} style={{ color: 'var(--accent-color)', marginRight: '5px', verticalAlign: 'middle' }} />
-                    Registro Abierto 2026
-                  </span>
-                  <h1 className="title">Asegura tu <span className="text-gradient">Lugar</span></h1>
-                  <p className="description">
-                    Únete a nosotros el <strong>29 de Agosto</strong> en la conferencia de jóvenes <strong>"Sin Filtros"</strong>. Vive un día lleno de adoración e instrucción expositiva de la Palabra de Dios y comunión.
-                  </p>
+                  {CONFERENCIA_CLOSED ? (
+                    <>
+                      <span className="subtitle" style={{ color: 'var(--accent-light)' }}>
+                        <Star size={16} style={{ color: 'var(--accent-color)', marginRight: '5px', verticalAlign: 'middle' }} />
+                        Conferencia Sin Filtros &middot; 29 de Agosto 2026
+                      </span>
+                      <h1 className="title">Cupos <span className="text-gradient">Agotados</span></h1>
+                      <p className="description">
+                        Gracias por tu interés en la conferencia de jóvenes <strong>"Sin Filtros"</strong>. El registro ya está cerrado porque todos los cupos han sido completados. ¡Pero no te preocupes, podrás seguir el evento en vivo!
+                      </p>
 
-                  <div className="ticket-perks">
-                    <div className="perk-item">
-                      <div className="perk-icon"><Ticket size={24} /></div>
-                      <div>
-                        <h3>Acceso Completo Gratis</h3>
-                        <p>Entrada libre a todas las conferencias plenarias y dinámicas de grupo.</p>
+                      <div className="glass-panel animate-fade-in" style={{ padding: '1.8rem', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.1)', marginBottom: '1.5rem' }}>
+                        <div style={{ display: 'flex', alignItems: 'flex-start', gap: '1rem', marginBottom: '1.2rem' }}>
+                          <div style={{ fontSize: '2.2rem', lineHeight: 1 }}>📺</div>
+                          <div>
+                            <h3 style={{ fontWeight: '800', fontSize: '1.15rem', marginBottom: '0.4rem' }}>Sigue la Transmisión en Vivo</h3>
+                            <p style={{ color: 'var(--text-secondary)', fontSize: '0.92rem', lineHeight: '1.6', margin: 0 }}>
+                              La conferencia será transmitida en directo a través de nuestro canal oficial de YouTube. Podrás verla desde cualquier lugar, de forma completamente gratuita.
+                            </p>
+                          </div>
+                        </div>
+                        <a
+                          href={YOUTUBE_CHANNEL_URL}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="btn-primary"
+                          style={{ display: 'inline-flex', alignItems: 'center', gap: '10px', padding: '0.8rem 2rem', textDecoration: 'none', width: 'fit-content' }}
+                        >
+                          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+                          Ver en YouTube
+                        </a>
                       </div>
-                    </div>
 
-                    <div className="perk-item">
-                      <div className="perk-icon"><Star size={24} /></div>
-                      <div>
-                        <h3>Experiencia Organizada</h3>
-                        <p>Es necesario registrarse previamente para poder brindarte una experiencia más cómoda y coordinada.</p>
+                      <div className="registration-poster-wrapper glass-panel" style={{ border: '1px solid rgba(255,255,255,0.06)' }}>
+                        <div className="poster-carousel-track">
+                          <div className={`poster-carousel-item ${activePosterIndex === 0 ? 'active' : ''}`}>
+                            <img src={posterImages[0]} alt="Afiche Conferencia Sin Filtros 2026 - Opción 1" className="featured-card-poster" />
+                          </div>
+                          <div className={`poster-carousel-item ${activePosterIndex === 1 ? 'active' : ''}`}>
+                            <img src={posterImages[1]} alt="Afiche Conferencia Sin Filtros 2026 - Opción 2" className="featured-card-poster" />
+                          </div>
+                        </div>
+                        <div className="registration-poster-dots">
+                          {posterImages.map((_, idx) => (
+                            <button
+                              key={idx}
+                              className={`poster-dot ${activePosterIndex === idx ? 'active' : ''}`}
+                              onClick={(e) => { e.stopPropagation(); e.preventDefault(); setActivePosterIndex(idx); }}
+                              aria-label={`Ver afiche ${idx + 1}`}
+                            />
+                          ))}
+                        </div>
                       </div>
-                    </div>
-                  </div>
+                    </>
+                  ) : (
+                    <>
+                      <span className="subtitle">
+                        <Star size={16} style={{ color: 'var(--accent-color)', marginRight: '5px', verticalAlign: 'middle' }} />
+                        Registro Abierto 2026
+                      </span>
+                      <h1 className="title">Asegura tu <span className="text-gradient">Lugar</span></h1>
+                      <p className="description">
+                        Únete a nosotros el <strong>29 de Agosto</strong> en la conferencia de jóvenes <strong>"Sin Filtros"</strong>. Vive un día lleno de adoración e instrucción expositiva de la Palabra de Dios y comunión.
+                      </p>
 
-                  <div className="free-pass-badge">
-                    <span className="badge-title">Tipo de Entrada</span>
-                    <span className="badge-price">GRATIS</span>
-                    <span className="badge-note">* Registro previo obligatorio para la logística del evento.</span>
-                  </div>
-                  <div className="registration-poster-wrapper glass-panel">
-                    <div className="poster-carousel-track">
-                      <div className={`poster-carousel-item ${activePosterIndex === 0 ? 'active' : ''}`}>
-                        <img src={posterImages[0]} alt="Afiche Conferencia Sin Filtros 2026 - Opción 1" className="featured-card-poster" />
-                      </div>
-                      <div className={`poster-carousel-item ${activePosterIndex === 1 ? 'active' : ''}`}>
-                        <img src={posterImages[1]} alt="Afiche Conferencia Sin Filtros 2026 - Opción 2" className="featured-card-poster" />
-                      </div>
-                    </div>
+                      <div className="ticket-perks">
+                        <div className="perk-item">
+                          <div className="perk-icon"><Ticket size={24} /></div>
+                          <div>
+                            <h3>Acceso Completo Gratis</h3>
+                            <p>Entrada libre a todas las conferencias plenarias y dinámicas de grupo.</p>
+                          </div>
+                        </div>
 
-                    <div className="registration-poster-dots">
-                      {posterImages.map((_, idx) => (
-                        <button
-                          key={idx}
-                          className={`poster-dot ${activePosterIndex === idx ? 'active' : ''}`}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            e.preventDefault();
-                            setActivePosterIndex(idx);
-                          }}
-                          aria-label={`Ver afiche ${idx + 1}`}
-                        />
-                      ))}
-                    </div>
-                  </div>
+                        <div className="perk-item">
+                          <div className="perk-icon"><Star size={24} /></div>
+                          <div>
+                            <h3>Experiencia Organizada</h3>
+                            <p>Es necesario registrarse previamente para poder brindarte una experiencia más cómoda y coordinada.</p>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="free-pass-badge">
+                        <span className="badge-title">Tipo de Entrada</span>
+                        <span className="badge-price">GRATIS</span>
+                        <span className="badge-note">* Registro previo obligatorio para la logística del evento.</span>
+                      </div>
+                      <div className="registration-poster-wrapper glass-panel">
+                        <div className="poster-carousel-track">
+                          <div className={`poster-carousel-item ${activePosterIndex === 0 ? 'active' : ''}`}>
+                            <img src={posterImages[0]} alt="Afiche Conferencia Sin Filtros 2026 - Opción 1" className="featured-card-poster" />
+                          </div>
+                          <div className={`poster-carousel-item ${activePosterIndex === 1 ? 'active' : ''}`}>
+                            <img src={posterImages[1]} alt="Afiche Conferencia Sin Filtros 2026 - Opción 2" className="featured-card-poster" />
+                          </div>
+                        </div>
+                        <div className="registration-poster-dots">
+                          {posterImages.map((_, idx) => (
+                            <button
+                              key={idx}
+                              className={`poster-dot ${activePosterIndex === idx ? 'active' : ''}`}
+                              onClick={(e) => { e.stopPropagation(); e.preventDefault(); setActivePosterIndex(idx); }}
+                              aria-label={`Ver afiche ${idx + 1}`}
+                            />
+                          ))}
+                        </div>
+                      </div>
+                    </>
+                  )}
                 </>
               )}
 
@@ -822,6 +880,7 @@ const Registration = () => {
             </div>
 
             {/* Form Column */}
+            {!(selectedEvent === 'conferencia' && CONFERENCIA_CLOSED) && (
             <div className="registration-form-container glass-panel">
               <h2 className="form-title">Formulario de Registro</h2>
 
@@ -994,6 +1053,7 @@ const Registration = () => {
                 </button>
               </form>
             </div>
+            )}
 
           </div>
         ) : null}
@@ -1222,6 +1282,34 @@ const Registration = () => {
                 </div>
               </div>
             </div>
+
+            {selectedEvent === 'conferencia' && (
+              <div className="preorder-callout-card glass-panel" style={{ width: '100%', maxWidth: '600px', display: 'flex', flexDirection: 'column', gap: '0.8rem', padding: '1.5rem', borderRadius: '12px', border: '1px dashed rgba(255, 255, 255, 0.15)', background: 'rgba(255, 255, 255, 0.02)', textAlign: 'center', boxSizing: 'border-box' }}>
+                <h4 style={{ fontSize: '1.05rem', fontWeight: '800', color: 'var(--text-primary)', margin: 0 }}>🍔 Pre-Ordena tu Comida para los Breaks</h4>
+                <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', lineHeight: '1.4', margin: 0 }}>
+                  Próximamente habilitaremos la pre-orden de comida para los recesos de la conferencia. Se les notificará vía correo electrónico a todas las personas que ya se encuentren registradas.
+                </p>
+                <button
+                  disabled
+                  style={{ 
+                    display: 'inline-flex', 
+                    alignSelf: 'center', 
+                    padding: '0.6rem 1.8rem', 
+                    fontSize: '0.85rem', 
+                    fontWeight: '700', 
+                    textDecoration: 'none', 
+                    borderRadius: '6px', 
+                    cursor: 'not-allowed', 
+                    border: 'none', 
+                    background: 'rgba(255, 255, 255, 0.08)', 
+                    color: 'var(--text-muted)',
+                    opacity: 0.6
+                  }}
+                >
+                  Pre-orden Habilitada Próximamente
+                </button>
+              </div>
+            )}
 
             {/* Actions */}
             <div className="ticket-actions-bar">
