@@ -1287,10 +1287,11 @@ const Registration = () => {
               <div className="preorder-callout-card glass-panel" style={{ width: '100%', maxWidth: '600px', display: 'flex', flexDirection: 'column', gap: '0.8rem', padding: '1.5rem', borderRadius: '12px', border: '1px dashed rgba(255, 255, 255, 0.15)', background: 'rgba(255, 255, 255, 0.02)', textAlign: 'center', boxSizing: 'border-box' }}>
                 <h4 style={{ fontSize: '1.05rem', fontWeight: '800', color: 'var(--text-primary)', margin: 0 }}>🍔 Pre-Ordena tu Comida para los Breaks</h4>
                 <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', lineHeight: '1.4', margin: 0 }}>
-                  Próximamente habilitaremos la pre-orden de comida para los recesos de la conferencia. Se les notificará vía correo electrónico a todas las personas que ya se encuentren registradas.
+                  Ya puedes realizar tu pre-orden de comida para los recesos de la conferencia. Asegura tus platos y recíbelos sin filas.
                 </p>
-                <button
-                  disabled
+                <Link
+                  to="/menu-preorden"
+                  className="btn-primary"
                   style={{ 
                     display: 'inline-flex', 
                     alignSelf: 'center', 
@@ -1299,15 +1300,11 @@ const Registration = () => {
                     fontWeight: '700', 
                     textDecoration: 'none', 
                     borderRadius: '6px', 
-                    cursor: 'not-allowed', 
-                    border: 'none', 
-                    background: 'rgba(255, 255, 255, 0.08)', 
-                    color: 'var(--text-muted)',
-                    opacity: 0.6
+                    border: 'none'
                   }}
                 >
-                  Pre-orden Habilitada Próximamente
-                </button>
+                  Pre-ordenar Comida
+                </Link>
               </div>
             )}
 

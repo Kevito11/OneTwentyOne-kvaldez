@@ -469,9 +469,133 @@ const Activities = () => {
                     <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem', marginBottom: '1.5rem', lineHeight: '1.6' }}>
                       Durante la conferencia contaremos con varios negocios invitados en los recesos. Si ya estás registrado o vas a registrarte ahora, podrás pre-ordenar tus platos con anticipación para asegurar tu comida y agilizar la entrega.
                     </p>
+
+                    {/* Menús de comida */}
+                    <div style={{ 
+                      display: 'grid', 
+                      gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', 
+                      gap: '1.5rem', 
+                      marginTop: '1.5rem',
+                      marginBottom: '2rem'
+                    }}>
+                      {/* Menú #1: Pechurica La Fe */}
+                      <div 
+                        className="glass-panel" 
+                        style={{ 
+                          padding: '1.8rem', 
+                          borderRadius: '16px', 
+                          border: '1px solid rgba(255, 255, 255, 0.08)',
+                          background: 'rgba(10, 10, 10, 0.3)',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          minHeight: '250px',
+                          textAlign: 'center',
+                          gap: '1rem'
+                        }}
+                      >
+                        <img 
+                          src={getImageUrl('/pechurica-logo.png')} 
+                          alt="Logo Pechurica La Fe" 
+                          style={{ 
+                            width: '75px', 
+                            height: '75px', 
+                            borderRadius: '50%', 
+                            objectFit: 'cover', 
+                            border: '2px solid rgba(255, 255, 255, 0.1)',
+                            marginBottom: '0.3rem',
+                            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)'
+                          }} 
+                        />
+                        <div>
+                          <h4 style={{ fontSize: '1.15rem', fontWeight: '800', marginBottom: '0.3rem', color: 'var(--text-primary)' }}>
+                            Pechurica La Fe
+                          </h4>
+                          <p style={{ fontSize: '0.88rem', color: 'var(--text-secondary)', lineHeight: '1.4', marginBottom: '0.8rem' }}>
+                            Pechuricas crujientes acompañadas de papas fritas y salsas especiales.
+                          </p>
+                          <a 
+                            href="https://www.instagram.com/pechuricalaferd/" 
+                            target="_blank" 
+                            rel="noopener noreferrer" 
+                            style={{ 
+                              display: 'inline-flex', 
+                              alignItems: 'center', 
+                              gap: '6px', 
+                              fontSize: '0.85rem', 
+                              fontWeight: '700', 
+                              color: 'var(--accent-color)', 
+                              textDecoration: 'none' 
+                            }}
+                          >
+                            <span>@pechuricalaferd</span>
+                            <ExternalLink size={12} />
+                          </a>
+                        </div>
+                      </div>
+
+                      {/* Menú #2: Marité Postres Artesanales */}
+                      <div 
+                        className="glass-panel" 
+                        style={{ 
+                          padding: '1.8rem', 
+                          borderRadius: '16px', 
+                          border: '1px solid rgba(255, 255, 255, 0.08)',
+                          background: 'rgba(10, 10, 10, 0.3)',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          minHeight: '250px',
+                          textAlign: 'center',
+                          gap: '1rem'
+                        }}
+                      >
+                        <img 
+                          src={getImageUrl('/marite-logo.png')} 
+                          alt="Logo Marité Postres Artesanales" 
+                          style={{ 
+                            width: '75px', 
+                            height: '75px', 
+                            borderRadius: '50%', 
+                            objectFit: 'cover', 
+                            border: '2px solid rgba(255, 255, 255, 0.1)',
+                            marginBottom: '0.3rem',
+                            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)'
+                          }} 
+                        />
+                        <div>
+                          <h4 style={{ fontSize: '1.15rem', fontWeight: '800', marginBottom: '0.3rem', color: 'var(--text-primary)' }}>
+                            Marité Postres Artesanales
+                          </h4>
+                          <p style={{ fontSize: '0.88rem', color: 'var(--text-secondary)', lineHeight: '1.4', marginBottom: '0.8rem' }}>
+                            Helados artesanales súper cremosos sabor Coco, Coco Fresa, Chinola Cremosa, Dulce de Leche y Bizcocho Marmolado.
+                          </p>
+                          <a 
+                            href="https://www.instagram.com/maritepostresartesanales/" 
+                            target="_blank" 
+                            rel="noopener noreferrer" 
+                            style={{ 
+                              display: 'inline-flex', 
+                              alignItems: 'center', 
+                              gap: '6px', 
+                              fontSize: '0.85rem', 
+                              fontWeight: '700', 
+                              color: 'var(--accent-color)', 
+                              textDecoration: 'none' 
+                            }}
+                          >
+                            <span>@maritepostresartesanales</span>
+                            <ExternalLink size={12} />
+                          </a>
+                        </div>
+                      </div>
+                    </div>
+
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
-                      <button 
-                        disabled
+                      <Link 
+                        to="/menu-preorden" 
                         className="btn-primary"
                         style={{ 
                           display: 'inline-flex', 
@@ -479,18 +603,13 @@ const Activities = () => {
                           textDecoration: 'none', 
                           alignItems: 'center', 
                           gap: '8px', 
-                          width: 'fit-content',
-                          opacity: 0.6,
-                          cursor: 'not-allowed',
-                          background: 'rgba(255, 255, 255, 0.1)',
-                          color: 'var(--text-muted)',
-                          border: '1px solid rgba(255, 255, 255, 0.1)'
+                          width: 'fit-content'
                         }}
                       >
-                        <span>Habilitado Próximamente</span>
-                      </button>
+                        <span>Pre-ordenar Comida Ahora</span>
+                      </Link>
                       <span style={{ fontSize: '0.85rem', color: 'var(--accent-light)', fontStyle: 'italic' }}>
-                        * Esta opción estará disponible próximamente. Se les notificará vía correo electrónico a todas las personas que ya se encuentren registradas.
+                        * Asegura tu comida/refrigerio con anticipación y retírala sin filas en los recesos de la conferencia.
                       </span>
                     </div>
                   </div>

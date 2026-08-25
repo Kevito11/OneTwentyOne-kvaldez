@@ -159,6 +159,66 @@ function doPost(e) {
       })).setMimeType(ContentService.MimeType.JSON);
     }
 
+    // Si la acción es confirmar asistencia (pre-evento)
+    if (data.action === 'confirmAttendance') {
+      var ticketCode = data.ticketCode;
+      var attending = data.attending; // "Si" o "No"
+      
+      var sheet = activeSpreadsheet.getSheetByName("Conferencia") || activeSpreadsheet.getActiveSheet();
+      setupHeaders(sheet);
+      
+      var values = sheet.getDataRange().getValues();
+      var foundRowIndex = -1;
+      
+      for (var i = 1; i < values.length; i++) {
+        if (String(values[i][2]).trim() === String(ticketCode).trim()) {
+          foundRowIndex = i + 1;
+          break;
+        }
+      }
+      
+      if (foundRowIndex !== -1) {
+        // Escribir "Si" o "No" en la columna P (Columna 16)
+        sheet.getRange(foundRowIndex, 16).setValue(attending);
+        SpreadsheetApp.flush();
+        return ContentService.createTextOutput(JSON.stringify({ status: "success", message: "Asistencia guardada" }))
+                             .setMimeType(ContentService.MimeType.JSON);
+      } else {
+        return ContentService.createTextOutput(JSON.stringify({ status: "error", message: "Boleto no encontrado" }))
+                             .setMimeType(ContentService.MimeType.JSON);
+      }
+    }
+
+    // Si la acción es check-in de llegada en puerta (día del evento)
+    if (data.action === 'checkin') {
+      var ticketCode = data.ticketCode;
+      
+      var sheet = activeSpreadsheet.getSheetByName("Conferencia") || activeSpreadsheet.getActiveSheet();
+      setupHeaders(sheet);
+      
+      var values = sheet.getDataRange().getValues();
+      var foundRowIndex = -1;
+      
+      for (var i = 1; i < values.length; i++) {
+        if (String(values[i][2]).trim() === String(ticketCode).trim()) {
+          foundRowIndex = i + 1;
+          break;
+        }
+      }
+      
+      if (foundRowIndex !== -1) {
+        // Escribir "Si" y la hora en la columna R (Columna 18)
+        var nowStr = new Date().toLocaleTimeString();
+        sheet.getRange(foundRowIndex, 18).setValue("Si (" + nowStr + ")");
+        SpreadsheetApp.flush();
+        return ContentService.createTextOutput(JSON.stringify({ status: "success", message: "Entrada registrada" }))
+                             .setMimeType(ContentService.MimeType.JSON);
+      } else {
+        return ContentService.createTextOutput(JSON.stringify({ status: "error", message: "Boleto no encontrado" }))
+                             .setMimeType(ContentService.MimeType.JSON);
+      }
+    }
+
     // Nueva Inscripción
     var isVigilia = data.eventType === "vigilia" || (data.ticketCode && data.ticketCode.indexOf("RESET") !== -1);
     var isCena = data.eventType === "cena";
@@ -243,9 +303,53 @@ function doPost(e) {
  */
 function doGet(e) {
   try {
+    // 1. Caso de Búsqueda por Nombre, Correo o Código (Auto-registro de Entrada check-in)
+    var query = e.parameter.query;
+    if (query) {
+      var searchStr = query.toString().trim().toLowerCase();
+      var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Conferencia") || SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+      var data = sheet.getDataRange().getValues();
+      var results = [];
+      
+      for (var i = 1; i < data.length; i++) {
+        var ticketCode = data[i][2] ? data[i][2].toString() : "";
+        var firstName = data[i][3] ? data[i][3].toString() : "";
+        var lastName = data[i][4] ? data[i][4].toString() : "";
+        var email = data[i][5] ? data[i][5].toString() : "";
+        var event = data[i][12] || '';
+        
+        var fullName = (firstName + " " + lastName).toLowerCase();
+        var isConferencia = (event === "Conferencia Sin Filtros") && (ticketCode && ticketCode.indexOf("RESET") === -1);
+        
+        if (isConferencia && (fullName.indexOf(searchStr) !== -1 || 
+            ticketCode.toLowerCase().indexOf(searchStr) !== -1 || 
+            email.toLowerCase().indexOf(searchStr) !== -1)) {
+          
+          var checkedIn = data[i][17] ? data[i][17].toString().trim() : "No"; // Columna R (Columna 18)
+          if (checkedIn === "" || checkedIn.toLowerCase() === "no") {
+            checkedIn = "No";
+          } else {
+            checkedIn = "Si";
+          }
+          
+          results.push({
+            firstName: firstName,
+            lastName: lastName,
+            email: maskEmailForSearch(email),
+            ticketCode: ticketCode,
+            checkedIn: checkedIn
+          });
+          
+          if (results.length >= 10) break;
+        }
+      }
+      return ContentService.createTextOutput(JSON.stringify({ status: 'success', results: results }))
+                           .setMimeType(ContentService.MimeType.JSON);
+    }
+
     var codeToFind = e.parameter.code;
     if (!codeToFind) {
-      return ContentService.createTextOutput(JSON.stringify({ status: 'error', message: 'Falta el código de boleto' }))
+      return ContentService.createTextOutput(JSON.stringify({ status: 'error', message: 'Falta el código de boleto o consulta de búsqueda' }))
         .setMimeType(ContentService.MimeType.JSON);
     }
 
@@ -594,17 +698,14 @@ function onOpen() {
     .addSeparator()
     .addSubMenu(pruebasVigiliaMenu);
 
-  // Submenú para pruebas de Conferencia
+  // Submenú de pruebas para Conferencia (solo Pre-orden & Asistencia)
   var pruebasConferenciaMenu = ui.createMenu('Pruebas')
-    .addItem('1. Enviar Prueba: Extensión de Pago', 'enviarCorreoPruebaAdmin')
-    .addItem('2. Enviar Prueba: Invitación de Mercancía', 'enviarCorreoPruebaInvitacionAdmin')
-    .addItem('3. Enviar Prueba: Confirmación de Pago', 'enviarCorreoPruebaPagoConfirmadoAdmin');
+    .addItem('1. Enviar Prueba: Pre-orden & Asistencia (kevito.valdez@gmail.com)', 'enviarCorreoPrueba')
+    .addItem('2. Consultar correos disponibles hoy', 'mostrarCuotaRestante');
 
   // Menú principal de Conferencia
   var conferenciaMenu = ui.createMenu('Conferencia Sin Filtros')
-    .addItem('1. Enviar Masivo: Extensión de Pago (A NO PAGADOS)', 'enviarNotificacionExtensionPago')
-    .addItem('2. Enviar Masivo: Invitación de Mercancía (A NO INTERESADOS)', 'enviarNotificacionInvitacionMercancia')
-    .addItem('3. Enviar Masivo: Confirmación de Pago (A PAGADOS)', 'enviarNotificacionConfirmacionPago')
+    .addItem('1. Enviar Masivo: Pre-orden & Asistencia (A NO CONFIRMADOS)', 'enviarCorreoMasivoInscritos')
     .addSeparator()
     .addSubMenu(pruebasConferenciaMenu);
 
@@ -1517,4 +1618,297 @@ function enviarCorreoPreordenComida(data) {
   });
 
   console.log("Correo de pre-orden de comida enviado con éxito.");
+}
+
+// ==========================================
+// NUEVAS FUNCIONES DE PRE-ORDEN & ASISTENCIA
+// ==========================================
+
+var APP_URL = "https://ministeriodejovenesicc.netlify.app";
+
+// Consultar la cuota de envío restante de Google para hoy
+function mostrarCuotaRestante() {
+  var quota = MailApp.getRemainingDailyQuota();
+  SpreadsheetApp.getUi().alert("📊 Límite de Google:\n\nTienes " + quota + " envíos de correo disponibles para el día de hoy.");
+}
+
+// Enviar un solo correo de prueba para validar el diseño y enlaces
+function enviarCorreoPrueba() {
+  var testEmail = "kevito.valdez@gmail.com";
+  var testName = "Kevin (Prueba)";
+  var testTicket = "121-ICC-0001";
+  
+  // Generar enlaces de autologin de prueba
+  var preorderLink = APP_URL + "/menu-preorden?code=" + encodeURIComponent(testTicket);
+  var confirmLink = APP_URL + "/confirmar-asistencia?code=" + encodeURIComponent(testTicket);
+  
+  // Obtener el HTML personalizado
+  var htmlBody = obtenerPlantillaHTML(testName, preorderLink, confirmLink);
+  
+  try {
+    MailApp.sendEmail({
+      to: testEmail,
+      subject: "🧪 [Prueba] Confirma tu asistencia y pre-ordena tu comida - Sin Filtros 2026",
+      htmlBody: htmlBody,
+      name: "Conferencia Sin Filtros"
+    });
+    SpreadsheetApp.getUi().alert("¡Correo de prueba enviado con éxito a " + testEmail + "!");
+  } catch (err) {
+    SpreadsheetApp.getUi().alert("Error enviando correo de prueba: " + err.toString());
+  }
+}
+
+// Enviar correos masivos a todos los inscritos activos sin confirmar
+function enviarCorreoMasivoInscritos() {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Conferencia") || SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  var data = sheet.getDataRange().getValues();
+  
+  var count = 0;
+  var limitePorEjecucion = 100;
+  
+  for (var i = 1; i < data.length; i++) {
+    var ticketCode = data[i][2];  // Columna C: Código
+    var firstName = data[i][3];   // Columna D: Nombre
+    var email = data[i][5];       // Columna F: Correo
+    var event = data[i][12] || ''; // Columna M: Evento
+    var yaConfirmado = data[i][15]; // Columna P: Confirmación de Asistencia (Si/No)
+    
+    var isConferencia = (event === "Conferencia Sin Filtros") && (ticketCode && ticketCode.indexOf("RESET") === -1);
+    
+    if (email && email.indexOf("@") !== -1 && isConferencia && !yaConfirmado) {
+      // Generar enlaces personalizados de autologin
+      var preorderLink = APP_URL + "/menu-preorden?code=" + encodeURIComponent(ticketCode);
+      var confirmLink = APP_URL + "/confirmar-asistencia?code=" + encodeURIComponent(ticketCode);
+      
+      // Obtener el HTML personalizado
+      var htmlBody = obtenerPlantillaHTML(firstName, preorderLink, confirmLink);
+      
+      try {
+        MailApp.sendEmail({
+          to: email,
+          subject: "¡Importante! Confirma tu asistencia y pre-ordena tu comida - Conferencia Sin Filtros 2026",
+          htmlBody: htmlBody,
+          name: "Conferencia Sin Filtros"
+        });
+        
+        count++;
+        
+        // Registrar fecha de envío en la columna Q (Columna 17)
+        sheet.getRange(i + 1, 17).setValue("Enviado el " + new Date().toLocaleDateString());
+        Utilities.sleep(150); // Evitar saturación
+      } catch (err) {
+        console.error("Error enviando a " + email + ": " + err.toString());
+      }
+      
+      if (count >= limitePorEjecucion) {
+        break;
+      }
+    }
+  }
+  
+  SpreadsheetApp.getUi().alert("Envío masivo completado. Se enviaron " + count + " correos electrónicos.");
+}
+
+// Función auxiliar para enmascarar el correo
+function maskEmailForSearch(email) {
+  if (!email) return "";
+  var parts = email.split("@");
+  if (parts.length < 2) return "***";
+  var name = parts[0];
+  var domain = parts[1];
+  if (name.length <= 2) return "**@" + domain;
+  return name.substring(0, 2) + "***@" + domain;
+}
+
+function obtenerPlantillaHTML(nombre, linkPreorden, linkConfirmacion) {
+  var urlImagenPrograma = "https://ministeriodejovenesicc.netlify.app/expositores-sin-filtros-naranja.jpeg";
+  
+  return `
+  <!DOCTYPE html>
+  <html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Conferencia Sin Filtros 2026</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: 'Segoe UI', Helvetica, Arial, sans-serif;
+        background-color: #0d0d0d;
+        color: #ffffff;
+      }
+      .email-container {
+        max-width: 600px;
+        margin: 0 auto;
+        background-color: #121212;
+        border-radius: 12px;
+        overflow: hidden;
+        border: 1px solid #222222;
+      }
+      .header {
+        background: linear-gradient(135deg, #f57c00 0%, #ffb74d 100%);
+        padding: 30px 20px;
+        text-align: center;
+      }
+      .header h1 {
+        margin: 0;
+        color: #000000;
+        font-size: 24px;
+        font-weight: 800;
+        letter-spacing: 1px;
+      }
+      .content {
+        padding: 30px 20px;
+        line-height: 1.6;
+        color: #cccccc;
+      }
+      .content h2 {
+        color: #ffffff;
+        font-size: 20px;
+        margin-top: 0;
+        border-bottom: 1px solid #333333;
+        padding-bottom: 10px;
+      }
+      .highlight {
+        color: #f57c00;
+        font-weight: 700;
+      }
+      .program-image-box {
+        text-align: center;
+        margin: 25px 0;
+      }
+      .program-image {
+        max-width: 100%;
+        border-radius: 8px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+      }
+      .vendor-card {
+        background-color: #1a1a1a;
+        border: 1px solid #333333;
+        border-radius: 8px;
+        padding: 15px;
+        margin-bottom: 15px;
+        display: flex;
+        align-items: center;
+      }
+      .vendor-avatar {
+        font-size: 32px;
+        margin-right: 15px;
+      }
+      .vendor-info h4 {
+        margin: 0 0 5px 0;
+        color: #ffffff;
+        font-size: 16px;
+      }
+      .vendor-info p {
+        margin: 0;
+        font-size: 13px;
+        color: #aaaaaa;
+      }
+      .btn-container {
+        text-align: center;
+        margin: 30px 0;
+      }
+      .btn {
+        display: inline-block;
+        padding: 14px 28px;
+        border-radius: 8px;
+        font-weight: bold;
+        text-decoration: none;
+        font-size: 15px;
+        transition: transform 0.2s;
+        margin: 5px;
+      }
+      .btn-primary {
+        background-color: #f57c00;
+        color: #000000 !important;
+        box-shadow: 0 4px 15px rgba(245, 124, 0, 0.3);
+      }
+      .btn-success {
+        background-color: #10b981;
+        color: #ffffff !important;
+        box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+      }
+      .footer {
+        background-color: #0a0a0a;
+        padding: 20px;
+        text-align: center;
+        font-size: 12px;
+        color: #666666;
+        border-top: 1px solid #222222;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="email-container" style="margin-top: 20px; margin-bottom: 20px;">
+      <!-- Header -->
+      <div class="header">
+        <h1>CONFERENCIA "SIN FILTROS" 2026</h1>
+      </div>
+      
+      <!-- Body -->
+      <div class="content">
+        <h2>Hola, ${nombre} 👋</h2>
+        <p>¡Esperamos que estés listo para vivir una experiencia transformadora en nuestra próxima Conferencia Conectados <strong>"Sin Filtros" 2026</strong>!</p>
+        
+        <p>Queremos compartir contigo el cronograma del programa para que conozcas los detalles de las sesiones:</p>
+        
+        <!-- Imagen del programa -->
+        <div class="program-image-box">
+          <img src="${urlImagenPrograma}" alt="Programa Conferencia Sin Filtros" class="program-image" width="100%">
+        </div>
+
+        <h3 style="color: #ffffff; margin-top: 30px;">📢 Paso 1: Confirma tu Asistencia Física (Requerido)</h3>
+        <p>Debido al cupo limitado del auditorio, requerimos que nos confirmes si asistirás presencialmente. En caso de que no puedas ir, tu lugar se cederá a personas en lista de espera:</p>
+        
+        <div class="btn-container" style="margin-bottom: 40px;">
+          <a href="${linkConfirmacion}" class="btn btn-success" target="_blank">Confirmar mi Asistencia</a>
+        </div>
+
+        <h3 style="color: #ffffff; margin-top: 30px;">🍔 Paso 2: Pre-ordena tu comida (Opcional)</h3>
+        <p>Para agilizar la entrega en los breaks y evitar filas, contaremos con dos increíbles negocios locales donde podrás pre-ordenar tu comida por adelantado:</p>
+        
+        <!-- Pechurica Card -->
+        <div class="vendor-card">
+          <div class="vendor-logo-wrapper" style="margin-right: 15px; flex-shrink: 0;">
+            <img src="https://ministeriodejovenesicc.netlify.app/pechurica-logo.png" width="48" height="48" style="border-radius: 50%; border: 1px solid #333333; display: block;" alt="Pechurica La Fe">
+          </div>
+          <div class="vendor-info">
+            <h4>Pechurica La Fe</h4>
+            <p>Combos de pechuricas crujientes con papas fritas y refresco. Aceptan efectivo y tarjeta.</p>
+          </div>
+        </div>
+        
+        <!-- Marite Card -->
+        <div class="vendor-card">
+          <div class="vendor-logo-wrapper" style="margin-right: 15px; flex-shrink: 0;">
+            <img src="https://ministeriodejovenesicc.netlify.app/marite-logo.png" width="48" height="48" style="border-radius: 50%; border: 1px solid #333333; display: block;" alt="Marité Postres">
+          </div>
+          <div class="vendor-info">
+            <h4>Marité Postres Artesanales</h4>
+            <p>Deliciosos helados artesanales dominicanos (Coco, Dulce de Leche, etc.). Aceptan efectivo y transferencia.</p>
+          </div>
+        </div>
+
+        <p>El enlace de abajo abrirá el menú e **iniciará sesión automáticamente** con tu boleto para que solo tengas que elegir tu orden en segundos:</p>
+        
+        <div class="btn-container">
+          <a href="${linkPreorden}" class="btn btn-primary" target="_blank">Pre-ordenar Comida Ahora</a>
+        </div>
+        
+        <p style="font-size: 13px; color: #888888; border-top: 1px solid #333333; padding-top: 15px; margin-top: 30px;">
+          ⚠️ <em>Nota: El pago de la comida no se realiza en línea. Pagarás en efectivo, tarjeta o transferencia directamente en el stand de cada negocio durante los recesos de la conferencia.</em>
+        </p>
+      </div>
+      
+      <!-- Footer -->
+      <div class="footer">
+        <p>Este correo electrónico fue enviado de forma automática a los inscritos de la Conferencia Sin Filtros 2026.</p>
+        <p>© 2026 Ministerio de Jóvenes ICC. Todos los derechos reservados.</p>
+      </div>
+    </div>
+  </body>
+  </html>
+  `;
 }

@@ -1,50 +1,48 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useLocation, Link, useNavigate } from 'react-router-dom';
-import { Search, ShoppingBag, Plus, Minus, ArrowLeft, CheckCircle2, AlertCircle, RefreshCw, Store, X } from 'lucide-react';
+import { Search, ShoppingBag, Plus, Minus, ArrowLeft, CheckCircle2, AlertCircle, RefreshCw, Store, X, ExternalLink, Image } from 'lucide-react';
 import { getImageUrl } from '../../config/images';
 import './PreOrderMenu.css';
 
 // Mock/Placeholder configuration of food businesses (to be replaced by the user once confirmed)
 const VENDORS = [
   {
-    id: 'burgers',
-    name: 'Burgers & Co.',
-    category: 'Hamburguesas y Parrilla',
-    description: 'Hamburguesas artesanales con carne 100% Angus, pan brioche horneado a diario y aderezos especiales.',
-    logo: '🍔',
+    id: 'pechurica',
+    name: 'Pechurica La Fe',
+    category: 'Pechuritas y Más',
+    description: 'Pechuricas crujientes acompañadas de papas fritas y salsas especiales.',
+    logo: '/pechurica-logo.png',
     items: [
-      { id: 'b1', name: 'Burger Clásica', price: 350, description: 'Carne Angus 150g, queso cheddar fundido, lechuga, tomate y salsa especial.' },
-      { id: 'b2', name: 'Bacon Burger', price: 450, description: 'Carne Angus 150g, doble queso cheddar, tocineta crujiente, aros de cebolla y BBQ.' },
-      { id: 'b3', name: 'Papas Fritas Sazonadas', price: 150, description: 'Papas crujientes con sazón de la casa y salsa alioli.' }
-    ]
+      { id: 'p1', name: 'Combo 4 Pechuricas', price: 315, description: '4 Pechuricas + Papas + salsa + Refresco 12 Oz.' },
+      { id: 'p2', name: 'Combo 7 Pechuricas', price: 485, description: '7 Pechuricas + Papas + salsa + Refresco 12 Oz.' },
+      { id: 'p3', name: 'Combo 8 Pechuricas', price: 545, description: '8 Pechuricas + Papas + salsa + Refresco 12 Oz.' },
+      { id: 'p4', name: 'Bollito de Yuca', price: 50, description: 'Bollito de yuca frito.' },
+      { id: 'p5', name: 'Agua', price: 25, description: 'Agua embotellada.' }
+    ],
+    instagram: 'https://www.instagram.com/pechuricalaferd/',
+    paymentMethods: 'Efectivo y Tarjeta',
+    menuFlyer: '/pechurica-la-fe.jpeg'
   },
   {
-    id: 'tacos',
-    name: 'Tacos El Camino',
-    category: 'Comida Mexicana',
-    description: 'Auténticos tacos mexicanos y antojitos preparados con tortillas de maíz hechas a mano.',
-    logo: '🌮',
+    id: 'marite',
+    name: 'Marité Postres Artesanales',
+    category: 'Helados Artesanales',
+    description: 'Helados artesanales con calidad que encanta.',
+    instagram: 'https://www.instagram.com/maritepostresartesanales/',
+    logo: '/marite-logo.png',
     items: [
-      { id: 't1', name: 'Tacos al Pastor (3 uds)', price: 280, description: 'Cerdo marinado al pastor, piña, cebolla, cilantro y limón.' },
-      { id: 't2', name: 'Quesadilla de Pollo', price: 320, description: 'Tortilla de harina gigante rellena de pechuga de pollo desmenuzada y abundante queso fundido.' },
-      { id: 't3', name: 'Nachos Supreme', price: 380, description: 'Totopos con queso fundido, frijoles refritos, pico de gallo, guacamole y crema agria.' }
-    ]
-  },
-  {
-    id: 'pizza',
-    name: 'Pizzería Bella',
-    category: 'Pizzas Artesanales',
-    description: 'Pizzas estilo napolitano al horno de piedra con salsa pomodoro casera e ingredientes frescos.',
-    logo: '🍕',
-    items: [
-      { id: 'p1', name: 'Pizza Margherita', price: 350, description: 'Salsa de tomate, queso mozzarella fresco, hojas de albahaca y aceite de oliva virgen.' },
-      { id: 'p2', name: 'Pizza Pepperoni', price: 400, description: 'Abundante queso mozzarella y rebanadas crujientes de pepperoni premium.' },
-      { id: 'p3', name: 'Calzone de Jamón y Queso', price: 420, description: 'Masa rellena de jamón cocido, queso ricotta y mozzarella fresco.' }
-    ]
+      { id: 'm1', name: 'Helado de Coco', price: 125, description: 'Helado artesanal de coco cremosa.' },
+      { id: 'm2', name: 'Helado de Coco Fresa', price: 125, description: 'Helado artesanal de coco con toques de fresa.' },
+      { id: 'm3', name: 'Helado de Chinola Cremosa', price: 125, description: 'Helado artesanal super cremoso de chinola.' },
+      { id: 'm4', name: 'Helado de Dulce de Leche', price: 125, description: 'Helado artesanal sabor dulce de leche.' },
+      { id: 'm5', name: 'Helado de Bizcocho Marmolado', price: 125, description: 'Helado artesanal sabor bizcocho marmolado.' }
+    ],
+    paymentMethods: 'Efectivo y Transferencia',
+    menuFlyer: '/marite-menu.jpeg'
   }
 ];
 
-const IS_PREORDER_AVAILABLE = false;
+const IS_PREORDER_AVAILABLE = true;
 
 const PreOrderMenu = () => {
   const location = useLocation();
@@ -84,8 +82,71 @@ const PreOrderMenu = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const [selectedFlyer, setSelectedFlyer] = useState(null);
   const [devMode, setDevMode] = useState(false);
   const [isCartOpenMobile, setIsCartOpenMobile] = useState(false);
+  const [cartPosition, setCartPosition] = useState({ x: -1, y: -1 });
+  const [hasDragged, setHasDragged] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
+  const dragStart = useRef({ x: 0, y: 0 });
+  const elementStart = useRef({ x: 0, y: 0 });
+
+  const handleTouchStart = (e) => {
+    const touch = e.touches[0];
+    setIsDragging(false);
+    
+    // Get actual current position relative to screen on first touch
+    const rect = e.currentTarget.getBoundingClientRect();
+    const currentX = rect.left;
+    const currentY = rect.top;
+    
+    setCartPosition({ x: currentX, y: currentY });
+    setHasDragged(true);
+    
+    dragStart.current = { x: touch.clientX, y: touch.clientY };
+    elementStart.current = { x: currentX, y: currentY };
+  };
+
+  const handleTouchMove = (e) => {
+    // Prevent default browser scrolling behavior when dragging the cart balloon
+    if (e.cancelable) {
+      e.preventDefault();
+    }
+    
+    const touch = e.touches[0];
+    const dx = touch.clientX - dragStart.current.x;
+    const dy = touch.clientY - dragStart.current.y;
+    
+    if (Math.abs(dx) > 5 || Math.abs(dy) > 5) {
+      setIsDragging(true);
+    }
+    
+    const newX = Math.max(10, Math.min(window.innerWidth - 75, elementStart.current.x + dx));
+    const newY = Math.max(10, Math.min(window.innerHeight - 75, elementStart.current.y + dy));
+    
+    setCartPosition({ x: newX, y: newY });
+  };
+
+  const handleTouchEnd = (e) => {
+    if (!isDragging) {
+      setIsCartOpenMobile(true);
+    }
+    setIsDragging(false);
+    // Prevent simulated mouse clicks after touch actions
+    if (e.cancelable) {
+      e.preventDefault();
+    }
+  };
+
+  // Reset balloon position on screen resize (e.g. rotation, responsive simulator toggle)
+  useEffect(() => {
+    const handleResize = () => {
+      setHasDragged(false);
+      setCartPosition({ x: -1, y: -1 });
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   // Read ticket code from URL query parameter if present on load
   useEffect(() => {
@@ -314,7 +375,7 @@ const PreOrderMenu = () => {
       <div className="container" style={{ maxWidth: '1000px' }}>
         
         {/* Back Link */}
-        <div style={{ marginBottom: '2rem' }}>
+        <div className="back-link-wrapper">
           <Link to="/" className="back-link">
             <ArrowLeft size={16} />
             <span>Volver al Inicio</span>
@@ -420,7 +481,17 @@ const PreOrderMenu = () => {
                     className={`vendor-tab-btn ${activeVendor === v.id ? 'active' : ''}`}
                     onClick={() => setActiveVendor(v.id)}
                   >
-                    <span style={{ fontSize: '1.1rem' }}>{v.logo}</span>
+                    <span style={{ fontSize: '1.1rem', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '22px', height: '22px' }}>
+                      {v.logo && (v.logo.startsWith('/') || v.logo.startsWith('http')) ? (
+                        <img 
+                          src={getImageUrl(v.logo)} 
+                          alt="" 
+                          style={{ width: '100%', height: '100%', objectFit: 'contain', borderRadius: '50%' }} 
+                        />
+                      ) : (
+                        v.logo
+                      )}
+                    </span>
                     <span>{v.name}</span>
                   </button>
                 ))}
@@ -431,14 +502,119 @@ const PreOrderMenu = () => {
                 {filteredVendors.map(vendor => (
                   <div key={vendor.id} className="vendor-section glass-panel">
                     <div className="vendor-header-row">
-                      <div className="vendor-logo-box">{vendor.logo}</div>
+                      <div className="vendor-logo-box" style={{ overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '50%', background: 'rgba(255,255,255,0.05)' }}>
+                        {vendor.logo && (vendor.logo.startsWith('/') || vendor.logo.startsWith('http')) ? (
+                          <img 
+                            src={getImageUrl(vendor.logo)} 
+                            alt={vendor.name} 
+                            style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+                          />
+                        ) : (
+                          vendor.logo
+                        )}
+                      </div>
                       <div>
-                        <h2 className="vendor-title-text">{vendor.name}</h2>
-                        <span className="vendor-category-badge">{vendor.category}</span>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+                          <h2 className="vendor-title-text" style={{ margin: 0 }}>{vendor.name}</h2>
+                          {vendor.instagram && (
+                            <a 
+                              href={vendor.instagram} 
+                              target="_blank" 
+                              rel="noopener noreferrer" 
+                              style={{ 
+                                display: 'inline-flex', 
+                                alignItems: 'center', 
+                                gap: '4px', 
+                                fontSize: '0.8rem', 
+                                color: 'var(--accent-color)', 
+                                textDecoration: 'none',
+                                fontWeight: '700',
+                                padding: '2px 8px',
+                                borderRadius: '4px',
+                                background: 'rgba(255, 255, 255, 0.05)',
+                                border: '1px solid rgba(255, 255, 255, 0.1)'
+                              }}
+                            >
+                              <span>Instagram</span>
+                              <ExternalLink size={12} />
+                            </a>
+                          )}
+                        </div>
+                        <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap', marginTop: '6px' }}>
+                          <span className="vendor-category-badge" style={{ margin: 0 }}>{vendor.category}</span>
+                          {vendor.menuFlyer && (
+                            <button
+                              onClick={() => setSelectedFlyer(vendor.menuFlyer)}
+                              className="vendor-flyer-btn"
+                              style={{
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '4px',
+                                fontSize: '0.75rem',
+                                color: 'white',
+                                fontWeight: '700',
+                                padding: '2px 8px',
+                                borderRadius: '4px',
+                                background: 'rgba(245, 124, 0, 0.12)',
+                                border: '1px solid rgba(245, 124, 0, 0.3)',
+                                cursor: 'pointer',
+                                transition: 'all 0.2s ease',
+                                height: '22px'
+                              }}
+                            >
+                              <Image size={11} />
+                              <span>Ver Menú (Foto)</span>
+                            </button>
+                          )}
+                        </div>
                       </div>
                     </div>
                     
                     <p className="vendor-desc-text">{vendor.description}</p>
+                    
+                    {vendor.id === 'pechurica' && (
+                      <div style={{
+                        background: 'rgba(245, 124, 0, 0.08)',
+                        border: '1px solid rgba(245, 124, 0, 0.25)',
+                        color: 'var(--accent-light, #ffffff)',
+                        padding: '0.8rem 1rem',
+                        borderRadius: '8px',
+                        fontSize: '0.82rem',
+                        marginBottom: '1.2rem',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '8px',
+                        fontWeight: '500',
+                        lineHeight: '1.4'
+                      }}>
+                        <span style={{ fontSize: '1.1rem' }}>💳</span>
+                        <span>
+                          <strong>Nota de Pago:</strong> Para Pechurica La Fe, se aceptarán pagos en <strong>Efectivo</strong> y <strong>Tarjeta de crédito/débito</strong> directamente en el stand al retirar.
+                        </span>
+                      </div>
+                    )}
+
+                    {vendor.id === 'marite' && (
+                      <div style={{
+                        background: 'rgba(245, 124, 0, 0.08)',
+                        border: '1px solid rgba(245, 124, 0, 0.25)',
+                        color: 'var(--accent-light, #ffffff)',
+                        padding: '0.8rem 1rem',
+                        borderRadius: '8px',
+                        fontSize: '0.82rem',
+                        marginBottom: '1.2rem',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '8px',
+                        fontWeight: '500',
+                        lineHeight: '1.4'
+                      }}>
+                        <span style={{ fontSize: '1.1rem' }}>💵</span>
+                        <span>
+                          <strong>Nota de Pago:</strong> Para los helados de Marité, solo se aceptarán pagos en <strong>Efectivo</strong> y <strong>Transferencia bancaria</strong> directamente en el stand al retirar.
+                        </span>
+                      </div>
+                    )}
                     
                     <div className="dishes-grid">
                       {vendor.items.map(item => (
@@ -482,7 +658,7 @@ const PreOrderMenu = () => {
                   <ShoppingBag size={20} className="text-gradient" />
                   <h3 className="cart-title-text">Tu Pre-orden</h3>
                   {getCartTotalItems() > 0 && (
-                    <span className="cart-counter-bubble">{getCartTotalItems()}</span>
+                    <span key={getCartTotalItems()} className="cart-counter-bubble animate-pop">{getCartTotalItems()}</span>
                   )}
                 </div>
 
@@ -500,6 +676,14 @@ const PreOrderMenu = () => {
                           <div className="cart-item-details">
                             <span className="cart-item-title">{entry.item.name}</span>
                             <span className="cart-item-vendor">{entry.vendorName}</span>
+                            <span style={{ 
+                              fontSize: '0.72rem', 
+                              color: 'var(--text-secondary)', 
+                              opacity: 0.8,
+                              marginBottom: '0.2rem'
+                            }}>
+                              Pago: {VENDORS.find(v => v.name === entry.vendorName)?.paymentMethods || 'Efectivo/Transferencia'}
+                            </span>
                             <span className="cart-item-subtotal">RD$ {entry.item.price} c/u</span>
                           </div>
                           <div className="cart-item-actions">
@@ -558,22 +742,46 @@ const PreOrderMenu = () => {
           </div>
         )}
 
-        {/* Mobile Persistent Floating Cart Bar */}
+        {/* Mobile Draggable Floating Cart Balloon/Badge */}
         {isVerified && !submitSuccess && getCartTotalItems() > 0 && (
-          <div className="mobile-cart-floating-bar glass-panel animate-fade-in">
-            <div className="mobile-cart-bar-info">
-              <div className="mobile-cart-icon-wrapper">
-                <ShoppingBag size={20} className="text-gradient" />
-                <span className="mobile-cart-qty-badge">{getCartTotalItems()}</span>
-              </div>
-              <div className="mobile-cart-text-details">
-                <span className="mobile-cart-label">Tu Pre-orden</span>
-                <span className="mobile-cart-total-amount">RD$ {getCartTotalAmount()}</span>
-              </div>
-            </div>
-            <button className="btn-primary mobile-cart-bar-action-btn" onClick={() => setIsCartOpenMobile(true)}>
-              Ver Pre-orden
-            </button>
+          <div 
+            className="mobile-cart-floating-balloon"
+            style={hasDragged ? {
+              left: `${cartPosition.x}px`,
+              top: `${cartPosition.y}px`,
+            } : undefined}
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
+            onClick={() => setIsCartOpenMobile(true)}
+          >
+            {/* Cart Icon */}
+            <ShoppingBag size={24} key={`icon-${getCartTotalItems()}`} className="animate-pop" />
+            
+            {/* Qty Badge */}
+            <span 
+              key={`badge-${getCartTotalItems()}`}
+              className="animate-pop"
+              style={{
+                position: 'absolute',
+                top: '-5px',
+                right: '-5px',
+                background: '#ef4444',
+                color: 'white',
+                fontSize: '0.75rem',
+                fontWeight: '800',
+                borderRadius: '50%',
+                width: '22px',
+                height: '22px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                border: '2px solid var(--bg-primary)',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.3)'
+              }}
+            >
+              {getCartTotalItems()}
+            </span>
           </div>
         )}
 
@@ -598,6 +806,14 @@ const PreOrderMenu = () => {
                       <div className="cart-item-details">
                         <span className="cart-item-title">{entry.item.name}</span>
                         <span className="cart-item-vendor">{entry.vendorName}</span>
+                        <span style={{ 
+                          fontSize: '0.72rem', 
+                          color: 'var(--text-secondary)', 
+                          opacity: 0.8,
+                          marginBottom: '0.2rem'
+                        }}>
+                          Pago: {VENDORS.find(v => v.name === entry.vendorName)?.paymentMethods || 'Efectivo/Transferencia'}
+                        </span>
                         <span className="cart-item-subtotal">RD$ {entry.item.price} c/u</span>
                       </div>
                       <div className="cart-item-actions">
@@ -671,8 +887,15 @@ const PreOrderMenu = () => {
                 <h4 style={{ fontWeight: '700', fontSize: '1.1rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.8rem', marginBottom: '1rem' }}>Resumen de Pre-orden</h4>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', fontSize: '0.92rem' }}>
                   {Object.values(cart).map(entry => (
-                    <div key={entry.item.id} style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--text-secondary)' }}>
-                      <span><strong>{entry.quantity}x</strong> {entry.item.name} <span style={{ fontSize: '0.8rem', opacity: 0.7 }}>({entry.vendorName})</span></span>
+                    <div key={entry.item.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', color: 'var(--text-secondary)' }}>
+                      <div style={{ display: 'flex', flexDirection: 'column' }}>
+                        <span>
+                          <strong>{entry.quantity}x</strong> {entry.item.name} <span style={{ fontSize: '0.8rem', opacity: 0.7 }}>({entry.vendorName})</span>
+                        </span>
+                        <span style={{ fontSize: '0.75rem', color: 'var(--accent-color)', opacity: 0.8, marginTop: '2px' }}>
+                          Pago: {VENDORS.find(v => v.name === entry.vendorName)?.paymentMethods || 'Efectivo/Transferencia'}
+                        </span>
+                      </div>
                       <span style={{ color: 'white' }}>RD$ {entry.item.price * entry.quantity}</span>
                     </div>
                   ))}
@@ -704,6 +927,80 @@ const PreOrderMenu = () => {
           </div>
         )}
 
+        {/* Lightbox Modal for Menu Flyer Images */}
+        {selectedFlyer && (
+          <div 
+            style={{
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              width: '100%',
+              height: '100%',
+              background: 'rgba(0, 0, 0, 0.95)',
+              backdropFilter: 'blur(10px)',
+              WebkitBackdropFilter: 'blur(10px)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              zIndex: 9999,
+              padding: '20px'
+            }}
+            onClick={() => setSelectedFlyer(null)}
+            className="animate-fade-in"
+          >
+            {/* Close Button */}
+            <button 
+              onClick={() => setSelectedFlyer(null)}
+              style={{
+                position: 'absolute',
+                top: '20px',
+                right: '20px',
+                background: 'rgba(255, 255, 255, 0.1)',
+                border: '1px solid rgba(255, 255, 255, 0.2)',
+                color: 'white',
+                borderRadius: '50%',
+                width: '40px',
+                height: '40px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                zIndex: 10000
+              }}
+              className="qty-action-btn"
+            >
+              <X size={24} />
+            </button>
+
+            {/* Flyer Image Container */}
+            <div 
+              style={{
+                position: 'relative',
+                maxWidth: '90%',
+                maxHeight: '90vh',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                boxShadow: '0 10px 30px rgba(0, 0, 0, 0.6)',
+                borderRadius: '8px',
+                overflow: 'hidden'
+              }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <img 
+                src={getImageUrl(selectedFlyer)} 
+                alt="Menú con Fotos" 
+                style={{
+                  maxWidth: '100%',
+                  maxHeight: '85vh',
+                  objectFit: 'contain',
+                  borderRadius: '8px'
+                }}
+              />
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
