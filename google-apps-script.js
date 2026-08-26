@@ -1560,14 +1560,32 @@ function enviarCorreoPreordenComida(data) {
   if (vendorBreakdowns.length > 0) {
     for (var vi = 0; vi < vendorBreakdowns.length; vi++) {
       var vb = vendorBreakdowns[vi];
+      var paymentMethod = vb.paymentMethods;
+      if (!paymentMethod) {
+        if (vb.vendorName && vb.vendorName.toLowerCase().indexOf("pechurica") !== -1) {
+          paymentMethod = "Efectivo y Tarjeta";
+        } else if (vb.vendorName && vb.vendorName.toLowerCase().indexOf("marit") !== -1) {
+          paymentMethod = "Efectivo y Transferencia";
+        } else {
+          paymentMethod = "Efectivo";
+        }
+      }
+
       vendorSectionsHtml += `
         <tr>
           <td style="padding-top: 16px;">
             <div style="background-color: ${theme.detailsBg}; border: 1px solid ${theme.detailsBorderColor}; border-radius: 10px; padding: 16px; margin-bottom: 4px;">
               <div style="font-size: 11px; color: ${theme.textColorMuted}; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px;">Negocio</div>
-              <div style="font-size: 15px; font-weight: 800; color: #ffffff; margin-bottom: 10px;">${vb.vendorName}</div>
+              <div style="font-size: 16px; font-weight: 800; color: #ffffff; margin-bottom: 10px;">${vb.vendorName}</div>
+              
               <div style="font-size: 11px; color: ${theme.textColorMuted}; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px;">Detalle del Pedido</div>
-              <div style="font-size: 13px; color: #dddddd; margin-bottom: 10px; line-height: 1.5;">${vb.details}</div>
+              <div style="font-size: 13px; color: #dddddd; margin-bottom: 12px; line-height: 1.5;">${vb.details}</div>
+              
+              <div style="background-color: rgba(245, 124, 0, 0.08); border-left: 3px solid #f57c00; padding: 8px 12px; border-radius: 4px; margin-bottom: 12px;">
+                <div style="font-size: 11px; color: #f57c00; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 700; margin-bottom: 2px;">💳 Métodos de Pago en este Stand:</div>
+                <div style="font-size: 13px; color: #ffffff; font-weight: 600;">${paymentMethod}</div>
+              </div>
+
               <div style="font-size: 11px; color: ${theme.textColorMuted}; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px;">Total a Pagar en este Stand</div>
               <div style="font-size: 18px; font-weight: 800; color: ${theme.headerColor};">RD$ ${Number(vb.subtotal).toLocaleString()}</div>
             </div>

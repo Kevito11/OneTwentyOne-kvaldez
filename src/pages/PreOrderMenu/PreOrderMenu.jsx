@@ -301,7 +301,13 @@ const PreOrderMenu = () => {
     items.forEach(entry => {
       const vid = entry.vendorId;
       if (!byVendor[vid]) {
-        byVendor[vid] = { vendorName: entry.vendorName, items: [], subtotal: 0 };
+        const vInfo = VENDORS.find(v => v.id === vid);
+        byVendor[vid] = { 
+          vendorName: entry.vendorName, 
+          paymentMethods: vInfo ? vInfo.paymentMethods : 'Efectivo',
+          items: [], 
+          subtotal: 0 
+        };
       }
       byVendor[vid].items.push(`${entry.quantity}x ${entry.item.name} (RD$${entry.item.price * entry.quantity})`);
       byVendor[vid].subtotal += entry.item.price * entry.quantity;
@@ -309,6 +315,7 @@ const PreOrderMenu = () => {
 
     const vendorBreakdowns = Object.values(byVendor).map(v => ({
       vendorName: v.vendorName,
+      paymentMethods: v.paymentMethods,
       details: v.items.join(', '),
       subtotal: v.subtotal
     }));
