@@ -139,10 +139,11 @@ const ConfirmAttendance = () => {
   const handleReset = () => {
     setIsVerified(false);
     setTicketCode('');
-    setSearchCode('');
     setUserData(null);
     setSubmitSuccess(false);
     setAttendanceChoice(null);
+    setSearchError('');
+    setErrorMessage('');
   };
 
   return (

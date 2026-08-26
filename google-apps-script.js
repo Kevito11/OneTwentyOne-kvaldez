@@ -37,10 +37,13 @@ function doPost(e) {
           .setMimeType(ContentService.MimeType.JSON);
       }
 
-      var foodSheet = activeSpreadsheet.getSheetByName("Pre-ordenes Comida");
+      var foodSheet = activeSpreadsheet.getSheetByName("Pre-ordenes Menú");
       if (!foodSheet) {
-        foodSheet = activeSpreadsheet.insertSheet("Pre-ordenes Comida");
-        var headers = ["Fecha", "Hora", "Código de Boleto", "Nombre", "Apellido", "Correo", "Teléfono", "Detalle de Pre-orden", "Negocios Seleccionados", "Total Estimado"];
+        foodSheet = activeSpreadsheet.insertSheet("Pre-ordenes Menú");
+        var headers = [
+          "Fecha", "Hora", "Código de Boleto", "Nombre", "Apellido", "Correo", "Teléfono",
+          "Negocio", "Detalle del Pedido", "Total (RD$)"
+        ];
         foodSheet.appendRow(headers);
       }
 
@@ -49,34 +52,54 @@ function doPost(e) {
       var dateFormatted = Utilities.formatDate(now, timezone, "dd/MM/yyyy");
       var timeFormatted = Utilities.formatDate(now, timezone, "hh:mm:ss a");
 
-      var foodValues = foodSheet.getDataRange().getValues();
-      var foodRowIndex = -1;
-      for (var j = 1; j < foodValues.length; j++) {
-        if (String(foodValues[j][2]).trim() === String(codeToFind).trim()) {
-          foodRowIndex = j + 1;
-          break;
+      // Extract per-vendor data from vendorBreakdowns
+      var vendorBreakdowns = data.vendorBreakdowns || [];
+
+      // Fallback: if no breakdown, create one entry with combined data
+      if (vendorBreakdowns.length === 0 && data.preorderDetails) {
+        vendorBreakdowns = [{ vendorName: "General", details: data.preorderDetails, subtotal: data.totalEstimated || 0 }];
+      }
+
+      // For each vendor, write or update ONE row in the sheet (keyed by ticket + vendorName)
+      var existingValues = foodSheet.getDataRange().getValues();
+
+      for (var vb = 0; vb < vendorBreakdowns.length; vb++) {
+        var vbEntry = vendorBreakdowns[vb];
+        var foundRowIndex = -1;
+
+        // Look for an existing row for this ticket + vendor
+        for (var j = 1; j < existingValues.length; j++) {
+          var rowTicket = String(existingValues[j][2]).trim();
+          var rowVendor = String(existingValues[j][7]).trim();
+          if (rowTicket === String(codeToFind).trim() && rowVendor === vbEntry.vendorName) {
+            foundRowIndex = j + 1;
+            break;
+          }
+        }
+
+        var rowData = [
+          dateFormatted,
+          timeFormatted,
+          codeToFind,
+          foundUser.firstName,
+          foundUser.lastName,
+          foundUser.email,
+          foundUser.phone,
+          vbEntry.vendorName,
+          vbEntry.details || "Ninguno",
+          vbEntry.subtotal || 0
+        ];
+
+        if (foundRowIndex !== -1) {
+          foodSheet.getRange(foundRowIndex, 1, 1, rowData.length).setValues([rowData]);
+        } else {
+          foodSheet.appendRow(rowData);
+          // Update existingValues cache to avoid duplicate appends in same run
+          existingValues.push(rowData);
         }
       }
 
-      var rowData = [
-        dateFormatted,
-        timeFormatted,
-        codeToFind,
-        foundUser.firstName,
-        foundUser.lastName,
-        foundUser.email,
-        foundUser.phone,
-        data.preorderDetails || 'Ninguno',
-        data.selectedVendors || 'Ninguno',
-        data.totalEstimated || 0
-      ];
-
-      if (foodRowIndex !== -1) {
-        foodSheet.getRange(foodRowIndex, 1, 1, rowData.length).setValues([rowData]);
-      } else {
-        foodSheet.appendRow(rowData);
-      }
-
+      // Send ONE confirmation email with full breakdown grouped by vendor
       try {
         enviarCorreoPreordenComida({
           email: foundUser.email,
@@ -84,16 +107,17 @@ function doPost(e) {
           lastName: foundUser.lastName,
           ticketCode: codeToFind,
           preorderDetails: data.preorderDetails,
+          vendorBreakdowns: vendorBreakdowns,
           totalEstimated: data.totalEstimated,
           activeTheme: data.activeTheme
         });
       } catch (emailError) {
-        console.error("Error al enviar correo de pre-orden de comida: " + emailError.toString());
+        console.error("Error al enviar correo de confirmación de menú: " + emailError.toString());
       }
 
       return ContentService.createTextOutput(JSON.stringify({
         status: 'success',
-        message: 'Pre-orden de comida registrada correctamente.'
+        message: 'Tu orden ha sido registrada correctamente.'
       })).setMimeType(ContentService.MimeType.JSON);
     }
 
@@ -165,7 +189,6 @@ function doPost(e) {
       var attending = data.attending; // "Si" o "No"
       
       var sheet = activeSpreadsheet.getSheetByName("Conferencia") || activeSpreadsheet.getActiveSheet();
-      setupHeaders(sheet);
       
       var values = sheet.getDataRange().getValues();
       var foundRowIndex = -1;
@@ -194,7 +217,6 @@ function doPost(e) {
       var ticketCode = data.ticketCode;
       
       var sheet = activeSpreadsheet.getSheetByName("Conferencia") || activeSpreadsheet.getActiveSheet();
-      setupHeaders(sheet);
       
       var values = sheet.getDataRange().getValues();
       var foundRowIndex = -1;
@@ -698,14 +720,14 @@ function onOpen() {
     .addSeparator()
     .addSubMenu(pruebasVigiliaMenu);
 
-  // Submenú de pruebas para Conferencia (solo Pre-orden & Asistencia)
+  // Submenú de pruebas para Conferencia (solo Menú & Asistencia)
   var pruebasConferenciaMenu = ui.createMenu('Pruebas')
-    .addItem('1. Enviar Prueba: Pre-orden & Asistencia (kevito.valdez@gmail.com)', 'enviarCorreoPrueba')
+    .addItem('1. Enviar Prueba: Menú y precios & Asistencia (kevito.valdez@gmail.com)', 'enviarCorreoPrueba')
     .addItem('2. Consultar correos disponibles hoy', 'mostrarCuotaRestante');
 
   // Menú principal de Conferencia
   var conferenciaMenu = ui.createMenu('Conferencia Sin Filtros')
-    .addItem('1. Enviar Masivo: Pre-orden & Asistencia (A NO CONFIRMADOS)', 'enviarCorreoMasivoInscritos')
+    .addItem('1. Enviar Masivo: Menú y precios & Asistencia (A NO CONFIRMADOS)', 'enviarCorreoMasivoInscritos')
     .addSeparator()
     .addSubMenu(pruebasConferenciaMenu);
 
@@ -1526,79 +1548,101 @@ function getEmailTheme(isVigilia, activeThemeOverride) {
  */
 function enviarCorreoPreordenComida(data) {
   var email = data.email;
-  console.log("Intentando enviar correo de pre-orden de comida a: " + email);
+  console.log("Intentando enviar correo de confirmación de menú a: " + email);
 
-  var subject = "🍔 Pre-Orden de Comida Confirmada - Sin Filtros 2026";
+  var subject = "🍽️ Tu orden en los Breaks está confirmada - Sin Filtros 2026";
   var theme = getEmailTheme(false, data.activeTheme);
-  
+
+  // Build per-vendor HTML sections
+  var vendorBreakdowns = data.vendorBreakdowns || [];
+  var vendorSectionsHtml = "";
+
+  if (vendorBreakdowns.length > 0) {
+    for (var vi = 0; vi < vendorBreakdowns.length; vi++) {
+      var vb = vendorBreakdowns[vi];
+      vendorSectionsHtml += `
+        <tr>
+          <td style="padding-top: 16px;">
+            <div style="background-color: ${theme.detailsBg}; border: 1px solid ${theme.detailsBorderColor}; border-radius: 10px; padding: 16px; margin-bottom: 4px;">
+              <div style="font-size: 11px; color: ${theme.textColorMuted}; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px;">Negocio</div>
+              <div style="font-size: 15px; font-weight: 800; color: #ffffff; margin-bottom: 10px;">${vb.vendorName}</div>
+              <div style="font-size: 11px; color: ${theme.textColorMuted}; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px;">Detalle del Pedido</div>
+              <div style="font-size: 13px; color: #dddddd; margin-bottom: 10px; line-height: 1.5;">${vb.details}</div>
+              <div style="font-size: 11px; color: ${theme.textColorMuted}; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px;">Total a Pagar en este Stand</div>
+              <div style="font-size: 18px; font-weight: 800; color: ${theme.headerColor};">RD$ ${Number(vb.subtotal).toLocaleString()}</div>
+            </div>
+          </td>
+        </tr>`;
+    }
+  } else {
+    // Legacy fallback
+    vendorSectionsHtml = `
+      <tr>
+        <td style="padding-top: 16px;">
+          <div style="background-color: ${theme.detailsBg}; border: 1px solid ${theme.detailsBorderColor}; border-radius: 10px; padding: 16px;">
+            <div style="font-size: 11px; color: ${theme.textColorMuted}; padding-bottom: 2px;">Detalle del Pedido</div>
+            <div style="font-size: 14px; color: #ffffff; padding-bottom: 12px; line-height: 1.4;">${data.preorderDetails}</div>
+            <div style="font-size: 11px; color: ${theme.textColorMuted}; padding-bottom: 2px;">Total Estimado</div>
+            <div style="font-size: 18px; font-weight: bold; color: ${theme.headerColor};">RD$ ${Number(data.totalEstimated).toLocaleString()}</div>
+          </div>
+        </td>
+      </tr>`;
+  }
+
   var htmlBody = `
     <!DOCTYPE html>
     <html>
     <head>
       <meta charset="utf-8">
-      <title>Pre-Orden de Comida - Conferencia Sin Filtros</title>
+      <title>Orden Confirmada - Sin Filtros 2026</title>
     </head>
-    <body style="margin: 0; padding: 0; background-color: ${theme.outerBg}; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; -webkit-font-smoothing: antialiased;">
+    <body style="margin: 0; padding: 0; background-color: ${theme.outerBg}; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
       <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: ${theme.outerBg}; padding: 40px 20px;">
         <tr>
           <td align="center">
             <table width="100%" max-width="500" border="0" cellspacing="0" cellpadding="0" style="max-width: 500px; background-color: ${theme.cardBg}; border: 1px solid ${theme.cardBorderColor}; border-radius: 16px; padding: 32px; text-align: left;">
               <tr>
                 <td align="center" style="padding-bottom: 24px; border-bottom: 1px solid ${theme.cardBorderColor};">
-                  <div style="color: ${theme.textColorMuted}; font-size: 11px; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 6px;">Pre-Orden de Breaks</div>
-                  <div style="font-size: 24px; font-weight: 800; color: ${theme.headerColor}; letter-spacing: -0.5px;">🍔 COMIDA RESERVADA</div>
+                  <div style="color: ${theme.textColorMuted}; font-size: 11px; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 6px;">Menú & Precios - Breaks</div>
+                  <div style="font-size: 24px; font-weight: 800; color: ${theme.headerColor}; letter-spacing: -0.5px;">🍽️ ORDEN CONFIRMADA</div>
                   <div style="color: #666666; font-size: 13px; margin-top: 4px;">Sin Filtros 2026</div>
                 </td>
               </tr>
               <tr>
-                <td style="font-size: 15px; color: #dddddd; line-height: 1.6; padding: 24px 0 16px 0;">
+                <td style="font-size: 15px; color: #dddddd; line-height: 1.6; padding: 24px 0 8px 0;">
                   Hola <strong>${data.firstName}</strong>,<br><br>
-                  Hemos registrado con éxito tu pre-orden de comida para los recesos de la conferencia de jóvenes <strong>Sin Filtros 2026</strong>. 🎉<br><br>
-                  Esta pre-orden nos ayuda a coordinar las cantidades necesarias con los negocios invitados para evitar filas y asegurar que haya suficientes raciones para todos los asistentes.
+                  ¡Tu orden en los stands de los Breaks ha sido registrada exitosamente! 🎉<br><br>
+                  A continuación encontrarás el detalle dividido por negocio. Recuerda que <strong>cada stand recibe su pago por separado</strong>:
                 </td>
               </tr>
+
+              <!-- Asistente -->
               <tr>
-                <td>
-                  <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: ${theme.detailsBg}; border: 1px solid ${theme.detailsBorderColor}; border-radius: 12px; padding: 20px;">
-                    <tr>
-                      <td style="font-size: 11px; color: ${theme.textColorMuted}; padding-bottom: 2px;">Asistente</td>
-                    </tr>
-                    <tr>
-                      <td style="font-size: 15px; font-weight: bold; color: #ffffff; padding-bottom: 12px;">${data.firstName} ${data.lastName}</td>
-                    </tr>
-                    <tr>
-                      <td style="font-size: 11px; color: ${theme.textColorMuted}; padding-bottom: 2px;">Código de Entrada</td>
-                    </tr>
-                    <tr>
-                      <td style="font-size: 16px; font-weight: bold; font-family: monospace; color: ${theme.textCodeColor}; padding-bottom: 12px; letter-spacing: 0.5px;">${data.ticketCode}</td>
-                    </tr>
-                    <tr>
-                      <td style="font-size: 11px; color: ${theme.textColorMuted}; padding-bottom: 2px;">Detalle de Pre-Orden</td>
-                    </tr>
-                    <tr>
-                      <td style="font-size: 14px; color: #ffffff; padding-bottom: 12px; line-height: 1.4;">${data.preorderDetails}</td>
-                    </tr>
-                    <tr>
-                      <td style="font-size: 11px; color: ${theme.textColorMuted}; padding-bottom: 2px;">Total Estimado a Pagar</td>
-                    </tr>
-                    <tr>
-                      <td style="font-size: 16px; font-weight: bold; color: ${theme.headerColor};">RD$ ${Number(data.totalEstimated).toLocaleString()}</td>
-                    </tr>
+                <td style="padding-top: 16px;">
+                  <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: ${theme.detailsBg}; border: 1px solid ${theme.detailsBorderColor}; border-radius: 10px; padding: 16px;">
+                    <tr><td style="font-size: 11px; color: ${theme.textColorMuted}; padding-bottom: 2px;">Asistente</td></tr>
+                    <tr><td style="font-size: 15px; font-weight: bold; color: #ffffff; padding-bottom: 8px;">${data.firstName} ${data.lastName}</td></tr>
+                    <tr><td style="font-size: 11px; color: ${theme.textColorMuted}; padding-bottom: 2px;">Código de Boleto</td></tr>
+                    <tr><td style="font-size: 16px; font-weight: bold; font-family: monospace; color: ${theme.textCodeColor};">${data.ticketCode}</td></tr>
                   </table>
                 </td>
               </tr>
+
+              <!-- Per-vendor sections -->
+              ${vendorSectionsHtml}
+
               <tr>
                 <td style="padding-top: 24px; font-size: 12px; color: ${theme.textColorMuted}; line-height: 1.5; border-top: 1px solid ${theme.cardBorderColor}; margin-top: 24px;">
-                  <strong>⚠️ Recordatorio de Pago:</strong><br>
-                  No necesitas pagar nada en este sitio web. Pagarás tu orden directamente en efectivo o transferencia a los stands correspondientes durante los Breaks de la Conferencia el sábado 29 de agosto.<br><br>
-                  Si tienes alguna duda o necesitas modificar tu pre-orden, escríbenos a nuestra cuenta de Instagram <a href="https://www.instagram.com/onetwentyoneicc" target="_blank" style="color: #ffffff; text-decoration: underline;">@onetwentyoneicc</a>.
+                  <strong>⚠️ Recordatorio:</strong><br>
+                  El pago se realiza directamente en cada stand durante los Breaks del sábado 29 de agosto. No se cobra nada en línea.<br><br>
+                  ¿Tienes dudas? Escríbenos en Instagram <a href="https://www.instagram.com/onetwentyoneicc" target="_blank" style="color: #ffffff; text-decoration: underline;">@onetwentyoneicc</a>.
                 </td>
               </tr>
             </table>
             <table width="100%" max-width="500" border="0" cellspacing="0" cellpadding="0" style="max-width: 500px; text-align: center; margin-top: 20px;">
               <tr>
                 <td style="font-size: 10px; color: #555555; line-height: 1.4;">
-                  Este correo fue enviado automáticamente por tu pre-orden de comida en la plataforma de OneTwentyOne.<br>
+                  Este correo fue enviado automáticamente por tu registro de orden en OneTwentyOne.<br>
                   © 2026 Iglesia De Convertidos a Cristo. Todos los derechos reservados.
                 </td>
               </tr>
@@ -1617,8 +1661,9 @@ function enviarCorreoPreordenComida(data) {
     name: "Sin Filtros 2026"
   });
 
-  console.log("Correo de pre-orden de comida enviado con éxito.");
+  console.log("Correo de confirmación de menú enviado con éxito.");
 }
+
 
 // ==========================================
 // NUEVAS FUNCIONES DE PRE-ORDEN & ASISTENCIA
@@ -1648,7 +1693,7 @@ function enviarCorreoPrueba() {
   try {
     MailApp.sendEmail({
       to: testEmail,
-      subject: "🧪 [Prueba] Confirma tu asistencia y pre-ordena tu comida - Sin Filtros 2026",
+      subject: "🧪 [Prueba] Confirma tu asistencia y conoce el menú - Sin Filtros 2026",
       htmlBody: htmlBody,
       name: "Conferencia Sin Filtros"
     });
@@ -1686,7 +1731,7 @@ function enviarCorreoMasivoInscritos() {
       try {
         MailApp.sendEmail({
           to: email,
-          subject: "¡Importante! Confirma tu asistencia y pre-ordena tu comida - Conferencia Sin Filtros 2026",
+          subject: "🎟️ Confirma tu asistencia y conoce el menú - Sin Filtros 2026",
           htmlBody: htmlBody,
           name: "Conferencia Sin Filtros"
         });
@@ -1721,7 +1766,7 @@ function maskEmailForSearch(email) {
 }
 
 function obtenerPlantillaHTML(nombre, linkPreorden, linkConfirmacion) {
-  var urlImagenPrograma = "https://ministeriodejovenesicc.netlify.app/expositores-sin-filtros-naranja.jpeg";
+  var urlImagenPrograma = "https://ministeriodejovenesicc.netlify.app/cronograma-conferencia.jpeg";
   
   return `
   <!DOCTYPE html>
@@ -1866,8 +1911,8 @@ function obtenerPlantillaHTML(nombre, linkPreorden, linkConfirmacion) {
           <a href="${linkConfirmacion}" class="btn btn-success" target="_blank">Confirmar mi Asistencia</a>
         </div>
 
-        <h3 style="color: #ffffff; margin-top: 30px;">🍔 Paso 2: Pre-ordena tu comida (Opcional)</h3>
-        <p>Para agilizar la entrega en los breaks y evitar filas, contaremos con dos increíbles negocios locales donde podrás pre-ordenar tu comida por adelantado:</p>
+        <h3 style="color: #ffffff; margin-top: 30px;">🍽️ Paso 2: Conoce el Menú y Precios (Opcional)</h3>
+        <p>Para agilizar la entrega en los breaks y evitar filas, contaremos con dos increíbles negocios locales. Conoce su menú y aparta tu orden con anticipación:</p>
         
         <!-- Pechurica Card -->
         <div class="vendor-card">
@@ -1894,11 +1939,11 @@ function obtenerPlantillaHTML(nombre, linkPreorden, linkConfirmacion) {
         <p>El enlace de abajo abrirá el menú e **iniciará sesión automáticamente** con tu boleto para que solo tengas que elegir tu orden en segundos:</p>
         
         <div class="btn-container">
-          <a href="${linkPreorden}" class="btn btn-primary" target="_blank">Pre-ordenar Comida Ahora</a>
+          <a href="${linkPreorden}" class="btn btn-primary" target="_blank">Ver Menú y Apartar Mi Orden</a>
         </div>
         
         <p style="font-size: 13px; color: #888888; border-top: 1px solid #333333; padding-top: 15px; margin-top: 30px;">
-          ⚠️ <em>Nota: El pago de la comida no se realiza en línea. Pagarás en efectivo, tarjeta o transferencia directamente en el stand de cada negocio durante los recesos de la conferencia.</em>
+          ⚠️ <em>Nota: El pago no se realiza en línea. Pagarás en efectivo, tarjeta o transferencia directamente en el stand de cada negocio durante los recesos.</em>
         </p>
       </div>
       

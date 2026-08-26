@@ -55,9 +55,9 @@ const PreOrderMenu = () => {
         <div className="container" style={{ maxWidth: '600px', textAlign: 'center', marginTop: '4rem' }}>
           <div className="glass-panel" style={{ padding: '4rem 2rem', borderRadius: '16px', border: '1px dashed rgba(255, 255, 255, 0.15)', background: 'rgba(10, 10, 10, 0.5)' }}>
             <div style={{ fontSize: '4rem', marginBottom: '1.5rem' }}>🍔</div>
-            <h1 className="title text-gradient" style={{ marginBottom: '1rem', fontSize: 'clamp(2rem, 4vw, 2.5rem)', fontWeight: '800' }}>Pre-Orden de Comida</h1>
+            <h1 className="title text-gradient" style={{ marginBottom: '1rem', fontSize: 'clamp(2rem, 4vw, 2.5rem)', fontWeight: '800' }}>Menú & Precios</h1>
             <p style={{ fontSize: '1.05rem', color: 'var(--text-secondary)', marginBottom: '2.5rem', fontWeight: '500', lineHeight: '1.6' }}>
-              La pre-orden de comida no está disponible por el momento. Por favor, vuelve a intentarlo más adelante.
+              La consulta de menú no está disponible por el momento. Por favor, vuelve a intentarlo más adelante.
             </p>
             <Link to="/" className="btn-primary" style={{ display: 'inline-flex', padding: '0.8rem 2rem', textDecoration: 'none', alignSelf: 'center' }}>
               Volver al Inicio
@@ -243,9 +243,9 @@ const PreOrderMenu = () => {
   };
 
   // Cart operations
-  const addToCart = (item, vendorName) => {
+  const addToCart = (item, vendor) => {
     setCart(prev => {
-      const current = prev[item.id] || { quantity: 0, item, vendorName };
+      const current = prev[item.id] || { quantity: 0, item, vendorId: vendor.id, vendorName: vendor.name };
       return {
         ...prev,
         [item.id]: {
@@ -296,22 +296,39 @@ const PreOrderMenu = () => {
     setIsSubmitting(true);
     setErrorMessage('');
 
-    // Format pre-order details
-    const details = items.map(entry => `${entry.quantity}x ${entry.item.name} (${entry.vendorName})`).join(', ');
-    const vendors = [...new Set(items.map(entry => entry.vendorName))].join(', ');
+    // Build per-vendor breakdowns
+    const byVendor = {};
+    items.forEach(entry => {
+      const vid = entry.vendorId;
+      if (!byVendor[vid]) {
+        byVendor[vid] = { vendorName: entry.vendorName, items: [], subtotal: 0 };
+      }
+      byVendor[vid].items.push(`${entry.quantity}x ${entry.item.name} (RD$${entry.item.price * entry.quantity})`);
+      byVendor[vid].subtotal += entry.item.price * entry.quantity;
+    });
+
+    const vendorBreakdowns = Object.values(byVendor).map(v => ({
+      vendorName: v.vendorName,
+      details: v.items.join(', '),
+      subtotal: v.subtotal
+    }));
+
+    const vendors = vendorBreakdowns.map(v => v.vendorName).join(', ');
     const totalAmount = getCartTotalAmount();
+    // Combined summary for legacy field
+    const details = vendorBreakdowns.map(v => `[${v.vendorName}]: ${v.details}`).join(' | ');
 
     if (devMode || !sheetUrl || sheetUrl.trim() === '') {
       // Local Simulation
       setTimeout(() => {
         setIsSubmitting(false);
         setSubmitSuccess(true);
-        // Save locally to simulate
         localStorage.setItem(`preorder_${ticketCode}`, JSON.stringify({
           ticketCode,
           details,
           vendors,
           totalAmount,
+          vendorBreakdowns,
           date: new Date().toLocaleDateString()
         }));
         setIsCartOpenMobile(false);
@@ -332,6 +349,7 @@ const PreOrderMenu = () => {
           preorderDetails: details,
           selectedVendors: vendors,
           totalEstimated: totalAmount,
+          vendorBreakdowns: vendorBreakdowns,
           activeTheme: document.body.classList.contains('orange-theme') 
             ? 'orange' 
             : (document.body.classList.contains('yellow-theme') ? 'yellow' : 'classic')
@@ -343,7 +361,7 @@ const PreOrderMenu = () => {
         setSubmitSuccess(true);
         setIsCartOpenMobile(false);
       } else {
-        setErrorMessage(result.message || 'Error del servidor al registrar la pre-orden de comida.');
+        setErrorMessage(result.message || 'Error del servidor al registrar la orden.');
       }
     } catch (err) {
       console.error("Error submitting pre-order:", err);
@@ -385,9 +403,9 @@ const PreOrderMenu = () => {
         {/* Header Title */}
         <div className="preorder-header text-center" style={{ marginBottom: '3rem' }}>
           <span className="subtitle">Break & Refrigerio</span>
-          <h1 className="title">Pre-Orden de <span className="text-gradient">Comida</span></h1>
+          <h1 className="title">Conoce el <span className="text-gradient">Menú y Precios</span></h1>
           <p className="description">
-            Evita las filas durante los recesos de la Conferencia Sin Filtros 2026. Selecciona tus platos de los negocios invitados y reserva tu orden con anticipación.
+            Descubre la oferta de los negocios invitados en los recesos de la Conferencia Sin Filtros 2026. Reserva lo que desees con anticipación y evita filas.
           </p>
         </div>
 
@@ -405,7 +423,7 @@ const PreOrderMenu = () => {
             <div className="glass-panel verification-card">
               <h2 className="section-title">Busca tu Boleto</h2>
               <p style={{ color: 'var(--text-secondary)', fontSize: '0.92rem', marginBottom: '1.8rem', lineHeight: '1.5' }}>
-                Para poder realizar una pre-orden de comida, debes estar registrado en la conferencia. Introduce tu código de boleto para continuar.
+                Para ver el menú y apartar tu orden, debes estar registrado en la conferencia. Introduce tu código de boleto para continuar.
               </p>
               
               <div className="search-input-group">
@@ -632,12 +650,12 @@ const PreOrderMenu = () => {
                                   <Minus size={14} />
                                 </button>
                                 <span className="qty-value-display">{getItemQty(item.id)}</span>
-                                <button className="qty-action-btn plus" onClick={() => addToCart(item, vendor.name)}>
+                                <button className="qty-action-btn plus" onClick={() => addToCart(item, vendor)}>
                                   <Plus size={14} />
                                 </button>
                               </div>
                             ) : (
-                              <button className="add-to-cart-btn" onClick={() => addToCart(item, vendor.name)}>
+                              <button className="add-to-cart-btn" onClick={() => addToCart(item, vendor)}>
                                 <Plus size={16} />
                                 <span>Agregar</span>
                               </button>
