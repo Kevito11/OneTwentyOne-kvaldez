@@ -241,6 +241,51 @@ function doPost(e) {
       }
     }
 
+    // Si la acción es auto-registro express en puerta (día del evento, no envía correo)
+    if (data.action === 'expressCheckin') {
+      var sheet = activeSpreadsheet.getSheetByName("Conferencia") || activeSpreadsheet.getActiveSheet();
+      var now = new Date();
+      var timezone = Session.getScriptTimeZone();
+      var dateFormatted = Utilities.formatDate(now, timezone, "dd/MM/yyyy");
+      var timeFormatted = Utilities.formatDate(now, timezone, "hh:mm:ss a");
+
+      var ticketCode = data.ticketCode;
+      if (!ticketCode) {
+        var randomDigits = Math.floor(1000 + Math.random() * 9000);
+        ticketCode = "121-ICC-" + randomDigits;
+      }
+
+      var rowData = [
+        dateFormatted,                // A: Fecha
+        timeFormatted,                // B: Hora
+        ticketCode,                   // C: Boleto
+        data.firstName || "",         // D: Nombre
+        data.lastName || "",          // E: Apellido
+        data.email || "",             // F: Correo
+        data.phone || "",             // G: Teléfono
+        data.church || "Invitado",    // H: Iglesia
+        data.ageGroup || "18 a 25",   // I: Rango de edad
+        "No",                         // J: Interés en mercancía
+        "Ninguno",                    // K: Artículos
+        0,                            // L: Total mercancía
+        "Conferencia Sin Filtros",    // M: Evento
+        "",                           // N
+        "Registro en Check-in",       // O: Notas / Comentarios
+        "Si",                         // P: Asistencia confirmada
+        "Registro en Puerta",         // Q: Envío
+        "Si (" + timeFormatted + ")"  // R: Check-in entrada
+      ];
+
+      sheet.appendRow(rowData);
+      SpreadsheetApp.flush();
+
+      return ContentService.createTextOutput(JSON.stringify({ 
+        status: "success", 
+        message: "Registro y entrada completados con éxito",
+        ticketCode: ticketCode
+      })).setMimeType(ContentService.MimeType.JSON);
+    }
+
     // Nueva Inscripción
     var isVigilia = data.eventType === "vigilia" || (data.ticketCode && data.ticketCode.indexOf("RESET") !== -1);
     var isCena = data.eventType === "cena";
@@ -727,7 +772,7 @@ function onOpen() {
 
   // Menú principal de Conferencia
   var conferenciaMenu = ui.createMenu('Conferencia Sin Filtros')
-    .addItem('1. Enviar Masivo: Menú y precios & Asistencia (A NO CONFIRMADOS)', 'enviarCorreoMasivoInscritos')
+    .addItem('1. Enviar Masivo: Menú y precios & Asistencia (A PENDIENTES DE ENVÍO)', 'enviarCorreoMasivoInscritos')
     .addSeparator()
     .addSubMenu(pruebasConferenciaMenu);
 
@@ -1735,10 +1780,12 @@ function enviarCorreoMasivoInscritos() {
     var email = data[i][5];       // Columna F: Correo
     var event = data[i][12] || ''; // Columna M: Evento
     var yaConfirmado = data[i][15]; // Columna P: Confirmación de Asistencia (Si/No)
+    var yaEnviado = data[i][16];    // Columna Q: Fecha/Estado de envío previo
     
     var isConferencia = (event === "Conferencia Sin Filtros") && (ticketCode && ticketCode.indexOf("RESET") === -1);
     
-    if (email && email.indexOf("@") !== -1 && isConferencia && !yaConfirmado) {
+    // Solo enviar si: tiene correo válido, es de la conferencia, no ha confirmado aún Y NO se le ha enviado antes
+    if (email && email.indexOf("@") !== -1 && isConferencia && !yaConfirmado && !yaEnviado) {
       // Generar enlaces personalizados de autologin
       var preorderLink = APP_URL + "/menu-preorden?code=" + encodeURIComponent(ticketCode);
       var confirmLink = APP_URL + "/confirmar-asistencia?code=" + encodeURIComponent(ticketCode);
@@ -1913,7 +1960,7 @@ function obtenerPlantillaHTML(nombre, linkPreorden, linkConfirmacion) {
       <!-- Body -->
       <div class="content">
         <h2>Hola, ${nombre} 👋</h2>
-        <p>¡Esperamos que estés listo para vivir una experiencia transformadora en nuestra próxima Conferencia Conectados <strong>"Sin Filtros" 2026</strong>!</p>
+        <p>¡Esperamos que estés listo para vivir una experiencia transformadora en nuestra próxima Conferencia <strong>"Sin Filtros" 2026</strong>!</p>
         
         <p>Queremos compartir contigo el cronograma del programa para que conozcas los detalles de las sesiones:</p>
         
