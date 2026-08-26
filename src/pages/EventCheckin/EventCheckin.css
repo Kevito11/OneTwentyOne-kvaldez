@@ -1,5 +1,5 @@
 .checkin-page {
-  min-height: 80vh;
+  min-height: 85vh;
   display: flex;
   align-items: center;
   position: relative;
@@ -11,22 +11,216 @@
   box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
 }
 
+.checkin-page .ticket-search-input {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 10px;
+  color: white;
+  padding: 0.85rem 1.1rem;
+  font-size: 1rem;
+  outline: none;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  box-sizing: border-box;
+}
+
 .checkin-page .ticket-search-input:focus {
-  border-color: var(--accent-color) !important;
-  box-shadow: 0 0 10px var(--accent-glow);
+  border-color: #f57c00 !important;
+  background: rgba(245, 124, 0, 0.04) !important;
+  box-shadow: 0 0 0 3px rgba(245, 124, 0, 0.2), 0 0 20px rgba(245, 124, 0, 0.15);
 }
 
-.checkin-page .btn-primary,
-.checkin-page .btn-secondary {
-  transition: all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+/* Glass panel */
+.checkin-page .glass-panel {
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  background: rgba(12, 12, 14, 0.75);
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), 0 0 30px rgba(245, 124, 0, 0.03);
 }
 
-.checkin-page .btn-primary:active,
-.checkin-page .btn-secondary:active {
-  transform: scale(0.95);
+/* Pulsing Badge & Gradient Button for "No estoy Registrado" */
+.btn-not-registered {
+  position: relative;
+  background: linear-gradient(135deg, rgba(245, 124, 0, 0.15) 0%, rgba(255, 152, 0, 0.25) 100%);
+  border: 1px solid rgba(245, 124, 0, 0.5);
+  color: #ffffff;
+  padding: 0.55rem 1.1rem;
+  border-radius: 100px;
+  font-size: 0.84rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: 0 4px 15px rgba(245, 124, 0, 0.2);
+  overflow: hidden;
 }
 
-/* Spinner Rotate Animation */
+.btn-not-registered::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.25), transparent);
+  transition: left 0.6s ease;
+}
+
+.btn-not-registered:hover {
+  transform: translateY(-2px) scale(1.03);
+  border-color: #ff9800;
+  background: linear-gradient(135deg, rgba(245, 124, 0, 0.28) 0%, rgba(255, 152, 0, 0.4) 100%);
+  box-shadow: 0 6px 20px rgba(245, 124, 0, 0.35), 0 0 15px rgba(245, 124, 0, 0.2);
+}
+
+.btn-not-registered:hover::before {
+  left: 100%;
+}
+
+.btn-not-registered:active {
+  transform: scale(0.96);
+}
+
+/* Glowing Pulse on Icon */
+.btn-not-registered .icon-pulse {
+  color: #ffb74d;
+  animation: pulse-glow 2s infinite ease-in-out;
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    transform: scale(1);
+    filter: drop-shadow(0 0 2px rgba(245, 124, 0, 0.5));
+  }
+  50% {
+    transform: scale(1.15);
+    filter: drop-shadow(0 0 6px rgba(245, 124, 0, 0.9));
+  }
+}
+
+/* Primary Action Buttons */
+.checkin-page .btn-primary {
+  background: linear-gradient(135deg, #f57c00 0%, #ff9800 100%);
+  color: #000000;
+  font-weight: 800;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: 0 6px 18px rgba(245, 124, 0, 0.28);
+  position: relative;
+  overflow: hidden;
+}
+
+.checkin-page .btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(245, 124, 0, 0.4);
+  filter: brightness(1.05);
+}
+
+.checkin-page .btn-primary:active {
+  transform: scale(0.97);
+}
+
+/* Secondary Back Button */
+.btn-back-soft {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: var(--text-secondary);
+  padding: 0.45rem 0.9rem;
+  border-radius: 8px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+}
+
+.btn-back-soft:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.25);
+  transform: translateX(-2px);
+}
+
+/* Form Input Styling */
+.checkin-field-label {
+  display: block;
+  font-size: 0.84rem;
+  color: var(--text-secondary);
+  margin-bottom: 0.4rem;
+  font-weight: 600;
+}
+
+.checkin-input {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  color: white;
+  padding: 0.8rem 1rem;
+  font-size: 0.95rem;
+  outline: none;
+  box-sizing: border-box;
+  transition: all 0.2s ease;
+}
+
+.checkin-input:focus {
+  border-color: #f57c00 !important;
+  background: rgba(245, 124, 0, 0.04) !important;
+  box-shadow: 0 0 0 3px rgba(245, 124, 0, 0.18);
+}
+
+/* Age selector pill chips */
+.age-pills-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.65rem;
+  margin-top: 0.2rem;
+}
+
+.age-pill-btn {
+  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #bbbbbb;
+  padding: 0.75rem 0.9rem;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  text-align: center;
+  user-select: none;
+}
+
+.age-pill-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(245, 124, 0, 0.4);
+  color: #ffffff;
+  transform: translateY(-1px);
+}
+
+.age-pill-btn.active {
+  background: linear-gradient(135deg, rgba(245, 124, 0, 0.25) 0%, rgba(255, 152, 0, 0.35) 100%);
+  border-color: #f57c00;
+  color: #ffffff;
+  font-weight: 800;
+  box-shadow: 0 0 15px rgba(245, 124, 0, 0.3);
+}
+
+/* Force dark theme background on all native select elements and options */
+select.checkin-input,
+select.checkin-input option {
+  background-color: #18181c !important;
+  color: #ffffff !important;
+}
+
+/* Spinner Animation */
 @keyframes spin {
   from {
     transform: rotate(0deg);
@@ -37,22 +231,34 @@
 }
 
 .checkin-page .spinner {
-  animation: spin 1s linear infinite;
+  animation: spin 0.9s linear infinite;
 }
 
-/* Slide up details styling */
-.checkin-page .glass-panel {
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  background: rgba(10, 10, 10, 0.6);
-  border-radius: 16px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+/* User Card in results */
+.checkin-user-card {
+  background: rgba(255, 255, 255, 0.025);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 12px;
+  padding: 1.2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  transition: all 0.25s ease;
 }
 
-/* Media queries for compact screens */
+.checkin-user-card:hover {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(245, 124, 0, 0.3);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+}
+
+/* Media queries */
 @media (max-width: 576px) {
   .checkin-page {
-    padding-top: 2rem;
+    padding-top: 1.5rem;
     padding-bottom: 2rem;
   }
   

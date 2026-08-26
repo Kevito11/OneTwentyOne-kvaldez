@@ -1,25 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useLocation, Link } from 'react-router-dom';
-import { Search, UserCheck, AlertCircle, RefreshCw, XCircle, ArrowLeft, QrCode, UserPlus, Sparkles, CheckCircle2 } from 'lucide-react';
+import { Search, UserCheck, AlertCircle, RefreshCw, QrCode, UserPlus, Sparkles, CheckCircle2, ArrowLeft, Zap } from 'lucide-react';
 import './EventCheckin.css';
 
-const CHURCH_OPTIONS = [
-  "Iglesia De Convertidos a Cristo",
-  "Iglesia Bautista Cristiana",
-  "IBSJ",
-  "Iglesia Bautista Internacional",
-  "IBO",
-  "Iglesia Bautista Fundamental",
-  "Iglesia PIEDRA ANGULAR",
-  "Iglesia Ciudad de Gracia",
-  "Iglesia Cristiana de la Comunidad",
-  "Iglesia Bíblica Sola Gracia",
-  "Iglesia Cristiana Oasis",
-  "Iglesia Comunidad de Vida",
-  "Iglesia Bautista Nuevo Pacto"
-];
-
-const AGE_GROUPS = [
+const AGE_OPTIONS = [
   "12 a 17 años",
   "18 a 25 años",
   "26 a 35 años",
@@ -50,18 +34,13 @@ const EventCheckin = () => {
   const [errorMessage, setErrorMessage] = useState('');
   const [devMode, setDevMode] = useState(false);
 
-  // Express Registration Form State
+  // Express Registration Form State: Only firstName, lastName, email, age
   const [expressForm, setExpressForm] = useState({
     firstName: '',
     lastName: '',
     email: '',
-    phone: '',
-    church: 'Iglesia De Convertidos a Cristo',
-    customChurch: '',
-    isGuest: false,
     ageGroup: '18 a 25 años'
   });
-  const [selectedChurch, setSelectedChurch] = useState('Iglesia De Convertidos a Cristo');
   const [isSubmittingExpress, setIsSubmittingExpress] = useState(false);
   const [expressError, setExpressError] = useState('');
 
@@ -74,18 +53,7 @@ const EventCheckin = () => {
     }
   }, [location]);
 
-  // Sync church field
-  useEffect(() => {
-    if (expressForm.isGuest) {
-      setExpressForm(prev => ({ ...prev, church: 'Invitado / No asisto a ninguna' }));
-    } else if (selectedChurch === 'Otra') {
-      setExpressForm(prev => ({ ...prev, church: expressForm.customChurch || 'Otra' }));
-    } else {
-      setExpressForm(prev => ({ ...prev, church: selectedChurch }));
-    }
-  }, [selectedChurch, expressForm.customChurch, expressForm.isGuest]);
-
-  // Handle name/email/code search against Sheets database
+  // Handle search against Sheets database
   const handleSearch = async () => {
     const query = searchQuery.trim();
     if (!query) {
@@ -103,7 +71,6 @@ const EventCheckin = () => {
     setSearchResults([]);
 
     if (!sheetUrl || sheetUrl.trim() === '') {
-      // Simulation mode
       console.warn("VITE_SHEETS_API_URL no configurada. Simulando búsqueda en desarrollo.");
       setDevMode(true);
       setTimeout(() => {
@@ -197,7 +164,7 @@ const EventCheckin = () => {
     }
   };
 
-  // Handle Express Registration (for un-registered people at the door)
+  // Handle Express Registration: Nombre, Apellido, Correo, Edad
   const handleExpressSubmit = async (e) => {
     e.preventDefault();
     setExpressError('');
@@ -208,10 +175,6 @@ const EventCheckin = () => {
     }
     if (!expressForm.email.trim() || !expressForm.email.includes('@')) {
       setExpressError('Por favor ingresa un correo electrónico válido.');
-      return;
-    }
-    if (!expressForm.phone.trim()) {
-      setExpressError('Por favor ingresa tu número de teléfono / WhatsApp.');
       return;
     }
 
@@ -248,8 +211,8 @@ const EventCheckin = () => {
           firstName: expressForm.firstName.trim(),
           lastName: expressForm.lastName.trim(),
           email: expressForm.email.trim(),
-          phone: expressForm.phone.trim(),
-          church: expressForm.church,
+          phone: '',
+          church: 'Invitado / En Puerta',
           ageGroup: expressForm.ageGroup
         })
       });
@@ -289,7 +252,7 @@ const EventCheckin = () => {
 
   return (
     <div className="checkin-page section-padding">
-      <div className="container" style={{ maxWidth: '650px' }}>
+      <div className="container" style={{ maxWidth: '620px' }}>
         
         {/* Title Header */}
         <div className="text-center" style={{ marginBottom: '2.5rem' }}>
@@ -297,8 +260,8 @@ const EventCheckin = () => {
           <h1 className="section-title text-gradient" style={{ fontSize: '2.2rem', marginBottom: '0.8rem' }}>
             Check-In Conferencia
           </h1>
-          <p style={{ color: 'var(--text-secondary)', fontSize: '0.98rem', maxWidth: '500px', margin: '0 auto', lineHeight: '1.5' }}>
-            ¡Bienvenido a "Sin Filtros" 2026! Confirma tu llegada en la entrada escaneando el código QR oficial.
+          <p style={{ color: 'var(--text-secondary)', fontSize: '0.98rem', maxWidth: '480px', margin: '0 auto', lineHeight: '1.5' }}>
+            ¡Bienvenido a "Sin Filtros" 2026! Confirma tu llegada escaneando el código QR oficial de la entrada.
           </p>
         </div>
 
@@ -323,8 +286,9 @@ const EventCheckin = () => {
 
         {/* CASE B: QR validated - Mode Search */}
         {isQrAccess && !checkinSuccess && viewMode === 'search' && (
-          <div className="glass-panel animate-fade-in" style={{ padding: '2rem 1.8rem' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.2rem', flexWrap: 'wrap', gap: '8px' }}>
+          <div className="glass-panel animate-fade-in" style={{ padding: '2.2rem 2rem' }}>
+            {/* Header with Title and "No estoy Registrado" button */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.4rem', flexWrap: 'wrap', gap: '10px' }}>
               <h3 style={{ fontSize: '1.2rem', fontWeight: '700', margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <Search className="text-gradient" size={20} />
                 <span>Busca tu Registro</span>
@@ -333,22 +297,9 @@ const EventCheckin = () => {
               <button 
                 type="button"
                 onClick={() => setViewMode('register')}
-                style={{
-                  background: 'rgba(245, 124, 0, 0.12)',
-                  border: '1px solid rgba(245, 124, 0, 0.35)',
-                  color: 'var(--accent-light, #ffffff)',
-                  padding: '0.45rem 0.9rem',
-                  borderRadius: '6px',
-                  fontSize: '0.82rem',
-                  fontWeight: '700',
-                  cursor: 'pointer',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '6px',
-                  transition: 'all 0.2s ease'
-                }}
+                className="btn-not-registered"
               >
-                <UserPlus size={14} />
+                <Zap size={14} className="icon-pulse" />
                 <span>No estoy Registrado</span>
               </button>
             </div>
@@ -361,18 +312,8 @@ const EventCheckin = () => {
                   placeholder="Tu Nombre, Correo o Boleto..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  style={{
-                    flex: 1,
-                    background: 'rgba(255, 255, 255, 0.03)',
-                    border: '1px solid rgba(255, 255, 255, 0.1)',
-                    borderRadius: '8px',
-                    color: 'white',
-                    padding: '0.8rem 1rem',
-                    fontSize: '1rem',
-                    outline: 'none',
-                    transition: 'border-color 0.2s'
-                  }}
                   className="ticket-search-input"
+                  style={{ flex: 1 }}
                   onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
                 />
                 <button
@@ -381,12 +322,10 @@ const EventCheckin = () => {
                   className="btn-primary"
                   style={{
                     padding: '0 1.8rem',
-                    borderRadius: '8px',
-                    fontWeight: '700',
                     display: 'flex',
                     alignItems: 'center',
                     gap: '8px',
-                    minWidth: '130px',
+                    minWidth: '120px',
                     justifyContent: 'center'
                   }}
                 >
@@ -417,20 +356,21 @@ const EventCheckin = () => {
                 </h4>
                 
                 {searchResults.length === 0 ? (
-                  <div className="text-center" style={{ padding: '2rem 1.5rem', background: 'rgba(255,255,255,0.01)', borderRadius: '10px', border: '1px dashed rgba(255,255,255,0.08)' }}>
-                    <div style={{ fontSize: '2.2rem', marginBottom: '0.6rem', opacity: 0.7 }}>🤷‍♂️</div>
-                    <p style={{ margin: '0 0 1.2rem 0', fontSize: '0.92rem', color: 'var(--text-muted)', lineHeight: '1.5' }}>
-                      No encontramos coincidencias con tu búsqueda. Si no te habías registrado antes, puedes hacerlo rápidamente ahora.
+                  <div className="text-center" style={{ padding: '2.2rem 1.5rem', background: 'rgba(255,255,255,0.015)', borderRadius: '14px', border: '1px dashed rgba(245, 124, 0, 0.25)' }}>
+                    <div style={{ fontSize: '2.4rem', marginBottom: '0.6rem' }}>⚡</div>
+                    <h4 style={{ color: '#ffffff', fontSize: '1.05rem', fontWeight: '700', marginBottom: '0.4rem' }}>
+                      ¿No apareces en la lista?
+                    </h4>
+                    <p style={{ margin: '0 0 1.4rem 0', fontSize: '0.9rem', color: 'var(--text-muted)', lineHeight: '1.5', maxWidth: '380px', marginInline: 'auto' }}>
+                      No te preocupes, puedes hacer tu registro rápido en 30 segundos y confirmar tu entrada ahora mismo.
                     </p>
                     <button
                       type="button"
                       onClick={() => setViewMode('register')}
                       className="btn-primary"
                       style={{
-                        padding: '0.6rem 1.5rem',
-                        borderRadius: '8px',
-                        fontSize: '0.88rem',
-                        fontWeight: '700',
+                        padding: '0.75rem 1.8rem',
+                        fontSize: '0.92rem',
                         display: 'inline-flex',
                         alignItems: 'center',
                         gap: '8px'
@@ -441,27 +381,14 @@ const EventCheckin = () => {
                     </button>
                   </div>
                 ) : (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
                     {searchResults.map(user => (
-                      <div 
-                        key={user.ticketCode}
-                        style={{
-                          background: 'rgba(255, 255, 255, 0.02)',
-                          border: '1px solid rgba(255, 255, 255, 0.06)',
-                          borderRadius: '10px',
-                          padding: '1.2rem',
-                          display: 'flex',
-                          justifyContent: 'space-between',
-                          alignItems: 'center',
-                          flexWrap: 'wrap',
-                          gap: '12px'
-                        }}
-                      >
+                      <div key={user.ticketCode} className="checkin-user-card">
                         <div>
-                          <h4 style={{ fontSize: '1.1rem', fontWeight: '700', color: 'white', margin: '0 0 4px 0' }}>
+                          <h4 style={{ fontSize: '1.05rem', fontWeight: '700', color: 'white', margin: '0 0 4px 0' }}>
                             {user.firstName} {user.lastName}
                           </h4>
-                          <span style={{ fontSize: '0.78rem', color: 'var(--accent-color)', fontWeight: '600', marginRight: '8px' }}>
+                          <span style={{ fontSize: '0.78rem', color: 'var(--accent-color)', fontWeight: '700', marginRight: '8px', fontFamily: 'monospace' }}>
                             {user.ticketCode}
                           </span>
                           <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>
@@ -475,11 +402,11 @@ const EventCheckin = () => {
                               style={{ 
                                 display: 'inline-flex', 
                                 alignItems: 'center', 
-                                gap: '4px', 
-                                background: 'rgba(16, 185, 129, 0.1)', 
-                                border: '1px solid rgba(16, 185, 129, 0.2)', 
+                                gap: '5px', 
+                                background: 'rgba(16, 185, 129, 0.12)', 
+                                border: '1px solid rgba(16, 185, 129, 0.3)', 
                                 color: '#10b981', 
-                                padding: '0.4rem 0.8rem', 
+                                padding: '0.4rem 0.9rem', 
                                 borderRadius: '30px', 
                                 fontSize: '0.8rem', 
                                 fontWeight: '700' 
@@ -494,16 +421,11 @@ const EventCheckin = () => {
                               disabled={isCheckingIn}
                               className="btn-primary"
                               style={{
-                                padding: '0.45rem 1rem',
-                                borderRadius: '6px',
-                                fontSize: '0.8rem',
-                                fontWeight: '700',
+                                padding: '0.5rem 1.1rem',
+                                fontSize: '0.82rem',
                                 display: 'flex',
                                 alignItems: 'center',
-                                gap: '6px',
-                                background: 'linear-gradient(135deg, #f57c00 0%, #ff9800 100%)',
-                                cursor: 'pointer',
-                                border: 'none'
+                                gap: '6px'
                               }}
                             >
                               {isCheckingIn && checkedInUser?.ticketCode === user.ticketCode ? (
@@ -524,15 +446,15 @@ const EventCheckin = () => {
           </div>
         )}
 
-        {/* CASE B2: QR validated - Mode Express Registration */}
+        {/* CASE B2: QR validated - Mode Express Registration (Only Nombre, Apellido, Correo, Edad) */}
         {isQrAccess && !checkinSuccess && viewMode === 'register' && (
-          <div className="glass-panel animate-fade-in" style={{ padding: '2rem 1.8rem' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+          <div className="glass-panel animate-fade-in" style={{ padding: '2.2rem 2rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.2rem' }}>
               <div>
-                <span style={{ fontSize: '0.78rem', textTransform: 'uppercase', letterSpacing: '1px', color: 'var(--accent-color)', fontWeight: '700' }}>
+                <span style={{ fontSize: '0.76rem', textTransform: 'uppercase', letterSpacing: '1px', color: 'var(--accent-color)', fontWeight: '800' }}>
                   Entrada Inmediata
                 </span>
-                <h3 style={{ fontSize: '1.3rem', fontWeight: '800', margin: '2px 0 0 0', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <h3 style={{ fontSize: '1.35rem', fontWeight: '800', margin: '2px 0 0 0', display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <UserPlus className="text-gradient" size={22} />
                   <span>Registro Rápido en Puerta</span>
                 </h3>
@@ -540,27 +462,15 @@ const EventCheckin = () => {
               <button 
                 type="button"
                 onClick={() => setViewMode('search')}
-                style={{
-                  background: 'rgba(255, 255, 255, 0.05)',
-                  border: '1px solid rgba(255, 255, 255, 0.1)',
-                  color: 'var(--text-secondary)',
-                  padding: '0.4rem 0.8rem',
-                  borderRadius: '6px',
-                  fontSize: '0.8rem',
-                  fontWeight: '600',
-                  cursor: 'pointer',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '4px'
-                }}
+                className="btn-back-soft"
               >
                 <ArrowLeft size={14} />
                 <span>Volver a Buscar</span>
               </button>
             </div>
 
-            <p style={{ color: 'var(--text-secondary)', fontSize: '0.88rem', lineHeight: '1.5', marginBottom: '1.5rem' }}>
-              Completa tus datos para asignarte un código de entrada y confirmar tu llegada al evento en segundos.
+            <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', lineHeight: '1.5', marginBottom: '1.5rem' }}>
+              Completa tus datos básicos para registrar tu entrada a la conferencia en segundos.
             </p>
 
             {expressError && (
@@ -570,11 +480,11 @@ const EventCheckin = () => {
               </div>
             )}
 
-            <form onSubmit={handleExpressSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-              {/* Nombres y Apellidos */}
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
+            <form onSubmit={handleExpressSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.1rem' }}>
+              {/* Nombre y Apellido */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '1rem' }}>
                 <div>
-                  <label style={{ display: 'block', fontSize: '0.82rem', color: 'var(--text-secondary)', marginBottom: '0.35rem', fontWeight: '600' }}>
+                  <label className="checkin-field-label">
                     Nombre *
                   </label>
                   <input
@@ -583,22 +493,12 @@ const EventCheckin = () => {
                     placeholder="Tu nombre"
                     value={expressForm.firstName}
                     onChange={(e) => setExpressForm({ ...expressForm, firstName: e.target.value })}
-                    style={{
-                      width: '100%',
-                      background: 'rgba(255, 255, 255, 0.03)',
-                      border: '1px solid rgba(255, 255, 255, 0.1)',
-                      borderRadius: '8px',
-                      color: 'white',
-                      padding: '0.75rem 0.9rem',
-                      fontSize: '0.95rem',
-                      outline: 'none',
-                      boxSizing: 'border-box'
-                    }}
+                    className="checkin-input"
                   />
                 </div>
 
                 <div>
-                  <label style={{ display: 'block', fontSize: '0.82rem', color: 'var(--text-secondary)', marginBottom: '0.35rem', fontWeight: '600' }}>
+                  <label className="checkin-field-label">
                     Apellido *
                   </label>
                   <input
@@ -607,187 +507,67 @@ const EventCheckin = () => {
                     placeholder="Tu apellido"
                     value={expressForm.lastName}
                     onChange={(e) => setExpressForm({ ...expressForm, lastName: e.target.value })}
-                    style={{
-                      width: '100%',
-                      background: 'rgba(255, 255, 255, 0.03)',
-                      border: '1px solid rgba(255, 255, 255, 0.1)',
-                      borderRadius: '8px',
-                      color: 'white',
-                      padding: '0.75rem 0.9rem',
-                      fontSize: '0.95rem',
-                      outline: 'none',
-                      boxSizing: 'border-box'
-                    }}
+                    className="checkin-input"
                   />
                 </div>
               </div>
 
-              {/* Correo y Teléfono */}
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
-                <div>
-                  <label style={{ display: 'block', fontSize: '0.82rem', color: 'var(--text-secondary)', marginBottom: '0.35rem', fontWeight: '600' }}>
-                    Correo Electrónico *
-                  </label>
-                  <input
-                    type="email"
-                    required
-                    placeholder="ejemplo@correo.com"
-                    value={expressForm.email}
-                    onChange={(e) => setExpressForm({ ...expressForm, email: e.target.value })}
-                    style={{
-                      width: '100%',
-                      background: 'rgba(255, 255, 255, 0.03)',
-                      border: '1px solid rgba(255, 255, 255, 0.1)',
-                      borderRadius: '8px',
-                      color: 'white',
-                      padding: '0.75rem 0.9rem',
-                      fontSize: '0.95rem',
-                      outline: 'none',
-                      boxSizing: 'border-box'
-                    }}
-                  />
-                </div>
-
-                <div>
-                  <label style={{ display: 'block', fontSize: '0.82rem', color: 'var(--text-secondary)', marginBottom: '0.35rem', fontWeight: '600' }}>
-                    Teléfono / WhatsApp *
-                  </label>
-                  <input
-                    type="tel"
-                    required
-                    placeholder="(809) 000-0000"
-                    value={expressForm.phone}
-                    onChange={(e) => setExpressForm({ ...expressForm, phone: e.target.value })}
-                    style={{
-                      width: '100%',
-                      background: 'rgba(255, 255, 255, 0.03)',
-                      border: '1px solid rgba(255, 255, 255, 0.1)',
-                      borderRadius: '8px',
-                      color: 'white',
-                      padding: '0.75rem 0.9rem',
-                      fontSize: '0.95rem',
-                      outline: 'none',
-                      boxSizing: 'border-box'
-                    }}
-                  />
-                </div>
-              </div>
-
-              {/* Rango de Edad */}
+              {/* Correo Electrónico */}
               <div>
-                <label style={{ display: 'block', fontSize: '0.82rem', color: 'var(--text-secondary)', marginBottom: '0.35rem', fontWeight: '600' }}>
-                  Rango de Edad *
+                <label className="checkin-field-label">
+                  Correo Electrónico *
                 </label>
-                <select
-                  value={expressForm.ageGroup}
-                  onChange={(e) => setExpressForm({ ...expressForm, ageGroup: e.target.value })}
-                  style={{
-                    width: '100%',
-                    background: '#181818',
-                    border: '1px solid rgba(255, 255, 255, 0.1)',
-                    borderRadius: '8px',
-                    color: 'white',
-                    padding: '0.75rem 0.9rem',
-                    fontSize: '0.95rem',
-                    outline: 'none',
-                    boxSizing: 'border-box'
-                  }}
-                >
-                  {AGE_GROUPS.map(ag => (
-                    <option key={ag} value={ag}>{ag}</option>
-                  ))}
-                </select>
+                <input
+                  type="email"
+                  required
+                  placeholder="ejemplo@correo.com"
+                  value={expressForm.email}
+                  onChange={(e) => setExpressForm({ ...expressForm, email: e.target.value })}
+                  className="checkin-input"
+                />
               </div>
 
-              {/* Iglesia */}
+              {/* Edad / Rango de Edad */}
               <div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.35rem' }}>
-                  <label style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', fontWeight: '600' }}>
-                    Iglesia a la que perteneces *
-                  </label>
-                  
-                  <label style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '0.8rem', color: 'var(--accent-light, #ffffff)', cursor: 'pointer' }}>
-                    <input
-                      type="checkbox"
-                      checked={expressForm.isGuest}
-                      onChange={(e) => setExpressForm({ ...expressForm, isGuest: e.target.checked })}
-                      style={{ accentColor: 'var(--accent-color)' }}
-                    />
-                    <span>Soy invitado / No asisto</span>
-                  </label>
+                <label className="checkin-field-label">
+                  Edad / Rango de Edad *
+                </label>
+                <div className="age-pills-grid">
+                  {AGE_OPTIONS.map(opt => {
+                    const isSelected = expressForm.ageGroup === opt;
+                    return (
+                      <button
+                        key={opt}
+                        type="button"
+                        onClick={() => setExpressForm({ ...expressForm, ageGroup: opt })}
+                        className={`age-pill-btn ${isSelected ? 'active' : ''}`}
+                      >
+                        {opt}
+                      </button>
+                    );
+                  })}
                 </div>
-
-                {!expressForm.isGuest && (
-                  <>
-                    <select
-                      value={selectedChurch}
-                      onChange={(e) => setSelectedChurch(e.target.value)}
-                      style={{
-                        width: '100%',
-                        background: '#181818',
-                        border: '1px solid rgba(255, 255, 255, 0.1)',
-                        borderRadius: '8px',
-                        color: 'white',
-                        padding: '0.75rem 0.9rem',
-                        fontSize: '0.95rem',
-                        outline: 'none',
-                        boxSizing: 'border-box',
-                        marginBottom: selectedChurch === 'Otra' ? '0.5rem' : '0'
-                      }}
-                    >
-                      {CHURCH_OPTIONS.map(ch => (
-                        <option key={ch} value={ch}>{ch}</option>
-                      ))}
-                      <option value="Otra">Otra iglesia...</option>
-                    </select>
-
-                    {selectedChurch === 'Otra' && (
-                      <input
-                        type="text"
-                        placeholder="Escribe el nombre de tu iglesia"
-                        value={expressForm.customChurch}
-                        onChange={(e) => setExpressForm({ ...expressForm, customChurch: e.target.value })}
-                        style={{
-                          width: '100%',
-                          background: 'rgba(255, 255, 255, 0.03)',
-                          border: '1px solid rgba(255, 255, 255, 0.1)',
-                          borderRadius: '8px',
-                          color: 'white',
-                          padding: '0.75rem 0.9rem',
-                          fontSize: '0.95rem',
-                          outline: 'none',
-                          boxSizing: 'border-box'
-                        }}
-                      />
-                    )}
-                  </>
-                )}
               </div>
 
-              {/* Botón de Enviar */}
+              {/* Botón de Enviar con efecto llamativo */}
               <button
                 type="submit"
                 disabled={isSubmittingExpress}
                 className="btn-primary"
                 style={{
-                  marginTop: '1rem',
-                  padding: '0.9rem',
-                  borderRadius: '8px',
-                  fontWeight: '800',
+                  marginTop: '0.8rem',
+                  padding: '0.95rem',
                   fontSize: '1rem',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  gap: '8px',
-                  cursor: 'pointer',
-                  border: 'none',
-                  background: 'linear-gradient(135deg, #f57c00 0%, #ff9800 100%)'
+                  gap: '8px'
                 }}
               >
                 {isSubmittingExpress ? (
                   <>
                     <RefreshCw className="spinner" size={18} />
-                    <span>Guardando registro...</span>
+                    <span>Registrando Entrada...</span>
                   </>
                 ) : (
                   <>
@@ -803,18 +583,18 @@ const EventCheckin = () => {
         {/* CASE C: Check-in Success confirmation screen */}
         {isQrAccess && checkinSuccess && checkedInUser && (
           <div className="glass-panel text-center animate-fade-in" style={{ padding: '3.5rem 2rem' }}>
-            <div style={{ display: 'inline-flex', background: 'rgba(16, 185, 129, 0.1)', border: '1px solid rgba(16, 185, 129, 0.2)', padding: '1.2rem', borderRadius: '50%', color: '#10b981', marginBottom: '1.5rem' }}>
-              <CheckCircle2 size={48} className="animate-pulse" />
+            <div style={{ display: 'inline-flex', background: 'rgba(16, 185, 129, 0.1)', border: '1px solid rgba(16, 185, 129, 0.25)', padding: '1.2rem', borderRadius: '50%', color: '#10b981', marginBottom: '1.5rem' }}>
+              <CheckCircle2 size={50} className="animate-pulse" />
             </div>
             
-            <h2 className="text-gradient" style={{ fontSize: '1.8rem', fontWeight: '800', marginBottom: '0.5rem' }}>
+            <h2 className="text-gradient" style={{ fontSize: '1.9rem', fontWeight: '800', marginBottom: '0.6rem' }}>
               {checkedInUser.isNewRegister ? '¡Registro y Entrada Exitosos!' : '¡Entrada Confirmada!'}
             </h2>
 
             {checkedInUser.ticketCode && (
-              <div style={{ display: 'inline-block', background: 'rgba(245, 124, 0, 0.1)', border: '1px solid rgba(245, 124, 0, 0.3)', padding: '0.4rem 1.2rem', borderRadius: '20px', marginBottom: '1.5rem' }}>
+              <div style={{ display: 'inline-block', background: 'rgba(245, 124, 0, 0.12)', border: '1px solid rgba(245, 124, 0, 0.35)', padding: '0.45rem 1.4rem', borderRadius: '30px', marginBottom: '1.5rem' }}>
                 <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginRight: '6px' }}>Tu Boleto:</span>
-                <strong style={{ fontSize: '1rem', color: 'var(--accent-color)', fontFamily: 'monospace' }}>{checkedInUser.ticketCode}</strong>
+                <strong style={{ fontSize: '1.05rem', color: 'var(--accent-color)', fontFamily: 'monospace' }}>{checkedInUser.ticketCode}</strong>
               </div>
             )}
             
@@ -823,7 +603,7 @@ const EventCheckin = () => {
             </p>
 
             <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem' }}>
-              <button className="btn-primary" onClick={handleResetSearch} style={{ padding: '0.8rem 2.5rem' }}>
+              <button className="btn-primary" onClick={handleResetSearch} style={{ padding: '0.85rem 2.5rem' }}>
                 Hacer Check-In para Alguien Más
               </button>
             </div>
