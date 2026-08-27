@@ -8,6 +8,9 @@ import './Home.css';
 // Mientras sea "placeholder", se mostrará un banner informativo con enlace a Instagram.
 const VIGILIA_INSTAGRAM_POST_ID = "placeholder";
 
+// Cambia a true si los cupos de la conferencia se agotan
+const CONFERENCIA_CLOSED = false;
+
 // Componente para imágenes del Lightbox con animación fluida onLoad
 const LightboxImage = ({ src, alt }) => {
   const [loaded, setLoaded] = useState(false);
@@ -434,7 +437,9 @@ const Home = () => {
                       <img src={posterImages[1]} alt="Afiche Conferencia Sin Filtros 2026 - Opción 2" className="featured-card-poster" />
                     </div>
                   </div>
-                  <div className="featured-card-badge" style={{ background: 'rgba(239, 68, 68, 0.85)', color: '#fff' }}>CUPOS AGOTADOS</div>
+                  {CONFERENCIA_CLOSED && (
+                    <div className="featured-card-badge" style={{ background: 'rgba(239, 68, 68, 0.85)', color: '#fff' }}>CUPOS AGOTADOS</div>
+                  )}
                   <div className="poster-carousel-dots">
                     {posterImages.map((_, idx) => (
                       <button 
