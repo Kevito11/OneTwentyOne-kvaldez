@@ -259,7 +259,7 @@ const MerchPaymentInstructions = () => {
 
 // Cambia a false para reabrir el registro de la conferencia
 const CONFERENCIA_CLOSED = true;
-const YOUTUBE_CHANNEL_URL = 'https://www.youtube.com/@ICCRD/streams';
+const YOUTUBE_CHANNEL_URL = 'https://www.youtube.com/watch?v=MuJJGPhZ10Y';
 
 const Registration = () => {
   // Listen to hash changes for real-time image updates during local testing

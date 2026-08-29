@@ -9,6 +9,7 @@ const VIGILIA_INSTAGRAM_POST_ID = "DcbcUTTFjv1";
 
 // Cambia a true si los cupos de la conferencia se agotan
 const CONFERENCIA_CLOSED = true;
+const YOUTUBE_STREAM_URL = 'https://www.youtube.com/watch?v=MuJJGPhZ10Y';
 
 // Componente para imágenes del Lightbox con animación fluida onLoad
 const LightboxImage = ({ src, alt }) => {
@@ -400,7 +401,7 @@ const Home = () => {
               
               <div className="hero-cta">
                 <a 
-                  href="https://www.youtube.com/@ICCRD/streams"
+                  href={YOUTUBE_STREAM_URL}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="btn-primary"
@@ -482,7 +483,7 @@ const Home = () => {
                     </button>
                     {CONFERENCIA_CLOSED ? (
                       <a 
-                        href="https://www.youtube.com/@ICCRD/streams"
+                        href={YOUTUBE_STREAM_URL}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="btn-primary-sm"

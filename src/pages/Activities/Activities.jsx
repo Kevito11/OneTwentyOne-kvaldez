@@ -6,7 +6,7 @@ import './Activities.css';
 
 // Publicación oficial de Instagram de la Media Vigilia
 const VIGILIA_INSTAGRAM_POST_ID = "DcbcUTTFjv1";
-const YOUTUBE_STREAMS_URL = 'https://www.youtube.com/@ICCRD/streams';
+const YOUTUBE_STREAMS_URL = 'https://www.youtube.com/watch?v=MuJJGPhZ10Y';
 
 // Helper para calcular el estado de transmisión en vivo de la Conferencia Sin Filtros
 // Disponible hoy 29 de Agosto de 4:00 PM a 9:00 PM; a las 9:00 PM concluye
