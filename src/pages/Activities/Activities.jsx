@@ -1,12 +1,34 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { Calendar, Clock, MapPin, ExternalLink, X } from 'lucide-react';
+import { Calendar, Clock, MapPin, ExternalLink, X, ChevronLeft, ChevronRight, Heart, MessageCircle, Send, Bookmark, MoreHorizontal } from 'lucide-react';
 import { getImageUrl } from '../../config/images';
 import './Activities.css';
 
-// Reemplaza este valor con el ID de la publicación de Instagram (ej. "C_abc123") cuando esté lista.
-// Mientras sea "placeholder", se mostrará un banner informativo con enlace a Instagram.
-const VIGILIA_INSTAGRAM_POST_ID = "placeholder";
+// Publicación oficial de Instagram de la Media Vigilia
+const VIGILIA_INSTAGRAM_POST_ID = "DcbcUTTFjv1";
+const YOUTUBE_STREAMS_URL = 'https://www.youtube.com/@ICCRD/streams';
+
+// Helper para calcular el estado de transmisión en vivo de la Conferencia Sin Filtros
+// Disponible hoy 29 de Agosto de 4:00 PM a 9:00 PM; a las 9:00 PM concluye
+const getConferenciaLiveStatus = () => {
+  const now = new Date();
+  const month = now.getMonth(); // 7 = Agosto (0-indexado)
+  const date = now.getDate();
+  const hour = now.getHours();
+
+  // El evento es hoy 29 de Agosto
+  const isToday = month === 7 && date === 29;
+
+  if (isToday) {
+    if (hour >= 16 && hour < 21) {
+      return 'live_now'; // 4:00 PM a 9:00 PM (16:00 a 20:59:59)
+    } else if (hour < 16) {
+      return 'live_today'; // Hoy antes de las 4:00 PM (disponible para ver canal/esperar inicio)
+    }
+  }
+
+  return 'ended'; // A partir de las 9:00 PM o fechas posteriores
+};
 
 // Helper to calculate dynamic target date (this year or next year)
 const getDynamicTargetDate = (month, day, hour = 0, minute = 0) => {
@@ -51,14 +73,14 @@ const activitiesList = [
   {
     id: 0,
     title: "Conferencia de Jóvenes 'Sin Filtros' 2026",
-    date: "29 de Agosto, 2026",
-    time: "Sábado 03:00 PM",
+    date: "Sábado 29 de Agosto, 2026",
+    time: "03:00 PM - 09:00 PM",
     location: "Salón Principal ICC",
     mapLink: "https://maps.app.goo.gl/jRX8PC4S3oVrPMQz6",
     description: "Un encuentro diseñado para jóvenes con el propósito de compartir en adoración, profundizar en el estudio de la Palabra de Dios y disfrutar de un tiempo de comunión cristiana.",
-    tag: "Próximo Evento",
+    tag: "Evento Concluido",
     featured: true,
-    countdownTarget: getDynamicTargetDate(8, 29, 15, 0)
+    isCompleted: true
   },
   {
     id: 5,
@@ -101,34 +123,87 @@ const activitiesList = [
   }
 ];
 
-const ActivityCard = ({ activity, countdowns, onSelect }) => {
+const ActivityCard = ({ activity, countdowns, onSelect, liveStatus }) => {
+  const isConferencia = activity.id === 0;
+  const isVigilia = activity.id === 3;
+  const isLiveActive = isConferencia && (liveStatus === 'live_now' || liveStatus === 'live_today');
+
   return (
     <div 
-      className={`activity-card glass-panel ${activity.featured ? 'featured' : ''} ${activity.id === 3 ? 'vigilia-theme' : ''}`}
+      className={`activity-card glass-panel ${activity.featured ? 'featured' : ''} ${isVigilia ? 'vigilia-theme' : ''}`}
       onClick={() => onSelect(activity)}
       style={{ cursor: 'pointer' }}
       title="Haz clic para ver detalles de esta actividad"
     >
-      <div className="activity-tag">{activity.tag}</div>
+      <div className="activity-tag">
+        {isLiveActive ? (
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', color: '#ef4444', fontWeight: '800' }}>
+            <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#ef4444', display: 'inline-block' }}></span>
+            {liveStatus === 'live_now' ? 'En Vivo por YouTube' : 'Live Hoy 4PM-9PM'}
+          </span>
+        ) : (
+          activity.tag
+        )}
+      </div>
       <h3 className="activity-title">{activity.title}</h3>
       <p className="activity-desc">{activity.description}</p>
       
       {activity.isCompleted ? (
         <div className="card-completed-wrapper glass-panel">
-          <div className="completed-badge">
-            <span>✨ Actividad Concluida</span>
-          </div>
-          <p className="completed-text">¡Revive los momentos especiales de esta vigilia!</p>
-          <button 
-            className="btn-primary completed-btn"
-            style={{ margin: '0.8rem auto 0 auto', display: 'flex', width: 'fit-content', padding: '0.6rem 1.4rem', fontSize: '0.88rem' }}
-            onClick={(e) => {
-              e.stopPropagation();
-              onSelect(activity);
-            }}
-          >
-            Ver Fotos
-          </button>
+          {isLiveActive ? (
+            <>
+              <div className="completed-badge" style={{ background: 'rgba(239, 68, 68, 0.15)', borderColor: 'rgba(239, 68, 68, 0.4)', color: '#f87171' }}>
+                <span>📺 {liveStatus === 'live_now' ? '🔴 ¡En Directo por YouTube!' : 'Transmisión Hoy 4:00 PM - 9:00 PM'}</span>
+              </div>
+              <p className="completed-text">
+                {liveStatus === 'live_now'
+                  ? '¡Sigue la conferencia en vivo ahora mismo en nuestro canal de YouTube!'
+                  : 'Sigue la conferencia en vivo por YouTube hoy de 4:00 PM a 9:00 PM.'}
+              </p>
+              <div style={{ display: 'flex', gap: '0.6rem', justifyContent: 'center', marginTop: '0.8rem', flexWrap: 'wrap' }}>
+                <a 
+                  href={YOUTUBE_STREAMS_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn-primary"
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '0.6rem 1.2rem', fontSize: '0.88rem', textDecoration: 'none' }}
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+                  Ver en YouTube
+                </a>
+                <button 
+                  className="btn-secondary-sm"
+                  style={{ padding: '0.6rem 1rem', fontSize: '0.85rem' }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onSelect(activity);
+                  }}
+                >
+                  Ver Detalles
+                </button>
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="completed-badge">
+                <span>✨ Actividad Concluida</span>
+              </div>
+              <p className="completed-text">
+                {isVigilia ? '¡Revive los momentos especiales de esta vigilia!' : '¡Revive los momentos y detalles de esta conferencia!'}
+              </p>
+              <button 
+                className="btn-primary completed-btn"
+                style={{ margin: '0.8rem auto 0 auto', display: 'flex', width: 'fit-content', padding: '0.6rem 1.4rem', fontSize: '0.88rem' }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onSelect(activity);
+                }}
+              >
+                {isVigilia ? 'Ver Fotos' : 'Ver Detalles'}
+              </button>
+            </>
+          )}
         </div>
       ) : (
         activity.countdownTarget && countdowns[activity.id] && (
@@ -231,6 +306,7 @@ const Activities = () => {
 
   // General Countdowns State (Calculates for any activity with countdownTarget)
   const [countdowns, setCountdowns] = useState({});
+  const [liveStatus, setLiveStatus] = useState(getConferenciaLiveStatus());
 
   useEffect(() => {
     const calculateAllCountdowns = () => {
@@ -257,6 +333,7 @@ const Activities = () => {
       });
 
       setCountdowns(updatedCountdowns);
+      setLiveStatus(getConferenciaLiveStatus());
     };
 
     calculateAllCountdowns();
@@ -264,7 +341,26 @@ const Activities = () => {
     return () => clearInterval(interval);
   }, []);
 
-  // Prevent background scroll, handle modal class and listen to Escape key when modal is open
+  // Load official Instagram embed script when Media Vigilia modal is opened
+  useEffect(() => {
+    if (selectedActivity && selectedActivity.id === 3) {
+      if (window.instgrm) {
+        window.instgrm.Embeds.process();
+      } else {
+        const script = document.createElement('script');
+        script.src = '//www.instagram.com/embed.js';
+        script.async = true;
+        script.onload = () => {
+          if (window.instgrm) {
+            window.instgrm.Embeds.process();
+          }
+        };
+        document.body.appendChild(script);
+      }
+    }
+  }, [selectedActivity]);
+
+  // Prevent background scroll, handle modal class and listen to Escape key
   useEffect(() => {
     if (selectedActivity) {
       document.body.style.overflow = 'hidden';
@@ -311,6 +407,7 @@ const Activities = () => {
               activity={activity} 
               countdowns={countdowns} 
               onSelect={setSelectedActivity} 
+              liveStatus={liveStatus}
             />
           ))}
         </div>
@@ -331,6 +428,7 @@ const Activities = () => {
                   activity={activity} 
                   countdowns={countdowns} 
                   onSelect={setSelectedActivity} 
+                  liveStatus={liveStatus}
                 />
               ))}
             </div>
@@ -414,9 +512,39 @@ const Activities = () => {
                 </div>
               </div>
 
-              {/* Conferencia specific section: Show posters and schedule */}
+              {/* Conferencia specific section: Show YouTube Live, posters, preorder and schedule */}
               {selectedActivity.id === 0 && (
                 <>
+                  {(liveStatus === 'live_now' || liveStatus === 'live_today') && (
+                    <div className="modal-section" style={{ marginBottom: '3rem' }}>
+                      <div className="glass-panel" style={{ padding: '1.8rem', borderRadius: '16px', border: '1px solid rgba(239, 68, 68, 0.35)', background: 'rgba(239, 68, 68, 0.04)' }}>
+                        <div style={{ display: 'flex', alignItems: 'flex-start', gap: '1rem', marginBottom: '1.2rem' }}>
+                          <div style={{ fontSize: '2.2rem', lineHeight: 1 }}>📺</div>
+                          <div>
+                            <h3 style={{ fontWeight: '800', fontSize: '1.2rem', marginBottom: '0.4rem', color: 'var(--text-primary)' }}>
+                              {liveStatus === 'live_now' ? '🔴 Transmisión en Directo (4:00 PM - 9:00 PM)' : '📺 Transmisión en Vivo Hoy (4:00 PM - 9:00 PM)'}
+                            </h3>
+                            <p style={{ color: 'var(--text-secondary)', fontSize: '0.92rem', lineHeight: '1.6', margin: 0 }}>
+                              {liveStatus === 'live_now'
+                                ? 'La conferencia está siendo transmitida en vivo a través de nuestro canal oficial de YouTube. Puedes conectarte ahora mismo desde cualquier dispositivo.'
+                                : 'La conferencia será transmitida en directo a través de nuestro canal oficial de YouTube de 4:00 PM a 9:00 PM. Podrás verla gratis desde cualquier lugar.'}
+                            </p>
+                          </div>
+                        </div>
+                        <a
+                          href={YOUTUBE_STREAMS_URL}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="btn-primary"
+                          style={{ display: 'inline-flex', alignItems: 'center', gap: '10px', padding: '0.8rem 2rem', textDecoration: 'none', width: 'fit-content' }}
+                        >
+                          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+                          Ver Transmisión en YouTube
+                        </a>
+                      </div>
+                    </div>
+                  )}
+
                   <div className="modal-section" style={{ marginBottom: '3rem' }}>
                     <h3 className="modal-section-title">Afiches Oficiales</h3>
                     <div 
@@ -657,47 +785,46 @@ const Activities = () => {
                 </>
               )}
 
-              {/* Media Vigilia RESET specific section: Show Instagram Photo Embed & Poster */}
+              {/* Media Vigilia RESET specific section: Official Instagram Live Embed */}
               {selectedActivity.id === 3 && (
                 <>
                   <div className="modal-section" style={{ marginBottom: '3rem' }}>
-                    <h3 className="modal-section-title">Fotos del Evento</h3>
+                    <h3 className="modal-section-title">Fotos del Evento (Instagram)</h3>
                     <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem', lineHeight: '1.6' }}>
-                      Revive los mejores momentos de adoración, comunión y oración de nuestra Media Vigilia <strong>"RESET"</strong>.
+                      Explora la publicación oficial de nuestra Media Vigilia <strong>"RESET"</strong> directamente desde Instagram:
                     </p>
                     
-                    {VIGILIA_INSTAGRAM_POST_ID === "placeholder" ? (
-                      /* Placeholder card when post is not ready yet */
-                      <div className="instagram-placeholder-card glass-panel" style={{ padding: '3rem 2rem', textAlign: 'center', borderRadius: '16px', border: '1px dashed rgba(255, 56, 0, 0.3)', background: 'rgba(255, 56, 0, 0.02)', margin: '0 auto', maxWidth: '580px' }}>
-                        <div style={{ fontSize: '2.5rem', marginBottom: '1rem' }}>📸</div>
-                        <h4 style={{ fontSize: '1.2rem', marginBottom: '0.5rem', fontWeight: '700' }}>Fotos en Proceso de Publicación</h4>
-                        <p style={{ color: 'var(--text-secondary)', fontSize: '0.92rem', marginBottom: '1.5rem', maxWidth: '400px', margin: '0 auto 1.5rem auto', lineHeight: '1.5' }}>
-                          Estamos preparando y editando las fotos de la Media Vigilia "RESET". Síguenos en nuestra cuenta oficial de Instagram para verlas tan pronto estén disponibles.
-                        </p>
-                        <a 
-                          href="https://www.instagram.com/onetwentyoneicc/" 
-                          target="_blank" 
-                          rel="noopener noreferrer" 
-                          className="btn-primary"
-                          style={{ display: 'inline-flex', padding: '0.75rem 1.8rem', gap: '0.5rem', fontSize: '0.9rem', textDecoration: 'none' }}
-                        >
-                          Ir a @onetwentyoneicc en Instagram
-                        </a>
-                      </div>
-                    ) : (
-                      /* Official Native Instagram Post Embed Widget */
-                      <div style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
-                        <iframe
-                          src={`https://www.instagram.com/p/${VIGILIA_INSTAGRAM_POST_ID}/embed`}
-                          width="100%"
-                          height="580"
-                          frameBorder="0"
-                          scrolling="no"
-                          allowtransparency="true"
-                          style={{ border: 'none', borderRadius: '12px', background: 'rgba(255, 255, 255, 0.02)', maxWidth: '500px', width: '100%', boxShadow: '0 10px 30px rgba(0,0,0,0.3)' }}
-                        ></iframe>
-                      </div>
-                    )}
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', maxWidth: '540px', margin: '0 auto' }}>
+                      <iframe
+                        src={`https://www.instagram.com/p/${VIGILIA_INSTAGRAM_POST_ID}/embed/captioned/`}
+                        width="100%"
+                        height="720"
+                        frameBorder="0"
+                        scrolling="no"
+                        allowTransparency="true"
+                        style={{
+                          border: 'none',
+                          borderRadius: '16px',
+                          background: 'rgba(255, 255, 255, 0.03)',
+                          width: '100%',
+                          maxWidth: '540px',
+                          minHeight: '680px',
+                          boxShadow: '0 12px 36px rgba(0, 0, 0, 0.4)'
+                        }}
+                        title="Publicación oficial de Instagram Media Vigilia RESET"
+                      ></iframe>
+                      
+                      <a 
+                        href={`https://www.instagram.com/p/${VIGILIA_INSTAGRAM_POST_ID}/?img_index=1`}
+                        target="_blank" 
+                        rel="noopener noreferrer" 
+                        className="btn-primary"
+                        style={{ marginTop: '1.2rem', display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '0.75rem 1.8rem', textDecoration: 'none' }}
+                      >
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+                        Abrir publicación en Instagram
+                      </a>
+                    </div>
                   </div>
 
                   <div className="modal-section" style={{ marginBottom: '3rem' }}>

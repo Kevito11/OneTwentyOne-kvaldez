@@ -258,7 +258,7 @@ const MerchPaymentInstructions = () => {
 };
 
 // Cambia a false para reabrir el registro de la conferencia
-const CONFERENCIA_CLOSED = false;
+const CONFERENCIA_CLOSED = true;
 const YOUTUBE_CHANNEL_URL = 'https://www.youtube.com/@ICCRD/streams';
 
 const Registration = () => {
@@ -669,7 +669,7 @@ const Registration = () => {
         )}
 
         {!isRegistered ? (
-          <div className="registration-layout">
+          <div className="registration-layout" style={selectedEvent === 'conferencia' && CONFERENCIA_CLOSED ? { gridTemplateColumns: '1fr', maxWidth: '720px', margin: '0 auto' } : {}}>
 
             {/* Info Column */}
             <div className="registration-info animate-fade-in" key={selectedEvent}>

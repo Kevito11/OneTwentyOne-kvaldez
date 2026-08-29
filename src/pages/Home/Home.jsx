@@ -4,12 +4,11 @@ import { Calendar, MapPin, ArrowRight, Clock, Plus, Star, ExternalLink, ChevronL
 import { getImageUrl } from '../../config/images';
 import './Home.css';
 
-// Reemplaza este valor con el ID de la publicación de Instagram (ej. "C_abc123") cuando esté lista.
-// Mientras sea "placeholder", se mostrará un banner informativo con enlace a Instagram.
-const VIGILIA_INSTAGRAM_POST_ID = "placeholder";
+// Publicación oficial de Instagram de la Media Vigilia
+const VIGILIA_INSTAGRAM_POST_ID = "DcbcUTTFjv1";
 
 // Cambia a true si los cupos de la conferencia se agotan
-const CONFERENCIA_CLOSED = false;
+const CONFERENCIA_CLOSED = true;
 
 // Componente para imágenes del Lightbox con animación fluida onLoad
 const LightboxImage = ({ src, alt }) => {
