@@ -286,6 +286,74 @@ function doPost(e) {
       })).setMimeType(ContentService.MimeType.JSON);
     }
 
+    // Si la acción es sincronización masiva en lote (batchCheckin a las 9 PM o programado)
+    if (data.action === 'batchCheckin') {
+      var sheet = activeSpreadsheet.getSheetByName("Conferencia") || activeSpreadsheet.getActiveSheet();
+      var values = sheet.getDataRange().getValues();
+      var checkinsMap = {};
+      
+      // data.checkins: array of { ticketCode: string, checkedInAt?: string } o array de strings
+      if (data.checkins && Array.isArray(data.checkins)) {
+        for (var c = 0; c < data.checkins.length; c++) {
+          var item = data.checkins[c];
+          var code = typeof item === 'string' ? item : item.ticketCode;
+          var timeStr = (typeof item === 'object' && item.checkedInAt) ? item.checkedInAt : new Date().toLocaleTimeString();
+          if (code) {
+            checkinsMap[code.trim()] = timeStr;
+          }
+        }
+      }
+      
+      // Actualizar los checkins existentes en columna R (18)
+      for (var i = 1; i < values.length; i++) {
+        var rowCode = String(values[i][2]).trim();
+        if (checkinsMap[rowCode]) {
+          var mark = "Si (" + checkinsMap[rowCode] + ")";
+          sheet.getRange(i + 1, 18).setValue(mark);
+        }
+      }
+      
+      // Agregar nuevos registros express (expressRegistrations: array)
+      if (data.expressRegistrations && Array.isArray(data.expressRegistrations)) {
+        var now = new Date();
+        var timezone = Session.getScriptTimeZone();
+        var dateFormatted = Utilities.formatDate(now, timezone, "dd/MM/yyyy");
+        var timeFormatted = Utilities.formatDate(now, timezone, "hh:mm:ss a");
+        
+        for (var r = 0; r < data.expressRegistrations.length; r++) {
+          var reg = data.expressRegistrations[r];
+          var newTicket = reg.ticketCode || ("121-ICC-" + Math.floor(1000 + Math.random() * 9000));
+          var rowData = [
+            reg.date || dateFormatted,
+            reg.time || timeFormatted,
+            newTicket,
+            reg.firstName || "",
+            reg.lastName || "",
+            reg.email || "",
+            reg.phone || "",
+            reg.church || "Invitado / En Puerta",
+            reg.ageGroup || "18 a 25",
+            "No",
+            "Ninguno",
+            0,
+            "Conferencia Sin Filtros",
+            "",
+            "Registro en Check-in Local",
+            "Si",
+            "Registro en Puerta",
+            "Si (" + (reg.time || timeFormatted) + ")"
+          ];
+          sheet.appendRow(rowData);
+        }
+      }
+      
+      SpreadsheetApp.flush();
+      return ContentService.createTextOutput(JSON.stringify({ 
+        status: "success", 
+        message: "Sincronización en lote completada con éxito." 
+      })).setMimeType(ContentService.MimeType.JSON);
+    }
+
     // Nueva Inscripción
     var isVigilia = data.eventType === "vigilia" || (data.ticketCode && data.ticketCode.indexOf("RESET") !== -1);
     var isCena = data.eventType === "cena";
@@ -366,10 +434,45 @@ function doPost(e) {
 }
 
 /**
- * 2. RECIBIR CONSULTA GET (Busca un boleto por código en la columna C)
+ * 2. RECIBIR CONSULTA GET (Busca un boleto por código en la columna C o devuelve todos para local-first)
  */
 function doGet(e) {
   try {
+    // 0. Caso de Obtener todos los asistentes para modo local ultra-rápido
+    if (e.parameter.action === 'getAllAttendees' || e.parameter.getAll === 'true') {
+      var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Conferencia") || SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+      var data = sheet.getDataRange().getValues();
+      var attendees = [];
+      
+      for (var i = 1; i < data.length; i++) {
+        var ticketCode = data[i][2] ? data[i][2].toString().trim() : "";
+        var firstName = data[i][3] ? data[i][3].toString().trim() : "";
+        var lastName = data[i][4] ? data[i][4].toString().trim() : "";
+        var email = data[i][5] ? data[i][5].toString().trim() : "";
+        var church = data[i][7] ? data[i][7].toString().trim() : "";
+        var ageGroup = data[i][8] ? data[i][8].toString().trim() : "";
+        var event = data[i][12] ? data[i][12].toString().trim() : '';
+        
+        var isConferencia = (event === "Conferencia Sin Filtros" || !event) && (ticketCode && ticketCode.indexOf("RESET") === -1 && ticketCode.indexOf("CENA") === -1 && ticketCode.indexOf("CAMP") === -1);
+        
+        if (ticketCode && isConferencia) {
+          var checkedInVal = data[i][17] ? data[i][17].toString().trim() : "No";
+          var isChecked = (checkedInVal !== "" && checkedInVal.toLowerCase() !== "no");
+          
+          attendees.push({
+            ticketCode: ticketCode,
+            firstName: firstName,
+            lastName: lastName,
+            email: email,
+            church: church,
+            ageGroup: ageGroup,
+            checkedIn: isChecked ? "Si" : "No"
+          });
+        }
+      }
+      return ContentService.createTextOutput(JSON.stringify({ status: 'success', attendees: attendees }))
+                           .setMimeType(ContentService.MimeType.JSON);
+    }
     // 1. Caso de Búsqueda por Nombre, Correo o Código (Auto-registro de Entrada check-in)
     var query = e.parameter.query;
     if (query) {

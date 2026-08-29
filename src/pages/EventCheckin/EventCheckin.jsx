@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useLocation, Link } from 'react-router-dom';
-import { Search, UserCheck, AlertCircle, RefreshCw, QrCode, UserPlus, Sparkles, CheckCircle2, ArrowLeft, Zap } from 'lucide-react';
+import { Search, UserCheck, AlertCircle, QrCode, UserPlus, Sparkles, CheckCircle2, ArrowLeft, Zap } from 'lucide-react';
 import './EventCheckin.css';
 
 const AGE_OPTIONS = [
@@ -10,6 +10,18 @@ const AGE_OPTIONS = [
   "36+ años"
 ];
 
+const STORAGE_KEY_ATTENDEES = 'ICC_CHECKIN_ATTENDEES_V1';
+const STORAGE_KEY_PENDING_CHECKINS = 'ICC_CHECKIN_PENDING_CHECKINS_V1';
+const STORAGE_KEY_PENDING_EXPRESS = 'ICC_CHECKIN_PENDING_EXPRESS_V1';
+const STORAGE_KEY_SYNC_DATE = 'ICC_CHECKIN_LAST_SYNC_DATE_V1';
+
+const maskEmail = (email) => {
+  if (!email || !email.includes('@')) return email || '';
+  const [user, domain] = email.split('@');
+  if (user.length <= 2) return `${user}***@${domain}`;
+  return `${user.substring(0, 2)}***@${domain}`;
+};
+
 const EventCheckin = () => {
   const location = useLocation();
   const sheetUrl = import.meta.env.VITE_SHEETS_API_URL || '';
@@ -17,22 +29,24 @@ const EventCheckin = () => {
   // QR-code enforcement state
   const [isQrAccess, setIsQrAccess] = useState(false);
 
+  // Local database and pending state
+  const [attendees, setAttendees] = useState([]);
+  const [pendingCheckins, setPendingCheckins] = useState([]);
+  const [pendingExpress, setPendingExpress] = useState([]);
+
   // View Mode: 'search' | 'register'
   const [viewMode, setViewMode] = useState('search');
   
   // Search states
   const [searchQuery, setSearchQuery] = useState('');
-  const [isSearching, setIsSearching] = useState(false);
   const [searchResults, setSearchResults] = useState([]);
   const [hasSearched, setHasSearched] = useState(false);
   const [searchError, setSearchError] = useState('');
 
   // Check-in action states
-  const [isCheckingIn, setIsCheckingIn] = useState(false);
   const [checkedInUser, setCheckedInUser] = useState(null);
   const [checkinSuccess, setCheckinSuccess] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
-  const [devMode, setDevMode] = useState(false);
 
   // Express Registration Form State: Only firstName, lastName, email, age
   const [expressForm, setExpressForm] = useState({
@@ -41,7 +55,6 @@ const EventCheckin = () => {
     email: '',
     ageGroup: '18 a 25 años'
   });
-  const [isSubmittingExpress, setIsSubmittingExpress] = useState(false);
   const [expressError, setExpressError] = useState('');
 
   // Validate QR source on mount
@@ -53,119 +66,205 @@ const EventCheckin = () => {
     }
   }, [location]);
 
-  // Handle search against Sheets database
-  const handleSearch = async () => {
-    const query = searchQuery.trim();
+  // Load local data and fetch latest database in background
+  useEffect(() => {
+    // 1. Cargar datos locales existentes de inmediato
+    let localAttendees = [];
+    let localCheckins = [];
+    let localExpress = [];
+
+    try {
+      const savedAttendees = localStorage.getItem(STORAGE_KEY_ATTENDEES);
+      if (savedAttendees) {
+        localAttendees = JSON.parse(savedAttendees);
+        setAttendees(localAttendees);
+      }
+
+      const savedCheckins = localStorage.getItem(STORAGE_KEY_PENDING_CHECKINS);
+      if (savedCheckins) {
+        localCheckins = JSON.parse(savedCheckins);
+        setPendingCheckins(localCheckins);
+      }
+
+      const savedExpress = localStorage.getItem(STORAGE_KEY_PENDING_EXPRESS);
+      if (savedExpress) {
+        localExpress = JSON.parse(savedExpress);
+        setPendingExpress(localExpress);
+      }
+    } catch (e) {
+      console.error('Error reading localStorage check-in data:', e);
+    }
+
+    // 2. Descargar base de datos actualizada en segundo plano (sin bloquear)
+    if (sheetUrl && sheetUrl.trim() !== '') {
+      fetch(`${sheetUrl}?action=getAllAttendees`)
+        .then(res => res.json())
+        .then(data => {
+          if (data && data.status === 'success' && Array.isArray(data.attendees)) {
+            // Unir asistentes del servidor con los checkins locales ya realizados
+            const pendingMap = new Map();
+            localCheckins.forEach(c => pendingMap.set(c.ticketCode, true));
+
+            const updatedList = data.attendees.map(remoteAtt => {
+              const isCheckedInLocally = pendingMap.has(remoteAtt.ticketCode);
+              return {
+                ...remoteAtt,
+                checkedIn: (isCheckedInLocally || remoteAtt.checkedIn === 'Si') ? 'Si' : 'No'
+              };
+            });
+
+            // Combinar con los express registrados en este dispositivo
+            localExpress.forEach(exp => {
+              if (!updatedList.some(u => u.ticketCode === exp.ticketCode)) {
+                updatedList.push({
+                  ...exp,
+                  checkedIn: 'Si'
+                });
+              }
+            });
+
+            setAttendees(updatedList);
+            try {
+              localStorage.setItem(STORAGE_KEY_ATTENDEES, JSON.stringify(updatedList));
+            } catch (err) {
+              console.warn('Could not save updated attendees to localStorage:', err);
+            }
+          }
+        })
+        .catch(err => {
+          console.warn('Modo offline / error al actualizar base en segundo plano:', err);
+        });
+    }
+  }, [sheetUrl]);
+
+  // Sincronizador automático a las 9:00 PM
+  useEffect(() => {
+    const checkAndSyncAt9PM = async () => {
+      if (!sheetUrl) return;
+
+      const now = new Date();
+      const todayStr = now.toISOString().split('T')[0];
+      const lastSyncedDate = localStorage.getItem(STORAGE_KEY_SYNC_DATE);
+
+      // Comprobar si ya son las 9:00 PM (21:00) o más tarde hoy
+      const is9PMOrLater = now.getHours() >= 21;
+
+      // Obtener pendientes directamente de localStorage para mayor precisión
+      let currentCheckins = [];
+      let currentExpress = [];
+      try {
+        currentCheckins = JSON.parse(localStorage.getItem(STORAGE_KEY_PENDING_CHECKINS) || '[]');
+        currentExpress = JSON.parse(localStorage.getItem(STORAGE_KEY_PENDING_EXPRESS) || '[]');
+      } catch (e) {
+        console.error('Error parsing pending items for 9PM sync:', e);
+      }
+
+      const hasPendingData = currentCheckins.length > 0 || currentExpress.length > 0;
+
+      if (is9PMOrLater && hasPendingData && lastSyncedDate !== todayStr) {
+        try {
+          console.log('⏰ 9:00 PM alcanzado. Enviando lote masivo de check-ins a Google Sheets...');
+          const response = await fetch(sheetUrl, {
+            method: 'POST',
+            mode: 'cors',
+            headers: {
+              'Content-Type': 'text/plain;charset=utf-8'
+            },
+            body: JSON.stringify({
+              action: 'batchCheckin',
+              checkins: currentCheckins,
+              expressRegistrations: currentExpress
+            })
+          });
+
+          const result = await response.json();
+          if (result && result.status === 'success') {
+            console.log('✅ Sincronización masiva de las 9:00 PM completada con éxito.');
+            localStorage.setItem(STORAGE_KEY_PENDING_CHECKINS, '[]');
+            localStorage.setItem(STORAGE_KEY_PENDING_EXPRESS, '[]');
+            localStorage.setItem(STORAGE_KEY_SYNC_DATE, todayStr);
+            setPendingCheckins([]);
+            setPendingExpress([]);
+          }
+        } catch (err) {
+          console.error('Error durante la sincronización automática de las 9:00 PM:', err);
+        }
+      }
+    };
+
+    // Ejecutar chequeo inicial
+    checkAndSyncAt9PM();
+
+    // Comprobar cada 30 segundos
+    const interval = setInterval(checkAndSyncAt9PM, 30000);
+    return () => clearInterval(interval);
+  }, [sheetUrl]);
+
+  // Handle search 100% localmente e instantáneamente (0ms)
+  const handleSearch = () => {
+    const query = searchQuery.trim().toLowerCase();
     if (!query) {
       setSearchError('Por favor introduce un nombre, correo o boleto.');
       return;
     }
-    if (query.length < 3) {
-      setSearchError('La búsqueda debe tener al menos 3 caracteres.');
+    if (query.length < 2) {
+      setSearchError('La búsqueda debe tener al menos 2 caracteres.');
       return;
     }
 
-    setIsSearching(true);
     setSearchError('');
     setErrorMessage('');
-    setSearchResults([]);
 
-    if (!sheetUrl || sheetUrl.trim() === '') {
-      console.warn("VITE_SHEETS_API_URL no configurada. Simulando búsqueda en desarrollo.");
-      setDevMode(true);
-      setTimeout(() => {
-        setIsSearching(false);
-        setHasSearched(true);
-        setSearchResults([
-          {
-            ticketCode: '121-ICC-0482',
-            firstName: 'Carlos',
-            lastName: 'Mendoza',
-            email: 'ca***@gmail.com',
-            checkedIn: 'No'
-          },
-          {
-            ticketCode: '121-ICC-1102',
-            firstName: 'Carla',
-            lastName: 'Rodríguez',
-            email: 'ca***@hotmail.com',
-            checkedIn: 'Si'
-          }
-        ].filter(user => 
-          `${user.firstName} ${user.lastName}`.toLowerCase().includes(query.toLowerCase()) ||
-          user.ticketCode.toLowerCase().includes(query.toLowerCase())
-        ));
-      }, 1000);
-      return;
-    }
+    // Búsqueda instantánea en la base de datos local en memoria
+    const results = attendees.filter(user => {
+      const fullName = `${user.firstName || ''} ${user.lastName || ''}`.toLowerCase();
+      const ticket = (user.ticketCode || '').toLowerCase();
+      const email = (user.email || '').toLowerCase();
 
-    try {
-      const response = await fetch(`${sheetUrl}?query=${encodeURIComponent(query)}`);
-      const result = await response.json();
+      return fullName.includes(query) || ticket.includes(query) || email.includes(query);
+    });
 
-      if (result.status === 'success') {
-        setSearchResults(result.results || []);
-        setHasSearched(true);
-      } else {
-        setSearchError(result.message || 'Error en la búsqueda.');
-      }
-    } catch (err) {
-      console.error('Error searching:', err);
-      setSearchError('Error de red al conectar con el servidor.');
-    } finally {
-      setIsSearching(false);
-    }
+    setSearchResults(results);
+    setHasSearched(true);
   };
 
-  // Confirm arrival/check-in for existing user
-  const handleCheckinSubmit = async (user) => {
-    setIsCheckingIn(true);
+  // Confirm arrival/check-in for existing user (100% local e instantáneo)
+  const handleCheckinSubmit = (user) => {
     setErrorMessage('');
-    setCheckedInUser(user);
+    const nowTimeStr = new Date().toLocaleTimeString();
 
-    if (devMode || !sheetUrl || sheetUrl.trim() === '') {
-      setTimeout(() => {
-        setIsCheckingIn(false);
-        setCheckinSuccess(true);
-        setSearchResults(prev => prev.map(u => 
-          u.ticketCode === user.ticketCode ? { ...u, checkedIn: 'Si' } : u
-        ));
-      }, 1200);
-      return;
-    }
+    // 1. Actualizar lista de asistentes local
+    const updatedAttendees = attendees.map(u => 
+      u.ticketCode === user.ticketCode ? { ...u, checkedIn: 'Si' } : u
+    );
+    setAttendees(updatedAttendees);
 
+    // 2. Registrar en la cola de check-ins pendientes para las 9 PM
+    const newPendingCheckin = {
+      ticketCode: user.ticketCode,
+      checkedInAt: nowTimeStr
+    };
+    const updatedPending = [...pendingCheckins, newPendingCheckin];
+    setPendingCheckins(updatedPending);
+
+    // 3. Guardar inmediatamente en localStorage
     try {
-      const response = await fetch(sheetUrl, {
-        method: 'POST',
-        mode: 'cors',
-        headers: {
-          'Content-Type': 'text/plain;charset=utf-8'
-        },
-        body: JSON.stringify({
-          action: 'checkin',
-          ticketCode: user.ticketCode
-        })
-      });
-
-      const data = await response.json();
-      if (data.status === 'success') {
-        setCheckinSuccess(true);
-        setSearchResults(prev => prev.map(u => 
-          u.ticketCode === user.ticketCode ? { ...u, checkedIn: 'Si' } : u
-        ));
-      } else {
-        setErrorMessage(data.message || 'Error al procesar el registro de entrada.');
-      }
-    } catch (err) {
-      console.error('Error during checkin:', err);
-      setErrorMessage('Error de red al conectar con el servidor. Inténtalo de nuevo.');
-    } finally {
-      setIsCheckingIn(false);
+      localStorage.setItem(STORAGE_KEY_ATTENDEES, JSON.stringify(updatedAttendees));
+      localStorage.setItem(STORAGE_KEY_PENDING_CHECKINS, JSON.stringify(updatedPending));
+    } catch (e) {
+      console.warn('Error saving check-in to localStorage:', e);
     }
+
+    // 4. Actualizar resultados en pantalla y mostrar confirmación de inmediato
+    setSearchResults(prev => prev.map(u => 
+      u.ticketCode === user.ticketCode ? { ...u, checkedIn: 'Si' } : u
+    ));
+    setCheckedInUser(user);
+    setCheckinSuccess(true);
   };
 
-  // Handle Express Registration: Nombre, Apellido, Correo, Edad
-  const handleExpressSubmit = async (e) => {
+  // Handle Express Registration: Nombre, Apellido, Correo, Edad (100% local e instantáneo)
+  const handleExpressSubmit = (e) => {
     e.preventDefault();
     setExpressError('');
 
@@ -180,62 +279,44 @@ const EventCheckin = () => {
 
     const randomDigits = Math.floor(1000 + Math.random() * 9000);
     const newTicketCode = `121-ICC-${randomDigits}`;
+    const nowTimeStr = new Date().toLocaleTimeString();
+    const nowDateStr = new Date().toLocaleDateString('es-DO');
 
-    setIsSubmittingExpress(true);
+    const newUser = {
+      ticketCode: newTicketCode,
+      firstName: expressForm.firstName.trim(),
+      lastName: expressForm.lastName.trim(),
+      email: expressForm.email.trim(),
+      phone: '',
+      church: 'Invitado / En Puerta',
+      ageGroup: expressForm.ageGroup,
+      checkedIn: 'Si',
+      date: nowDateStr,
+      time: nowTimeStr
+    };
 
-    if (devMode || !sheetUrl || sheetUrl.trim() === '') {
-      setTimeout(() => {
-        setIsSubmittingExpress(false);
-        setCheckedInUser({
-          firstName: expressForm.firstName,
-          lastName: expressForm.lastName,
-          email: expressForm.email,
-          ticketCode: newTicketCode,
-          isNewRegister: true
-        });
-        setCheckinSuccess(true);
-      }, 1500);
-      return;
-    }
+    // 1. Agregar a la base de datos local
+    const updatedAttendees = [newUser, ...attendees];
+    setAttendees(updatedAttendees);
 
+    // 2. Agregar a la cola de nuevos registros para las 9 PM
+    const updatedExpress = [...pendingExpress, newUser];
+    setPendingExpress(updatedExpress);
+
+    // 3. Guardar en localStorage
     try {
-      const response = await fetch(sheetUrl, {
-        method: 'POST',
-        mode: 'cors',
-        headers: {
-          'Content-Type': 'text/plain;charset=utf-8'
-        },
-        body: JSON.stringify({
-          action: 'expressCheckin',
-          ticketCode: newTicketCode,
-          firstName: expressForm.firstName.trim(),
-          lastName: expressForm.lastName.trim(),
-          email: expressForm.email.trim(),
-          phone: '',
-          church: 'Invitado / En Puerta',
-          ageGroup: expressForm.ageGroup
-        })
-      });
-
-      const data = await response.json();
-      if (data.status === 'success') {
-        setCheckedInUser({
-          firstName: expressForm.firstName,
-          lastName: expressForm.lastName,
-          email: expressForm.email,
-          ticketCode: data.ticketCode || newTicketCode,
-          isNewRegister: true
-        });
-        setCheckinSuccess(true);
-      } else {
-        setExpressError(data.message || 'Error al guardar el registro en el servidor.');
-      }
+      localStorage.setItem(STORAGE_KEY_ATTENDEES, JSON.stringify(updatedAttendees));
+      localStorage.setItem(STORAGE_KEY_PENDING_EXPRESS, JSON.stringify(updatedExpress));
     } catch (err) {
-      console.error('Error during express registration:', err);
-      setExpressError('Error de conexión con el servidor. Inténtalo de nuevo.');
-    } finally {
-      setIsSubmittingExpress(false);
+      console.warn('Error saving express registration to localStorage:', err);
     }
+
+    // 4. Mostrar confirmación de inmediato (0ms)
+    setCheckedInUser({
+      ...newUser,
+      isNewRegister: true
+    });
+    setCheckinSuccess(true);
   };
 
   const handleResetSearch = () => {
@@ -318,7 +399,6 @@ const EventCheckin = () => {
                 />
                 <button
                   onClick={handleSearch}
-                  disabled={isSearching}
                   className="btn-primary"
                   style={{
                     padding: '0 1.8rem',
@@ -329,7 +409,8 @@ const EventCheckin = () => {
                     justifyContent: 'center'
                   }}
                 >
-                  {isSearching ? <RefreshCw className="spinner" size={18} /> : 'Buscar'}
+                  <Search size={18} />
+                  <span>Buscar</span>
                 </button>
               </div>
               {searchError && (
@@ -392,7 +473,7 @@ const EventCheckin = () => {
                             {user.ticketCode}
                           </span>
                           <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>
-                            {user.email}
+                            {maskEmail(user.email)}
                           </span>
                         </div>
 
@@ -418,7 +499,6 @@ const EventCheckin = () => {
                           ) : (
                             <button
                               onClick={() => handleCheckinSubmit(user)}
-                              disabled={isCheckingIn}
                               className="btn-primary"
                               style={{
                                 padding: '0.5rem 1.1rem',
@@ -428,11 +508,7 @@ const EventCheckin = () => {
                                 gap: '6px'
                               }}
                             >
-                              {isCheckingIn && checkedInUser?.ticketCode === user.ticketCode ? (
-                                <RefreshCw className="spinner" size={14} />
-                              ) : (
-                                <UserCheck size={14} />
-                              )}
+                              <UserCheck size={14} />
                               <span>Confirmar Entrada</span>
                             </button>
                           )}
@@ -552,7 +628,6 @@ const EventCheckin = () => {
               {/* Botón de Enviar con efecto llamativo */}
               <button
                 type="submit"
-                disabled={isSubmittingExpress}
                 className="btn-primary"
                 style={{
                   marginTop: '0.8rem',
@@ -564,17 +639,8 @@ const EventCheckin = () => {
                   gap: '8px'
                 }}
               >
-                {isSubmittingExpress ? (
-                  <>
-                    <RefreshCw className="spinner" size={18} />
-                    <span>Registrando Entrada...</span>
-                  </>
-                ) : (
-                  <>
-                    <Sparkles size={18} />
-                    <span>Completar Registro y Entrada</span>
-                  </>
-                )}
+                <Sparkles size={18} />
+                <span>Completar Registro y Entrada</span>
               </button>
             </form>
           </div>
