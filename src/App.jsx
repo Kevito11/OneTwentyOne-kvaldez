@@ -13,15 +13,13 @@ import Merch from './pages/Merch/Merch';
 import TicketVerification from './pages/TicketVerification/TicketVerification';
 import PreOrderMenu from './pages/PreOrderMenu/PreOrderMenu';
 import ConfirmAttendance from './pages/ConfirmAttendance/ConfirmAttendance';
-import EventCheckin from './pages/EventCheckin/EventCheckin';
 
 function AppContent() {
   const location = useLocation();
   const isTicketPage = location.pathname.startsWith('/ticket/');
   const isPreorderPage = location.pathname.startsWith('/menu-preorden');
   const isConfirmPage = location.pathname.startsWith('/confirmar-asistencia');
-  const isCheckinPage = location.pathname.startsWith('/checkin');
-  const hideLayout = isTicketPage || isPreorderPage || isConfirmPage || isCheckinPage;
+  const hideLayout = isTicketPage || isPreorderPage || isConfirmPage;
 
   return (
     <div className="app-container">
@@ -44,7 +42,6 @@ function AppContent() {
           <Route path="/ticket/:code" element={<TicketVerification />} />
           <Route path="/menu-preorden" element={<PreOrderMenu />} />
           <Route path="/confirmar-asistencia" element={<ConfirmAttendance />} />
-          <Route path="/checkin" element={<EventCheckin />} />
         </Routes>
       </main>
       {!hideLayout && <Footer />}

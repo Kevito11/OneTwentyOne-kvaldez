@@ -1,128 +1,10 @@
-import { useState, useEffect, useRef, forwardRef } from 'react';
+import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { Link } from 'react-router-dom';
-import { Ticket, User, Mail, Phone, Home, Star, Printer, RotateCcw, MapPin, CheckCircle, X, Check, ShoppingBag, Plus, Minus, Copy, AlertTriangle } from 'lucide-react';
+import { Ticket, User, Mail, Phone, Home, Star, Printer, RotateCcw, MapPin, CheckCircle, X } from 'lucide-react';
 import QRCode from 'qrcode';
-import { getImageUrl } from '../../config/images';
 import './Registration.css';
 
-// Componente para manejar imágenes con fallback local y detección instantánea de caché
-const ImageWithFallback = forwardRef(({ src, localPath, alt, className, style, onLoad }, ref) => {
-  const [currentSrc, setCurrentSrc] = useState(src);
-  const internalRef = useRef(null);
-  const imgRef = ref || internalRef;
-
-  useEffect(() => {
-    setCurrentSrc(src);
-  }, [src]);
-
-  useEffect(() => {
-    if (imgRef.current && imgRef.current.complete) {
-      if (onLoad) onLoad();
-    }
-  }, [currentSrc]);
-
-  return (
-    <img
-      ref={imgRef}
-      src={currentSrc}
-      alt={alt}
-      className={className}
-      style={style}
-      onLoad={onLoad}
-      onError={() => {
-        if (currentSrc !== localPath) {
-          setCurrentSrc(localPath);
-        }
-      }}
-    />
-  );
-});
-
-// Componente para previsualización premium con transición suave al cambiar de imagen/color
-const PremiumImageDisplay = ({ src, localPath, alt, className, style }) => {
-  const [loaded, setLoaded] = useState(false);
-  const imgRef = useRef(null);
-
-  useEffect(() => {
-    if (imgRef.current && imgRef.current.complete) {
-      setLoaded(true);
-    } else {
-      setLoaded(false);
-    }
-  }, [src]);
-
-  return (
-    <div style={{ width: '100%', height: '100%', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
-      <ImageWithFallback
-        ref={imgRef}
-        src={getImageUrl(src)}
-        localPath={src}
-        alt={alt}
-        className={className}
-        onLoad={() => setLoaded(true)}
-        style={{
-          ...style,
-          transition: 'opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1), transform 0.35s cubic-bezier(0.4, 0, 0.2, 1)',
-          opacity: loaded ? 1 : 0,
-          transform: loaded ? 'scale(1)' : 'scale(0.97)',
-          width: '100%',
-          height: '100%',
-          objectFit: 'cover'
-        }}
-      />
-    </div>
-  );
-};
-
-const PRODUCTS = [
-  {
-    id: 1,
-    name: "Gorra \"Sin Filtros\"",
-    price: 750,
-    type: "cap",
-    images: {
-      "Negro": {
-        front: "/merch/Merch SIN FILTROS gorra Frontal.jpeg",
-        back: "/merch/Merch SIN FILTROS gorra 2.jpeg"
-      }
-    },
-    colors: ["Negro"],
-    colorHex: {
-      "Negro": "#000000"
-    },
-    sizes: ["Única"]
-  },
-  {
-    id: 2,
-    name: "Camiseta \"Sin Filtros\"",
-    price: 1200,
-    type: "tshirt",
-    images: {
-      "Negro": {
-        front: "/merch/Merch SIN FILTROS Tshirt frontal 6.jpeg",
-        back: "/merch/Merch SIN FILTROS Tshirt atrs 6.jpeg"
-      },
-      "Gris": {
-        front: "/merch/Merch SIN FILTROS Tshirt frontal 4.jpeg",
-        back: "/merch/Merch SIN FILTROS Tshirt atrs 4.jpeg"
-      },
-      "Blanco": {
-        front: "/merch/Merch SIN FILTROS Tshirt frontal 3.jpeg",
-        back: "/merch/Merch SIN FILTROS Tshirt atrs 3.jpeg"
-      }
-    },
-    colors: ["Negro", "Gris", "Blanco"],
-    colorHex: {
-      "Negro": "#121212",
-      "Gris": "#8A8A8A",
-      "Blanco": "#FFFFFF"
-    },
-    sizes: ["S", "M", "L", "XL"]
-  }
-];
-
-// Mock QR Code SVG for visual WOW factor
+// Mock QR Code SVG
 const MockQRCode = () => (
   <svg viewBox="0 0 100 100" fill="currentColor">
     {/* Outer borders */}
@@ -176,91 +58,6 @@ const CHURCH_OPTIONS = [
   "Iglesia Bautista Nuevo Pacto"
 ];
 
-const MerchPaymentInstructions = () => {
-  const [copiedText, setCopiedText] = useState('');
-
-  const handleCopy = (text, label) => {
-    navigator.clipboard.writeText(text);
-    setCopiedText(label);
-    setTimeout(() => setCopiedText(''), 2000);
-  };
-
-  return (
-    <div className="merch-payment-card glass-panel animate-fade-in">
-      <div className="merch-payment-header">
-        <ShoppingBag size={18} className="text-gradient" />
-        <h3>Instrucciones de Reserva</h3>
-      </div>
-      
-      <p className="merch-payment-desc">
-        Para asegurar tus artículos, debes abonar el <strong>100% del total</strong> mediante depósito o transferencia, y estaremos contactando una vez esté listo y disponible para retirar en la iglesia.
-      </p>
-
-      <div className="payment-tip-box" style={{ background: 'rgba(255,255,255,0.02)', padding: '0.75rem', borderRadius: '8px', fontSize: '0.8rem', borderLeft: '3px solid var(--accent-light, #ffffff)', color: 'var(--text-secondary)' }}>
-        <strong>💡 Concepto de pago:</strong> Al realizar el depósito o transferencia, por favor indica en el concepto o descripción tu <strong>Código de Boleto</strong> (se te dará al finalizar este registro) acompañado de tu nombre para asociarlo más rápido.
-        <span style={{ display: 'block', marginTop: '0.25rem', fontFamily: 'monospace', color: 'white' }}>Estructura: [Código de Boleto] - [Tu Nombre]</span>
-      </div>
-
-      <div className="merch-accounts-container">
-        <div className="merch-account-item">
-          <div className="merch-bank-info">
-            <span className="merch-bank-name banreservas">Banreservas</span>
-            <span className="merch-account-type">Ahorro RD$</span>
-          </div>
-          <div className="merch-account-number-row">
-            <code>9607274318</code>
-            <button
-              type="button"
-              className="copy-btn"
-              onClick={() => handleCopy('9607274318', 'banreservas')}
-              title="Copiar cuenta"
-            >
-              {copiedText === 'banreservas' ? <Check size={12} className="copied" /> : <Copy size={12} />}
-            </button>
-          </div>
-        </div>
-
-        <div className="merch-account-item">
-          <div className="merch-bank-info">
-            <span className="merch-bank-name popular">Banco Popular</span>
-            <span className="merch-account-type">Corriente RD$</span>
-          </div>
-          <div className="merch-account-number-row">
-            <code>836288449</code>
-            <button
-              type="button"
-              className="copy-btn"
-              onClick={() => handleCopy('836288449', 'popular_rd')}
-              title="Copiar cuenta"
-            >
-              {copiedText === 'popular_rd' ? <Check size={12} className="copied" /> : <Copy size={12} />}
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <div className="merch-beneficiary-info">
-        <div style={{ marginBottom: '0.4rem' }}><strong>Banreservas:</strong> Joelmary Hernandez &nbsp;·&nbsp; <span style={{ fontFamily: 'monospace', fontSize: '0.85em' }}>Cédula: 402-3603056-1</span></div>
-        <div><strong>Popular:</strong> David J. Chez &nbsp;·&nbsp; <span style={{ fontFamily: 'monospace', fontSize: '0.85em' }}>Cédula: 402-0037969-7</span></div>
-      </div>
-
-      <a 
-        href="https://wa.me/18096299236"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="merch-payment-footer-note wa-link"
-      >
-        <Phone size={14} style={{ color: 'var(--accent-light)' }} />
-        <span>Envía el comprobante por WhatsApp al <strong>(809) 629-9236</strong> (Haz clic para chatear).</span>
-      </a>
-    </div>
-  );
-};
-
-// Cambia a false para reabrir el registro de la conferencia
-const CONFERENCIA_CLOSED = true;
-const YOUTUBE_CHANNEL_URL = 'https://www.youtube.com/watch?v=MuJJGPhZ10Y';
-
 const Registration = () => {
   // Listen to hash changes for real-time image updates during local testing
   const [, setHashTrigger] = useState(window.location.hash);
@@ -270,46 +67,19 @@ const Registration = () => {
     return () => window.removeEventListener('hashchange', handleHash);
   }, []);
 
-  // Selected Event State ('conferencia' | 'vigilia')
-  const [selectedEvent, setSelectedEvent] = useState('conferencia');
+  // Selected Event State ('cena' | 'campamento')
+  const [selectedEvent, setSelectedEvent] = useState('cena');
 
   // Read URL query parameter on load
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const eventParam = params.get('event');
-    if (eventParam === 'cena') {
-      setSelectedEvent('cena');
-    } else if (eventParam === 'campamento') {
+    if (eventParam === 'campamento') {
       setSelectedEvent('campamento');
     } else {
-      setSelectedEvent('conferencia');
+      setSelectedEvent('cena');
     }
   }, []);
-
-  // Carousel images
-  const posterImages = [getImageUrl('/sin-filtro-poster.jpeg'), getImageUrl('/sin-filtros-theme.jpeg')];
-  const [activePosterIndex, setActivePosterIndex] = useState(0);
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setActivePosterIndex((prevIndex) => (prevIndex + 1) % posterImages.length);
-    }, 4500);
-    return () => clearInterval(timer);
-  }, [posterImages.length]);
-
-  useEffect(() => {
-    if (selectedEvent === 'vigilia') {
-      document.body.classList.add('vigilia-mode');
-    } else {
-      document.body.classList.remove('vigilia-mode');
-    }
-    return () => {
-      document.body.classList.remove('vigilia-mode');
-    };
-  }, [selectedEvent]);
-
-  const [regTshirtView, setRegTshirtView] = useState('front');
-  const [regCapView, setRegCapView] = useState('front');
 
   const [formData, setFormData] = useState({
     firstName: '',
@@ -318,12 +88,7 @@ const Registration = () => {
     phone: '',
     church: '',
     isGuest: false,
-    ageGroup: '18-25',
-    interestedInMerch: false,
-    merchSelections: {
-      1: { selected: false, color: 'Negro', size: 'Única', quantity: 1 },
-      2: { selected: false, color: 'Negro', size: 'M', quantity: 1 }
-    }
+    ageGroup: '18-25'
   });
 
   const [isRegistered, setIsRegistered] = useState(false);
@@ -374,16 +139,6 @@ const Registration = () => {
 
   const getEventTicketDetails = () => {
     switch (selectedEvent) {
-      case 'cena':
-        return {
-          label: 'Pre-Registro Cena ICC',
-          name: 'CENA DE JÓVENES ICC 2026',
-          subtitle: 'Celebración Fin de Año ICC',
-          date: 'Sábado 5 de Diciembre, 2026',
-          time: '07:00 PM',
-          color: '#db2777',
-          cardClass: 'ticket-cena'
-        };
       case 'campamento':
         return {
           label: 'Pre-Registro Campamento ICC',
@@ -394,15 +149,16 @@ const Registration = () => {
           color: '#059669',
           cardClass: 'ticket-camp'
         };
+      case 'cena':
       default:
         return {
-          label: 'Boleto de Entrada',
-          name: 'SIN FILTROS 2026',
-          subtitle: 'Conferencia de Jóvenes ICC',
-          date: 'Sábado 29 de Agosto, 2026',
-          time: '03:00 PM',
-          color: 'var(--accent-light)',
-          cardClass: ''
+          label: 'Pre-Registro Cena ICC',
+          name: 'CENA DE JÓVENES ICC 2026',
+          subtitle: 'Celebración Fin de Año ICC',
+          date: 'Sábado 5 de Diciembre, 2026',
+          time: '07:00 PM',
+          color: '#db2777',
+          cardClass: 'ticket-cena'
         };
     }
   };
@@ -412,11 +168,9 @@ const Registration = () => {
   useEffect(() => {
     if (isRegistered && ticketCode) {
       const originalTitle = document.title;
-      const eventTitle = selectedEvent === 'cena' 
-        ? 'Cena de Jóvenes ICC 2026' 
-        : selectedEvent === 'campamento' 
-          ? 'Campamento de Jóvenes ICC 2027' 
-          : 'Sin Filtros 2026';
+      const eventTitle = selectedEvent === 'campamento' 
+        ? 'Campamento de Jóvenes ICC 2027' 
+        : 'Cena de Jóvenes ICC 2026';
       document.title = `${ticketCode} - ${eventTitle}`;
       return () => {
         document.title = originalTitle;
@@ -462,52 +216,6 @@ const Registration = () => {
 
   const handleEventChange = (event) => {
     setSelectedEvent(event);
-    if (event !== 'conferencia') {
-      setFormData(prev => ({ ...prev, interestedInMerch: false }));
-    }
-  };
-
-  const handleMerchSelectionToggle = (productId) => {
-    setFormData(prev => ({
-      ...prev,
-      merchSelections: {
-        ...prev.merchSelections,
-        [productId]: {
-          ...prev.merchSelections[productId],
-          selected: !prev.merchSelections[productId].selected
-        }
-      }
-    }));
-  };
-
-  const handleMerchOptionChange = (productId, optionName, value) => {
-    setFormData(prev => ({
-      ...prev,
-      merchSelections: {
-        ...prev.merchSelections,
-        [productId]: {
-          ...prev.merchSelections[productId],
-          [optionName]: value
-        }
-      }
-    }));
-  };
-
-  const handleMerchQuantityChange = (productId, delta) => {
-    setFormData(prev => {
-      const currentQty = prev.merchSelections[productId].quantity;
-      const newQty = Math.max(1, currentQty + delta);
-      return {
-        ...prev,
-        merchSelections: {
-          ...prev.merchSelections,
-          [productId]: {
-            ...prev.merchSelections[productId],
-            quantity: newQty
-          }
-        }
-      };
-    });
   };
 
   const handleSubmit = async (e) => {
@@ -516,33 +224,10 @@ const Registration = () => {
     setSubmitError('');
 
     const randomCode = Math.floor(1000 + Math.random() * 9000);
-    const generatedCode = selectedEvent === 'cena' 
-      ? `121-CENA-${randomCode}` 
-      : selectedEvent === 'campamento' 
-        ? `121-CAMP-${randomCode}` 
-        : `121-ICC-${randomCode}`;
+    const generatedCode = selectedEvent === 'campamento' 
+      ? `121-CAMP-${randomCode}` 
+      : `121-CENA-${randomCode}`;
     const sheetUrl = import.meta.env.VITE_SHEETS_API_URL;
-
-    // Calcular merch seleccionada (solo si es conferencia)
-    const selectedItems = [];
-    const selectedImageUrls = [];
-    let merchTotal = 0;
-    if (selectedEvent === 'conferencia' && formData.interestedInMerch) {
-      PRODUCTS.forEach(p => {
-        const sel = formData.merchSelections[p.id];
-        if (sel.selected) {
-          selectedItems.push(`${sel.quantity}x ${p.name} - ${sel.color} (Talla: ${sel.size})`);
-          merchTotal += p.price * sel.quantity;
-          
-          const imgPath = p.type === 'tshirt'
-            ? p.images[sel.color]?.front
-            : p.images['Negro']?.front;
-          selectedImageUrls.push(encodeURI(decodeURI(getImageUrl(imgPath))));
-        }
-      });
-    }
-    const merchItems = selectedItems.join(', ') || 'Ninguno';
-    const merchImageUrls = selectedImageUrls.join(',') || '';
 
     // Si la URL de la API no está configurada, simulamos localmente para desarrollo
     if (!sheetUrl || sheetUrl.trim() === '') {
@@ -570,15 +255,13 @@ const Registration = () => {
           church: formData.church || 'Iglesia De Convertidos a Cristo',
           ageGroup: formData.ageGroup,
           ticketCode: generatedCode,
-          interestedInMerch: (selectedEvent === 'conferencia' && formData.interestedInMerch) ? 'Sí' : 'No',
-          merchItems,
-          merchTotal,
-          merchImageUrls,
-          event: selectedEvent === 'cena' 
-            ? 'Cena de Jóvenes 2026' 
-            : selectedEvent === 'campamento' 
-              ? 'Campamento de Jóvenes 2027' 
-              : 'Conferencia Sin Filtros 2026',
+          interestedInMerch: 'No',
+          merchItems: 'Ninguno',
+          merchTotal: 0,
+          merchImageUrls: '',
+          event: selectedEvent === 'campamento' 
+            ? 'Campamento de Jóvenes 2027' 
+            : 'Cena de Jóvenes 2026',
           eventType: selectedEvent,
           ticketUrl: `${window.location.origin}/ticket/${generatedCode}`,
           ticketLink: `${window.location.origin}/ticket/${generatedCode}`,
@@ -615,12 +298,7 @@ const Registration = () => {
       phone: '',
       church: '',
       isGuest: false,
-      ageGroup: '18-25',
-      interestedInMerch: false,
-      merchSelections: {
-        1: { selected: false, color: 'Negro', size: 'Única', quantity: 1 },
-        2: { selected: false, color: 'Negro', size: 'M', quantity: 1 }
-      }
+      ageGroup: '18-25'
     });
     setSelectedChurch('');
     setCustomChurch('');
@@ -637,18 +315,10 @@ const Registration = () => {
     <div className="registration-page animate-fade-in section-padding">
       <div className="container">
 
-        
         {!isRegistered && (
           <div className="registration-selector-container animate-fade-in" style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
             <h2 className="registration-select-title">Elige el evento para registrarte</h2>
             <div className="registration-event-tabs centered" style={{ marginTop: '1.2rem' }}>
-              <button
-                type="button"
-                className={`reg-tab-btn ${selectedEvent === 'conferencia' ? 'active' : ''}`}
-                onClick={() => handleEventChange('conferencia')}
-              >
-                Conferencia
-              </button>
               <button
                 type="button"
                 className={`reg-tab-btn ${selectedEvent === 'cena' ? 'active' : ''}`}
@@ -663,131 +333,15 @@ const Registration = () => {
               >
                 Campamento
               </button>
-              
             </div>
           </div>
         )}
 
         {!isRegistered ? (
-          <div className="registration-layout" style={selectedEvent === 'conferencia' && CONFERENCIA_CLOSED ? { gridTemplateColumns: '1fr', maxWidth: '720px', margin: '0 auto' } : {}}>
+          <div className="registration-layout">
 
             {/* Info Column */}
             <div className="registration-info animate-fade-in" key={selectedEvent}>
-              {selectedEvent === 'conferencia' && (
-                <>
-                  {CONFERENCIA_CLOSED ? (
-                    <>
-                      <span className="subtitle" style={{ color: 'var(--accent-light)' }}>
-                        <Star size={16} style={{ color: 'var(--accent-color)', marginRight: '5px', verticalAlign: 'middle' }} />
-                        Conferencia Sin Filtros &middot; 29 de Agosto 2026
-                      </span>
-                      <h1 className="title">Cupos <span className="text-gradient">Agotados</span></h1>
-                      <p className="description">
-                        Gracias por tu interés en la conferencia de jóvenes <strong>"Sin Filtros"</strong>. El registro ya está cerrado porque todos los cupos han sido completados. ¡Pero no te preocupes, podrás seguir el evento en vivo!
-                      </p>
-
-                      <div className="glass-panel animate-fade-in" style={{ padding: '1.8rem', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.1)', marginBottom: '1.5rem' }}>
-                        <div style={{ display: 'flex', alignItems: 'flex-start', gap: '1rem', marginBottom: '1.2rem' }}>
-                          <div style={{ fontSize: '2.2rem', lineHeight: 1 }}>📺</div>
-                          <div>
-                            <h3 style={{ fontWeight: '800', fontSize: '1.15rem', marginBottom: '0.4rem' }}>Sigue la Transmisión en Vivo</h3>
-                            <p style={{ color: 'var(--text-secondary)', fontSize: '0.92rem', lineHeight: '1.6', margin: 0 }}>
-                              La conferencia será transmitida en directo a través de nuestro canal oficial de YouTube. Podrás verla desde cualquier lugar, de forma completamente gratuita.
-                            </p>
-                          </div>
-                        </div>
-                        <a
-                          href={YOUTUBE_CHANNEL_URL}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="btn-primary"
-                          style={{ display: 'inline-flex', alignItems: 'center', gap: '10px', padding: '0.8rem 2rem', textDecoration: 'none', width: 'fit-content' }}
-                        >
-                          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
-                          Ver en YouTube
-                        </a>
-                      </div>
-
-                      <div className="registration-poster-wrapper glass-panel" style={{ border: '1px solid rgba(255,255,255,0.06)' }}>
-                        <div className="poster-carousel-track">
-                          <div className={`poster-carousel-item ${activePosterIndex === 0 ? 'active' : ''}`}>
-                            <img src={posterImages[0]} alt="Afiche Conferencia Sin Filtros 2026 - Opción 1" className="featured-card-poster" />
-                          </div>
-                          <div className={`poster-carousel-item ${activePosterIndex === 1 ? 'active' : ''}`}>
-                            <img src={posterImages[1]} alt="Afiche Conferencia Sin Filtros 2026 - Opción 2" className="featured-card-poster" />
-                          </div>
-                        </div>
-                        <div className="registration-poster-dots">
-                          {posterImages.map((_, idx) => (
-                            <button
-                              key={idx}
-                              className={`poster-dot ${activePosterIndex === idx ? 'active' : ''}`}
-                              onClick={(e) => { e.stopPropagation(); e.preventDefault(); setActivePosterIndex(idx); }}
-                              aria-label={`Ver afiche ${idx + 1}`}
-                            />
-                          ))}
-                        </div>
-                      </div>
-                    </>
-                  ) : (
-                    <>
-                      <span className="subtitle">
-                        <Star size={16} style={{ color: 'var(--accent-color)', marginRight: '5px', verticalAlign: 'middle' }} />
-                        Registro Abierto 2026
-                      </span>
-                      <h1 className="title">Asegura tu <span className="text-gradient">Lugar</span></h1>
-                      <p className="description">
-                        Únete a nosotros el <strong>29 de Agosto</strong> en la conferencia de jóvenes <strong>"Sin Filtros"</strong>. Vive un día lleno de adoración e instrucción expositiva de la Palabra de Dios y comunión.
-                      </p>
-
-                      <div className="ticket-perks">
-                        <div className="perk-item">
-                          <div className="perk-icon"><Ticket size={24} /></div>
-                          <div>
-                            <h3>Acceso Completo Gratis</h3>
-                            <p>Entrada libre a todas las conferencias plenarias y dinámicas de grupo.</p>
-                          </div>
-                        </div>
-
-                        <div className="perk-item">
-                          <div className="perk-icon"><Star size={24} /></div>
-                          <div>
-                            <h3>Experiencia Organizada</h3>
-                            <p>Es necesario registrarse previamente para poder brindarte una experiencia más cómoda y coordinada.</p>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="free-pass-badge">
-                        <span className="badge-title">Tipo de Entrada</span>
-                        <span className="badge-price">GRATIS</span>
-                        <span className="badge-note">* Registro previo obligatorio para la logística del evento.</span>
-                      </div>
-                      <div className="registration-poster-wrapper glass-panel">
-                        <div className="poster-carousel-track">
-                          <div className={`poster-carousel-item ${activePosterIndex === 0 ? 'active' : ''}`}>
-                            <img src={posterImages[0]} alt="Afiche Conferencia Sin Filtros 2026 - Opción 1" className="featured-card-poster" />
-                          </div>
-                          <div className={`poster-carousel-item ${activePosterIndex === 1 ? 'active' : ''}`}>
-                            <img src={posterImages[1]} alt="Afiche Conferencia Sin Filtros 2026 - Opción 2" className="featured-card-poster" />
-                          </div>
-                        </div>
-                        <div className="registration-poster-dots">
-                          {posterImages.map((_, idx) => (
-                            <button
-                              key={idx}
-                              className={`poster-dot ${activePosterIndex === idx ? 'active' : ''}`}
-                              onClick={(e) => { e.stopPropagation(); e.preventDefault(); setActivePosterIndex(idx); }}
-                              aria-label={`Ver afiche ${idx + 1}`}
-                            />
-                          ))}
-                        </div>
-                      </div>
-                    </>
-                  )}
-                </>
-              )}
-
               {selectedEvent === 'cena' && (
                 <>
                   <span className="subtitle" style={{ color: '#db2777' }}>
@@ -880,9 +434,8 @@ const Registration = () => {
             </div>
 
             {/* Form Column */}
-            {!(selectedEvent === 'conferencia' && CONFERENCIA_CLOSED) && (
             <div className="registration-form-container glass-panel">
-              <h2 className="form-title">Formulario de Registro</h2>
+              <h2 className="form-title">Formulario de Pre-Registro</h2>
 
               {submitError && (
                 <div className="submit-error-alert">
@@ -968,7 +521,7 @@ const Registration = () => {
                 {formData.isGuest ? (
                   <div className="guest-welcome-message animate-fade-in">
                     <p className="welcome-text">
-                      ¡Nos alegra muchísimo que nos acompañes! Agradecemos profundamente tu registro y tu asistencia a la conferencia. Creemos que Dios tiene un propósito especial para ti en este día.
+                      ¡Nos alegra muchísimo que nos acompañes! Agradecemos profundamente tu pre-registro y tu interés en participar. Creemos que Dios tiene un propósito especial para ti.
                     </p>
                     <blockquote className="welcome-verse">
                       "Por tanto, recibíos los unos a los otros, como también Cristo nos recibió, para gloria de Dios."
@@ -1029,31 +582,11 @@ const Registration = () => {
                   </select>
                 </div>
 
-                {/* Pregunta sobre Mercancía con diseño premium (Solo Conferencia) */}
-                {selectedEvent === 'conferencia' && (
-                  <div className="merch-notice-closed glass-panel" style={{ margin: '1.5rem 0', padding: '1rem 1.25rem', background: 'rgba(255, 255, 255, 0.02)', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '12px', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#f59e0b', fontWeight: '700', fontSize: '0.9rem' }}>
-                      <AlertTriangle size={16} />
-                      <span>Reservación de Mercancía Finalizada</span>
-                    </div>
-                    <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', margin: 0, lineHeight: '1.4' }}>
-                      La fecha límite para reservar mercancía oficial ha concluido. Recuerda que estos artículos solo estuvieron disponibles bajo la modalidad de reservación previa.
-                    </p>
-                    <span style={{ fontSize: '0.75rem', color: 'var(--text-muted, #aaa)', fontWeight: '600', marginTop: '0.25rem' }}>Síguenos en Instagram, donde comunicaremos cualquier novedad:</span>
-                    <div style={{ display: 'flex', gap: '0.6rem', marginTop: '0.25rem' }}>
-                      <a href="https://www.instagram.com/jovenes_icc/" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--accent-color)', fontSize: '0.8rem', fontWeight: '700', textDecoration: 'none' }}>@jovenes_icc</a>
-                      <span style={{ color: 'rgba(255,255,255,0.2)' }}>|</span>
-                      <a href="https://www.instagram.com/onetwentyoneicc/" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--accent-color)', fontSize: '0.8rem', fontWeight: '700', textDecoration: 'none' }}>@onetwentyoneicc</a>
-                    </div>
-                  </div>
-                )}
-
                 <button type="submit" className="submit-btn" disabled={isSubmitting}>
-                  {isSubmitting ? 'Registrando...' : 'Completar Registro Gratis'}
+                  {isSubmitting ? 'Guardando Pre-Registro...' : 'Completar Pre-Registro'}
                 </button>
               </form>
             </div>
-            )}
 
           </div>
         ) : null}
@@ -1062,7 +595,7 @@ const Registration = () => {
 
       {/* SUCCESS SCREEN - Portal */}
       {isRegistered && createPortal(
-          <div className={`ticket-success-container ${selectedEvent === 'vigilia' ? 'vigilia-theme' : ''}`} onClick={handleOutsideClick}>
+          <div className="ticket-success-container" onClick={handleOutsideClick}>
             <button
               onClick={(e) => {
                 e.stopPropagation();
@@ -1081,18 +614,9 @@ const Registration = () => {
             </button>
             <div style={{ width: '100%', maxWidth: '700px', display: 'flex', flexDirection: 'column', gap: '2.5rem', alignItems: 'center' }}>
             <div className="success-header">
-              <CheckCircle size={64} style={{ color: selectedEvent === 'conferencia' ? 'var(--accent-color)' : eventDetails.color, margin: '0 auto 1rem auto' }} />
-              {selectedEvent === 'conferencia' ? (
-                <>
-                  <h2>¡Registro Exitoso!</h2>
-                  <p>Tu boleto de entrada gratuito ha sido generado. Por favor, tómale una captura o imprímelo para presentarlo en la entrada. <strong>Te hemos enviado tu ticket por correo</strong> con toda la información del evento{formData.interestedInMerch ? ' y las instrucciones de pago de tu mercancía reservada' : ''} (si no lo recibes, revisa la carpeta de Spam).</p>
-                </>
-              ) : (
-                <>
-                  <h2>¡Pre-Registro Completado!</h2>
-                  <p>Tu cupo de pre-registro para la <strong>{eventDetails.name}</strong> ha sido reservado con éxito. <strong>Te hemos enviado una confirmación por correo</strong>. Más adelante, te notificaremos por correo electrónico y redes sociales con los montos del evento y las instrucciones para realizar tu registro y pago formal.</p>
-                </>
-              )}
+              <CheckCircle size={64} style={{ color: eventDetails.color, margin: '0 auto 1rem auto' }} />
+              <h2>¡Pre-Registro Completado!</h2>
+              <p>Tu cupo de pre-registro para la <strong>{eventDetails.name}</strong> ha sido reservado con éxito. <strong>Te hemos enviado una confirmación por correo</strong>. Más adelante, te notificaremos por correo electrónico y redes sociales con los montos del evento y las instrucciones para realizar tu registro y pago formal.</p>
             </div>
 
             {/* Virtual Ticket Card */}
@@ -1101,7 +625,7 @@ const Registration = () => {
                 <div className="ticket-header">
                   <div className="ticket-event-info">
                     <span className="ticket-event-label">{eventDetails.label}</span>
-                    <span className="ticket-event-name text-gradient" style={selectedEvent !== 'conferencia' ? { backgroundImage: `linear-gradient(90deg, #fff 0%, ${eventDetails.color} 100%)` } : {}}>
+                    <span className="ticket-event-name text-gradient" style={{ backgroundImage: `linear-gradient(90deg, #fff 0%, ${eventDetails.color} 100%)` }}>
                       {eventDetails.name}
                     </span>
                     <span className="ticket-event-subtitle">
@@ -1110,7 +634,7 @@ const Registration = () => {
                   </div>
                   <div className="ticket-logo">
                     <span className="t-logo-text">Jóvenes</span>
-                    <div className="t-logo-sub" style={selectedEvent !== 'conferencia' ? { color: eventDetails.color } : {}}>I C C</div>
+                    <div className="t-logo-sub" style={{ color: eventDetails.color }}>I C C</div>
                   </div>
                 </div>
 
@@ -1122,7 +646,7 @@ const Registration = () => {
 
                   <div className="ticket-info-item">
                     <span className="ticket-info-label">
-                      {selectedEvent === 'conferencia' ? 'Código de Entrada' : 'Código de Pre-Registro'}
+                      Código de Pre-Registro
                     </span>
                     <span className="ticket-info-value" style={{ fontFamily: 'monospace', letterSpacing: '1px', color: eventDetails.color }}>
                       {ticketCode}
@@ -1145,13 +669,9 @@ const Registration = () => {
 
                   <div className="ticket-info-item">
                     <span className="ticket-info-label">Costo</span>
-                    {selectedEvent === 'conferencia' ? (
-                      <span className="ticket-info-value free-badge">TOTALMENTE GRATIS</span>
-                    ) : (
-                      <span className="ticket-info-value free-badge" style={{ background: 'rgba(255, 255, 255, 0.05)', color: 'var(--text-secondary)', border: '1px solid rgba(255, 255, 255, 0.1)' }}>
-                        POR ANUNCIAR
-                      </span>
-                    )}
+                    <span className="ticket-info-value free-badge" style={{ background: 'rgba(255, 255, 255, 0.05)', color: 'var(--text-secondary)', border: '1px solid rgba(255, 255, 255, 0.1)' }}>
+                      POR ANUNCIAR
+                    </span>
                   </div>
 
                   <div className="ticket-info-item">
@@ -1159,98 +679,6 @@ const Registration = () => {
                     <span className="ticket-info-value">{formData.church || 'Iglesia De Convertidos a Cristo'}</span>
                   </div>
                 </div>
-
-                {/* Visualizing reserved merch inside the ticket if present */}
-                {selectedEvent === 'conferencia' && formData.interestedInMerch && (() => {
-                  const selectedItems = [];
-                  let merchTotal = 0;
-                  PRODUCTS.forEach(p => {
-                    const sel = formData.merchSelections[p.id];
-                    if (sel.selected) {
-                      selectedItems.push(`${sel.quantity}x ${p.name} (${sel.color}${sel.size !== 'Única' ? `, Talla: ${sel.size}` : ''})`);
-                      merchTotal += p.price * sel.quantity;
-                    }
-                  });
-                  return selectedItems.length > 0 ? (
-                    <div className="ticket-merch-summary-box">
-                      <div className="ticket-merch-title-row">
-                        <ShoppingBag size={14} style={{ color: 'var(--text-primary)' }} />
-                        <span>Mercancía Reservada (Pago del 100% Requerido)</span>
-                      </div>
-                      
-                      <div className="ticket-merch-items-list" style={{ marginTop: '0.8rem', display: 'flex', flexDirection: 'column', gap: '0.6rem', marginBottom: '0.8rem' }}>
-                        {PRODUCTS.map(p => {
-                          const sel = formData.merchSelections[p.id];
-                          if (!sel || !sel.selected) return null;
-                          
-                          const imgPath = p.type === 'tshirt'
-                            ? p.images[sel.color]?.front
-                            : p.images['Negro']?.front;
-                          
-                          return (
-                            <div key={p.id} className="ticket-merch-item-card" style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', background: 'rgba(255,255,255,0.03)', padding: '0.5rem', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.05)' }}>
-                              <div style={{ width: '48px', height: '48px', borderRadius: '6px', overflow: 'hidden', background: '#090909', border: '1px solid rgba(255,255,255,0.08)', flexShrink: 0 }}>
-                                <img 
-                                  src={getImageUrl(imgPath)} 
-                                  alt={p.name} 
-                                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                                />
-                              </div>
-                              <div style={{ flexGrow: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: '0.1rem', textAlign: 'left' }}>
-                                <div style={{ fontWeight: '700', fontSize: '0.85rem', color: 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                                  {p.name}
-                                </div>
-                                <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
-                                  Color: <strong style={{ color: 'var(--text-primary)' }}>{sel.color}</strong> {sel.size !== 'Única' && <>| Talla: <strong style={{ color: 'var(--text-primary)' }}>{sel.size}</strong></>}
-                                </div>
-                                <div style={{ fontSize: '0.75rem', color: 'var(--accent-light)' }}>
-                                  Cant: <strong>{sel.quantity}</strong> &bull; RD$ {(p.price * sel.quantity).toLocaleString()}
-                                </div>
-                              </div>
-                            </div>
-                          );
-                        })}
-                      </div>
-
-                      <div className="ticket-merch-total-row">
-                        <span>Pago requerido (100%):</span>
-                        <strong>RD$ {merchTotal.toLocaleString()}</strong>
-                      </div>
-                      <div className="ticket-merch-note" style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.6rem', borderTop: '1px dashed rgba(255,255,255,0.06)', paddingTop: '0.6rem', lineHeight: '1.4' }}>
-                        <div style={{ marginBottom: '0.4rem', color: 'var(--text-secondary)' }}>
-                          <strong>📌 Confirmación de Reserva (Pago 100%):</strong>
-                        </div>
-                        <div>1. Realiza el depósito/transferencia del 100% a cualquiera de las cuentas indicadas.</div>
-                        <div style={{ margin: '0.2rem 0' }}>
-                          2. En el concepto de tu banco, indica la siguiente estructura para asociarlo fácilmente:
-                          <div style={{ background: 'rgba(255,255,255,0.04)', padding: '0.3rem 0.5rem', borderRadius: '4px', margin: '0.25rem 0', fontFamily: 'monospace', color: 'white', display: 'block', width: 'fit-content' }}>
-                            {ticketCode} - {formData.firstName} {formData.lastName}
-                          </div>
-                        </div>
-                        <div style={{ background: 'rgba(239,68,68,0.12)', border: '1px solid rgba(239,68,68,0.35)', borderRadius: '6px', padding: '0.5rem 0.7rem', marginBottom: '0.5rem', color: '#f87171', fontWeight: '600', fontSize: '0.78rem', lineHeight: '1.4' }}>
-                          ⚠️ Fecha límite de pago: <strong style={{ color: '#fca5a5' }}>09 de agosto de 2026</strong>. Por favor, completa tu pago a tiempo. Pasada esta fecha, las reservas no pagadas se cancelarán automáticamente y no podremos garantizar la disponibilidad de tus artículos.
-                        </div>
-
-                        <div style={{ color: '#fbd590', marginBottom: '0.4rem' }}>
-                          * Una vez recibido el pago, estaremos contactando cuando esté listo y disponible para retirar en la iglesia.
-                        </div>
-
-                        <a 
-                          href={`https://wa.me/18096299236?text=${encodeURIComponent(
-                            `*COMPROBANTE DE PAGO - REGISTRO CONFERENCIA*\n\n*Asistente:* ${formData.firstName} ${formData.lastName}\n*Código de Boleto:* ${ticketCode}\n\nAdjunto el comprobante del depósito del 100% para confirmar mi mercancía.`
-                          )}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="merch-payment-footer-note wa-link"
-                          style={{ textDecoration: 'none', display: 'flex', marginTop: '0.6rem', padding: '0.6rem 0.8rem' }}
-                        >
-                          <Phone size={14} style={{ color: 'var(--accent-light)' }} />
-                          <span>Envía el comprobante por WhatsApp al <strong>(809) 629-9236</strong> (Haz clic para chatear).</span>
-                        </a>
-                      </div>
-                    </div>
-                  ) : null;
-                })()}
               </div>
 
               <div className="ticket-bottom">
@@ -1282,31 +710,6 @@ const Registration = () => {
                 </div>
               </div>
             </div>
-
-            {selectedEvent === 'conferencia' && (
-              <div className="preorder-callout-card glass-panel" style={{ width: '100%', maxWidth: '600px', display: 'flex', flexDirection: 'column', gap: '0.8rem', padding: '1.5rem', borderRadius: '12px', border: '1px dashed rgba(255, 255, 255, 0.15)', background: 'rgba(255, 255, 255, 0.02)', textAlign: 'center', boxSizing: 'border-box' }}>
-                <h4 style={{ fontSize: '1.05rem', fontWeight: '800', color: 'var(--text-primary)', margin: 0 }}>🍔 Pre-Ordena tu Comida para los Breaks</h4>
-                <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', lineHeight: '1.4', margin: 0 }}>
-                  Ya puedes realizar tu pre-orden de comida para los recesos de la conferencia. Asegura tus platos y recíbelos sin filas.
-                </p>
-                <Link
-                  to="/menu-preorden"
-                  className="btn-primary"
-                  style={{ 
-                    display: 'inline-flex', 
-                    alignSelf: 'center', 
-                    padding: '0.6rem 1.8rem', 
-                    fontSize: '0.85rem', 
-                    fontWeight: '700', 
-                    textDecoration: 'none', 
-                    borderRadius: '6px', 
-                    border: 'none'
-                  }}
-                >
-                  Pre-ordenar Comida
-                </Link>
-              </div>
-            )}
 
             {/* Actions */}
             <div className="ticket-actions-bar">

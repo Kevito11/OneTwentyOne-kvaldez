@@ -1,15 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { Calendar, MapPin, ArrowRight, Clock, Plus, Star, ExternalLink, ChevronLeft, ChevronRight, Heart, MessageCircle, Send, Bookmark, MoreHorizontal, X, Ticket } from 'lucide-react';
+import { Calendar, MapPin, ArrowRight, Clock, Plus, Star, ChevronLeft, ChevronRight, Heart, MessageCircle, Send, Bookmark, MoreHorizontal, X, Sparkles } from 'lucide-react';
 import { getImageUrl } from '../../config/images';
 import './Home.css';
-
-// Publicación oficial de Instagram de la Media Vigilia
-const VIGILIA_INSTAGRAM_POST_ID = "DcbcUTTFjv1";
-
-// Cambia a true si los cupos de la conferencia se agotan
-const CONFERENCIA_CLOSED = true;
-const YOUTUBE_STREAM_URL = 'https://www.youtube.com/watch?v=MuJJGPhZ10Y';
 
 // Componente para imágenes del Lightbox con animación fluida onLoad
 const LightboxImage = ({ src, alt }) => {
@@ -35,92 +28,7 @@ const LightboxImage = ({ src, alt }) => {
   );
 };
 
-// Helper to calculate dynamic target date (this year or next year)
-const getDynamicTargetDate = (month, day, hour = 0, minute = 0) => {
-  const currentYear = new Date().getFullYear();
-  let target = new Date(currentYear, month - 1, day, hour, minute, 0, 0);
-  if (new Date() > target) {
-    target.setFullYear(target.getFullYear() + 1);
-  }
-  return target;
-};
-
-const CONFERENCIA_SCHEDULE = [
-  { time: "03:00 PM", type: "Registro", title: "Registro y Recepción", desc: "Recepción de participantes y entrega de acreditaciones." },
-  { time: "04:00 PM", type: "Inicio", title: "Bienvenida e Inicio", desc: "Apertura oficial de la Conferencia Juvenil Sin Filtros." },
-  { time: "04:10 PM", type: "Adoración", title: "Tiempo de Alabanzas", desc: "Tiempo dedicado a cantar al Señor en comunidad." },
-  { time: "04:25 PM", type: "Sesión 1", title: "La Máscara de la Apariencia", desc: "Primera sesión plenaria de la conferencia." },
-  { time: "05:10 PM", type: "Receso", title: "Break", desc: "Un receso para descansar y compartir un refrigerio." },
-  { time: "05:45 PM", type: "Sesión 2", title: "Lo que Dios ve en Secreto", desc: "Segunda sesión plenaria de la conferencia." },
-  { time: "06:30 PM", type: "Adoración", title: "Tiempo de Alabanzas", desc: "Tiempo dedicado a cantar al Señor en comunidad." },
-  { time: "06:40 PM", type: "Receso", title: "Break", desc: "Un receso para descansar y compartir un refrigerio." },
-  { time: "07:10 PM", type: "Actividad", title: "El Aplatana'o", desc: "Espacio dinámico y participativo de la conferencia." },
-  { time: "07:15 PM", type: "Adoración", title: "Tiempo de Alabanzas", desc: "Tiempo dedicado a cantar al Señor en comunidad." },
-  { time: "07:25 PM", type: "Sesión 3", title: "Una Generación Auténtica", desc: "Tercera sesión plenaria de la conferencia." },
-  { time: "08:10 PM", type: "Interacción", title: "Preguntas y Respuestas", desc: "Sección interactiva para resolver dudas con los expositores." },
-  { time: "08:40 PM", type: "Adoración", title: "Tiempo de Alabanzas", desc: "Tiempo dedicado a cantar al Señor en comunidad." },
-  { time: "08:50 PM", type: "Cierre", title: "Cierre", desc: "Palabras finales y despedida del evento." }
-];
-
 const Home = () => {
-  const [showConfDetails, setShowConfDetails] = useState(false);
-  const [modalScrolled, setModalScrolled] = useState(false);
-  const [showFullSchedule, setShowFullSchedule] = useState(false);
-
-  const handleModalScroll = (e) => {
-    if (e.target.scrollTop > 40) {
-      setModalScrolled(true);
-    } else {
-      setModalScrolled(false);
-    }
-  };
-
-  useEffect(() => {
-    setModalScrolled(false);
-    if (!showConfDetails) {
-      setShowFullSchedule(false);
-    }
-  }, [showConfDetails]);
-
-  // Targets
-  const confTarget = getDynamicTargetDate(8, 29, 15, 0);
-
-  // Countdown Logic
-  const [timeLeft, setTimeLeft] = useState({
-    days: 0,
-    hours: 0,
-    minutes: 0,
-    seconds: 0,
-    isExpired: false
-  });
-
-  useEffect(() => {
-    const targetDate = confTarget;
-
-    const calculateTimeLeft = () => {
-      const now = new Date().getTime();
-      const distance = targetDate.getTime() - now;
-
-      if (distance < 0) {
-        setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0, isExpired: true });
-        return false;
-      }
-
-      setTimeLeft({
-        days: Math.floor(distance / (1000 * 60 * 60 * 24)),
-        hours: Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
-        minutes: Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60)),
-        seconds: Math.floor((distance % (1000 * 60)) / 1000),
-        isExpired: false
-      });
-      return true;
-    };
-
-    calculateTimeLeft();
-    const interval = setInterval(calculateTimeLeft, 1000);
-    return () => clearInterval(interval);
-  }, []);
-
   // Listen to hash changes for real-time image updates during local testing
   const [, setHashTrigger] = useState(window.location.hash);
   useEffect(() => {
@@ -128,17 +36,6 @@ const Home = () => {
     window.addEventListener('hashchange', handleHash);
     return () => window.removeEventListener('hashchange', handleHash);
   }, []);
-
-  // Poster Carousel Logic
-  const posterImages = [getImageUrl('/sin-filtro-poster.jpeg'), getImageUrl('/sin-filtros-theme.jpeg')];
-  const [activePosterIndex, setActivePosterIndex] = useState(0);
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setActivePosterIndex((prevIndex) => (prevIndex + 1) % posterImages.length);
-    }, 4500); // Transitions every 4.5 seconds
-    return () => clearInterval(timer);
-  }, [posterImages.length]);
 
   // FAQ Accordion Active Item
   const [activeFaq, setActiveFaq] = useState(null);
@@ -247,14 +144,9 @@ const Home = () => {
     '/comunidad/7.jpg'
   ].map(getImageUrl);
   
-  
   const [activeAlfredoSlide, setActiveAlfredoSlide] = useState(0);
   const [lightboxIndex, setLightboxIndex] = useState(null);
   const [comunidadLightboxIndex, setComunidadLightboxIndex] = useState(null);
-
-  const scrollPositionRef = useRef(null);
-
-
 
   // Lógica de Deslizamiento (Swipe) y Navegación para los Lightboxes de Home
   const [touchStart, setTouchStart] = useState(null);
@@ -325,25 +217,19 @@ const Home = () => {
     setIndex(null);
   };
 
-  // Bloquear el scroll del fondo cuando el lightbox o modal está abierto (sin visual jumps) y escuchar teclado
+  // Bloquear el scroll del fondo cuando el lightbox está abierto y escuchar teclado
   useEffect(() => {
     const isLightboxOpen = lightboxIndex !== null || comunidadLightboxIndex !== null;
-    const isModalOpen = showConfDetails;
-    const shouldBlockScroll = isLightboxOpen || isModalOpen;
 
-    if (shouldBlockScroll) {
+    if (isLightboxOpen) {
       document.body.style.overflow = 'hidden';
       document.body.classList.add('lightbox-active');
-      if (isModalOpen) {
-        document.body.classList.add('activity-details-open');
-      }
-      // Desenfocar cualquier elemento activo para evitar conflictos con el teclado al abrir el lightbox o modal
       if (document.activeElement && typeof document.activeElement.blur === 'function') {
         document.activeElement.blur();
       }
     } else {
       document.body.style.overflow = '';
-      document.body.classList.remove('lightbox-active', 'activity-details-open');
+      document.body.classList.remove('lightbox-active');
     }
 
     const handleKeyDown = (e) => {
@@ -351,7 +237,6 @@ const Home = () => {
         e.preventDefault();
         setLightboxIndex(null);
         setComunidadLightboxIndex(null);
-        setShowConfDetails(false);
       } else if (isLightboxOpen && e.key === 'ArrowRight') {
         if (comunidadLightboxIndex !== null && comunidadLightboxIndex < comunidadImages.length - 1) {
           e.preventDefault();
@@ -378,7 +263,7 @@ const Home = () => {
       document.body.classList.remove('lightbox-active');
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [lightboxIndex, comunidadLightboxIndex, showConfDetails]);
+  }, [lightboxIndex, comunidadLightboxIndex]);
 
   return (
     <div className="home-page animate-fade-in">
@@ -400,15 +285,13 @@ const Home = () => {
               </p>
               
               <div className="hero-cta">
-                <a 
-                  href={YOUTUBE_STREAM_URL}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                <Link 
+                  to="/registro"
                   className="btn-primary"
                 >
-                  Ver Transmisión
+                  Pre-Registrarse
                   <ArrowRight size={20} />
-                </a>
+                </Link>
                 <a 
                   href="https://maps.app.goo.gl/jRX8PC4S3oVrPMQz6" 
                   target="_blank" 
@@ -422,126 +305,83 @@ const Home = () => {
             </div>
 
             <div className="hero-featured-col">
-              <div className="hero-featured-card glass-panel animate-fade-in">
-                <div 
-                  className="featured-card-image-wrap"
-                  onClick={() => setShowConfDetails(true)}
-                  style={{ cursor: 'pointer' }}
-                  title="Haz clic para ver detalles de la conferencia"
-                >
-                  <div className="poster-carousel-track">
-                    <div className={`poster-carousel-item ${activePosterIndex === 0 ? 'active' : ''}`}>
-                      <img src={posterImages[0]} alt="Afiche Conferencia Sin Filtros 2026 - Opción 1" className="featured-card-poster" />
+              <div className="hero-featured-card glass-panel animate-fade-in" style={{ padding: '2rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.2rem' }}>
+                  <span className="featured-card-badge" style={{ position: 'static', background: 'rgba(255, 255, 255, 0.1)', color: 'var(--accent-light)', border: '1px solid rgba(255, 255, 255, 0.15)' }}>
+                    <Sparkles size={13} style={{ marginRight: '5px', verticalAlign: 'middle' }} />
+                    PRÓXIMAS ACTIVIDADES
+                  </span>
+                  <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>2026 - 2027</span>
+                </div>
+
+                <h3 style={{ fontSize: '1.35rem', fontWeight: '800', marginBottom: '0.8rem', color: 'var(--text-primary)' }}>
+                  Pre-Registros <span className="text-gradient">Abiertos</span>
+                </h3>
+                <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', lineHeight: '1.5', marginBottom: '1.5rem' }}>
+                  Asegura tu cupo en nuestras próximas actividades especiales. Al pre-registrarte recibirás las notificaciones de apertura oficial y métodos de pago.
+                </p>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.9rem', marginBottom: '1.8rem' }}>
+                  {/* Cena item */}
+                  <div style={{ padding: '0.9rem 1.1rem', background: 'rgba(219, 39, 119, 0.08)', borderRadius: '12px', borderLeft: '3px solid #db2777', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div>
+                      <div style={{ fontWeight: '700', fontSize: '0.92rem', color: 'var(--text-primary)' }}>Cena de Jóvenes 2026</div>
+                      <div style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', marginTop: '2px' }}>Sábado 5 de Diciembre, 2026</div>
                     </div>
-                    <div className={`poster-carousel-item ${activePosterIndex === 1 ? 'active' : ''}`}>
-                      <img src={posterImages[1]} alt="Afiche Conferencia Sin Filtros 2026 - Opción 2" className="featured-card-poster" />
-                    </div>
+                    <Link to="/registro?event=cena" style={{ fontSize: '0.82rem', fontWeight: '700', color: '#f472b6', textDecoration: 'none', padding: '0.4rem 0.8rem', background: 'rgba(219, 39, 119, 0.15)', borderRadius: '20px' }}>
+                      Pre-Registro
+                    </Link>
                   </div>
-                  {CONFERENCIA_CLOSED && (
-                    <div className="featured-card-badge" style={{ background: 'rgba(239, 68, 68, 0.85)', color: '#fff' }}>CUPOS AGOTADOS</div>
-                  )}
-                  <div className="poster-carousel-dots">
-                    {posterImages.map((_, idx) => (
-                      <button 
-                        key={idx} 
-                        className={`poster-dot ${activePosterIndex === idx ? 'active' : ''}`}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          e.preventDefault();
-                          setActivePosterIndex(idx);
-                        }}
-                        aria-label={`Ver afiche ${idx + 1}`}
-                      />
-                    ))}
+
+                  {/* Campamento item */}
+                  <div style={{ padding: '0.9rem 1.1rem', background: 'rgba(5, 150, 105, 0.08)', borderRadius: '12px', borderLeft: '3px solid #059669', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div>
+                      <div style={{ fontWeight: '700', fontSize: '0.92rem', color: 'var(--text-primary)' }}>Campamento Jóvenes 2027</div>
+                      <div style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', marginTop: '2px' }}>16 al 18 de Abril, 2027</div>
+                    </div>
+                    <Link to="/registro?event=campamento" style={{ fontSize: '0.82rem', fontWeight: '700', color: '#34d399', textDecoration: 'none', padding: '0.4rem 0.8rem', background: 'rgba(5, 150, 105, 0.15)', borderRadius: '20px' }}>
+                      Pre-Registro
+                    </Link>
                   </div>
                 </div>
-                <div className="featured-card-details">
-                  <h3>Conferencia "Sin Filtros" 2026</h3>
-                  <div className="featured-card-meta">
-                    <Clock size={14} style={{ color: 'var(--accent-blue)', flexShrink: 0 }} />
-                    <span>Sáb. 29 de Agosto - 03:00 PM</span>
-                  </div>
-                  <div style={{ display: 'flex', gap: '0.8rem', marginTop: '0.4rem' }}>
-                    <button 
-                      onClick={() => setShowConfDetails(true)} 
-                      className="btn-secondary-sm"
-                      style={{ 
-                        flex: 1, 
-                        fontSize: '0.85rem', 
-                        padding: '0.65rem 1rem', 
-                        borderRadius: '50px',
-                        border: '1px solid rgba(255, 255, 255, 0.15)',
-                        background: 'rgba(255, 255, 255, 0.05)',
-                        color: 'var(--text-primary)',
-                        cursor: 'pointer',
-                        fontWeight: '700',
-                        textAlign: 'center',
-                        transition: 'all 0.2s ease'
-                      }}
-                    >
-                      Ver Info
-                    </button>
-                    {CONFERENCIA_CLOSED ? (
-                      <a 
-                        href={YOUTUBE_STREAM_URL}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="btn-primary-sm"
-                        style={{ flex: 1, margin: 0, padding: '0.65rem 1rem', fontSize: '0.85rem', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '5px' }}
-                      >
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
-                        YouTube Live
-                      </a>
-                    ) : (
-                      <Link 
-                        to="/registro" 
-                        className="btn-primary-sm"
-                        style={{ flex: 1, margin: 0, padding: '0.65rem 1rem', fontSize: '0.85rem', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '5px' }}
-                      >
-                        <Ticket size={14} />
-                        Registrarse
-                      </Link>
-                    )}
-                  </div>
+
+                <div style={{ display: 'flex', gap: '0.8rem' }}>
+                  <Link 
+                    to="/registro" 
+                    className="btn-primary-sm"
+                    style={{ flex: 1, margin: 0, padding: '0.75rem 1rem', fontSize: '0.88rem', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
+                  >
+                    Ir a Pre-Registro
+                    <ArrowRight size={14} />
+                  </Link>
+                  <Link 
+                    to="/actividades" 
+                    className="btn-secondary-sm"
+                    style={{ 
+                      flex: 1, 
+                      fontSize: '0.88rem', 
+                      padding: '0.75rem 1rem', 
+                      borderRadius: '50px',
+                      border: '1px solid rgba(255, 255, 255, 0.15)',
+                      background: 'rgba(255, 255, 255, 0.05)',
+                      color: 'var(--text-primary)',
+                      cursor: 'pointer',
+                      fontWeight: '700',
+                      textAlign: 'center',
+                      textDecoration: 'none',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      justifyContent: 'center'
+                    }}
+                  >
+                    Ver Actividades
+                  </Link>
                 </div>
               </div>
             </div>
           </div>
         </div>
       </section>
-
-      {/* Countdown Section */}
-      <section className="countdown-section">
-        <div className="container">
-          <div className="countdown-wrapper glass-panel">
-            <h2 className="countdown-title">
-              {timeLeft.isExpired ? "¡La conferencia 'Sin Filtros' ya ha comenzado!" : "¡La conferencia 'Sin Filtros' está por comenzar!"}
-            </h2>
-            <div className="countdown-timer">
-              <div className="time-block">
-                <span className="time-value text-gradient">{timeLeft.days}</span>
-                <span className="time-label">Días</span>
-              </div>
-              <div className="time-separator">:</div>
-              <div className="time-block">
-                <span className="time-value text-gradient">{timeLeft.hours.toString().padStart(2, '0')}</span>
-                <span className="time-label">Horas</span>
-              </div>
-              <div className="time-separator">:</div>
-              <div className="time-block">
-                <span className="time-value text-gradient">{timeLeft.minutes.toString().padStart(2, '0')}</span>
-                <span className="time-label">Minutos</span>
-              </div>
-              <div className="time-separator">:</div>
-              <div className="time-block">
-                <span className="time-value text-gradient">{timeLeft.seconds.toString().padStart(2, '0')}</span>
-                <span className="time-label">Segundos</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
 
       {/* Active Pre-Registrations Section */}
       <section className="pre-registrations-section section-padding" style={{ backgroundColor: 'rgba(10, 10, 10, 0.25)' }}>
@@ -802,7 +642,6 @@ const Home = () => {
 
                 {/* Details & Caption */}
                 <div className="instagram-details">
-                  
                   <div className="instagram-caption">
                     <a 
                       href="https://www.instagram.com/onetwentyoneicc/" 
@@ -819,7 +658,7 @@ const Home = () => {
                   </div>
 
                   <div className="instagram-hashtags">
-                    <span>#OneTwentyOne #ICC #Alfredo #SinFiltros2026 #NuevoServidor</span>
+                    <span>#OneTwentyOne #ICC #Alfredo #NuevoServidor</span>
                   </div>
                   
                   <span className="instagram-date">Hace 2 horas</span>
@@ -869,7 +708,7 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Speakers / Expositores Section */}
+      {/* Speakers / Pastores Section */}
       <section className="speakers-section section-padding">
         <div className="container">
           <div className="section-header">
@@ -920,7 +759,7 @@ const Home = () => {
           <div className="lightbox-content">
             <LightboxImage 
               src={alfredoImages[lightboxIndex]} 
-              alt="Expositor - Pantalla completa" 
+              alt="Alfredo - Pantalla completa" 
             />
           </div>
 
@@ -1011,319 +850,6 @@ const Home = () => {
           {/* Counter pill */}
           <div className="lightbox-counter" onClick={(e) => e.stopPropagation()}>
             {comunidadLightboxIndex + 1} / {comunidadImages.length}
-          </div>
-        </div>
-      )}
-
-      {/* Modal de Detalles de la Conferencia */}
-      {showConfDetails && (
-        <div className="modal-overlay" onClick={() => setShowConfDetails(false)}>
-          <div className="modal-content glass-panel" onClick={(e) => e.stopPropagation()}>
-            <button 
-              className="modal-close-btn" 
-              onClick={() => setShowConfDetails(false)}
-              aria-label="Cerrar detalles"
-            >
-              <X size={24} />
-            </button>
-            
-            <div className={`modal-compact-header ${modalScrolled ? 'visible' : ''}`}>
-              <span className="compact-header-title" title='Conferencia "Sin Filtros" 2026'>Conferencia "Sin Filtros" 2026</span>
-            </div>
-            
-            <div className="modal-body-scroll" onScroll={handleModalScroll}>
-              <div className="modal-header">
-                <span className="modal-subtitle">Conferencia "Sin Filtros" 2026</span>
-                <h2 className="modal-title text-gradient">Detalles del Evento</h2>
-              </div>
-              {/* Posters Section */}
-              <div className="modal-section" style={{ marginBottom: '3rem' }}>
-                <h3 className="modal-section-title">Afiches Oficiales</h3>
-                <div 
-                  style={{ 
-                    display: 'grid', 
-                    gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', 
-                    gap: '2rem', 
-                    justifyContent: 'center', 
-                    alignItems: 'center' 
-                  }}
-                >
-                  <div 
-                    className="glass-panel" 
-                    style={{ 
-                      overflow: 'hidden', 
-                      borderRadius: '16px', 
-                      border: '1px solid rgba(255, 255, 255, 0.08)',
-                      background: 'rgba(10, 10, 10, 0.5)',
-                      boxShadow: '0 10px 30px rgba(0, 0, 0, 0.5)'
-                    }}
-                  >
-                    <img 
-                      src={posterImages[0]} 
-                      alt="Afiche Conferencia Sin Filtros - Opción 1" 
-                      style={{ width: '100%', display: 'block', height: 'auto', objectFit: 'cover' }} 
-                    />
-                  </div>
-                  <div 
-                    className="glass-panel" 
-                    style={{ 
-                      overflow: 'hidden', 
-                      borderRadius: '16px', 
-                      border: '1px solid rgba(255, 255, 255, 0.08)',
-                      background: 'rgba(10, 10, 10, 0.5)',
-                      boxShadow: '0 10px 30px rgba(0, 0, 0, 0.5)'
-                    }}
-                  >
-                    <img 
-                      src={posterImages[1]} 
-                      alt="Afiche Conferencia Sin Filtros - Opción 2" 
-                      style={{ width: '100%', display: 'block', height: 'auto', objectFit: 'cover' }} 
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* Schedule Section */}
-              <div className="modal-section">
-                <h3 className="modal-section-title">Programa de la Conferencia</h3>
-                <div className="timeline-container">
-                  {(showFullSchedule ? CONFERENCIA_SCHEDULE : CONFERENCIA_SCHEDULE.slice(0, 3)).map((item, idx) => (
-                    <div key={idx} className="timeline-item glass-panel animate-fade-in">
-                      <div className="timeline-time">
-                        <span className="time-hour">{item.time}</span>
-                        <span className="time-type">{item.type}</span>
-                      </div>
-                      <div className="timeline-details">
-                        <h3>{item.title}</h3>
-                        <p>{item.desc}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                <div style={{ display: 'flex', justifyContent: 'center', marginTop: '2rem' }}>
-                  <button 
-                    onClick={() => setShowFullSchedule(!showFullSchedule)}
-                    className="btn-secondary-sm"
-                    style={{
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      gap: '8px',
-                      padding: '0.65rem 1.5rem',
-                      borderRadius: '50px',
-                      border: '1px solid rgba(255, 255, 255, 0.15)',
-                      background: 'rgba(255, 255, 255, 0.05)',
-                      color: 'var(--text-primary)',
-                      cursor: 'pointer',
-                      fontWeight: '700',
-                      transition: 'all 0.2s ease',
-                      fontSize: '0.88rem'
-                    }}
-                  >
-                    <span>{showFullSchedule ? 'Ver Menos' : 'Ver Programa Completo'}</span>
-                    <span style={{ fontSize: '0.8rem', transform: showFullSchedule ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s ease' }}>▼</span>
-                  </button>
-                </div>
-              </div>
-
-              {/* Food Pre-Order Section */}
-              <div className="modal-section" style={{ marginTop: '3rem', borderTop: '1px solid var(--border-color)', paddingTop: '2rem' }}>
-                <h3 className="modal-section-title">🍔 Pre-Orden de Comida (Breaks)</h3>
-                <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem', marginBottom: '1.5rem', lineHeight: '1.6' }}>
-                  Durante la conferencia contaremos con varios negocios invitados en los recesos. Si ya estás registrado o vas a registrarte ahora, podrás pre-ordenar tus platos con anticipación para asegurar tu comida y agilizar la entrega.
-                </p>
-
-                {/* Menús de comida */}
-                <div style={{ 
-                  display: 'grid', 
-                  gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', 
-                  gap: '1.5rem', 
-                  marginTop: '1.5rem',
-                  marginBottom: '2rem'
-                }}>
-                  {/* Menú #1: Pechurica La Fe */}
-                  <div 
-                    className="glass-panel" 
-                    style={{ 
-                      padding: '1.8rem', 
-                      borderRadius: '16px', 
-                      border: '1px solid rgba(255, 255, 255, 0.08)',
-                      background: 'rgba(10, 10, 10, 0.3)',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      minHeight: '250px',
-                      textAlign: 'center',
-                      gap: '1rem'
-                    }}
-                  >
-                    <img 
-                      src={getImageUrl('/pechurica-logo.png')} 
-                      alt="Logo Pechurica La Fe" 
-                      style={{ 
-                        width: '75px', 
-                        height: '75px', 
-                        borderRadius: '50%', 
-                        objectFit: 'cover', 
-                        border: '2px solid rgba(255, 255, 255, 0.1)',
-                        marginBottom: '0.3rem',
-                        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)'
-                      }} 
-                    />
-                    <div>
-                      <h4 style={{ fontSize: '1.15rem', fontWeight: '800', marginBottom: '0.3rem', color: 'var(--text-primary)' }}>
-                        Pechurica La Fe
-                      </h4>
-                      <p style={{ fontSize: '0.88rem', color: 'var(--text-secondary)', lineHeight: '1.4', marginBottom: '0.8rem' }}>
-                        Pechuricas crujientes acompañadas de papas fritas y salsas especiales.
-                      </p>
-                      <a 
-                        href="https://www.instagram.com/pechuricalaferd/" 
-                        target="_blank" 
-                        rel="noopener noreferrer" 
-                        style={{ 
-                          display: 'inline-flex', 
-                          alignItems: 'center', 
-                          gap: '6px', 
-                          fontSize: '0.85rem', 
-                          fontWeight: '700', 
-                          color: 'var(--accent-color)', 
-                          textDecoration: 'none' 
-                        }}
-                      >
-                        <span>@pechuricalaferd</span>
-                        <ExternalLink size={12} />
-                      </a>
-                    </div>
-                  </div>
-
-                  {/* Menú #2: Marité Postres Artesanales */}
-                  <div 
-                    className="glass-panel" 
-                    style={{ 
-                      padding: '1.8rem', 
-                      borderRadius: '16px', 
-                      border: '1px solid rgba(255, 255, 255, 0.08)',
-                      background: 'rgba(10, 10, 10, 0.3)',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      minHeight: '250px',
-                      textAlign: 'center',
-                      gap: '1rem'
-                    }}
-                  >
-                    <img 
-                      src={getImageUrl('/marite-logo.png')} 
-                      alt="Logo Marité Postres Artesanales" 
-                      style={{ 
-                        width: '75px', 
-                        height: '75px', 
-                        borderRadius: '50%', 
-                        objectFit: 'cover', 
-                        border: '2px solid rgba(255, 255, 255, 0.1)',
-                        marginBottom: '0.3rem',
-                        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)'
-                      }} 
-                    />
-                    <div>
-                      <h4 style={{ fontSize: '1.15rem', fontWeight: '800', marginBottom: '0.3rem', color: 'var(--text-primary)' }}>
-                        Marité Postres Artesanales
-                      </h4>
-                      <p style={{ fontSize: '0.88rem', color: 'var(--text-secondary)', lineHeight: '1.4', marginBottom: '0.8rem' }}>
-                        Helados artesanales súper cremosos sabor Coco, Coco Fresa, Chinola Cremosa, Dulce de Leche y Bizcocho Marmolado.
-                      </p>
-                      <a 
-                        href="https://www.instagram.com/maritepostresartesanales/" 
-                        target="_blank" 
-                        rel="noopener noreferrer" 
-                        style={{ 
-                          display: 'inline-flex', 
-                          alignItems: 'center', 
-                          gap: '6px', 
-                          fontSize: '0.85rem', 
-                          fontWeight: '700', 
-                          color: 'var(--accent-color)', 
-                          textDecoration: 'none' 
-                        }}
-                      >
-                        <span>@maritepostresartesanales</span>
-                        <ExternalLink size={12} />
-                      </a>
-                    </div>
-                  </div>
-                </div>
-
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
-                  <Link 
-                    to="/menu-preorden" 
-                    className="btn-primary"
-                    style={{ 
-                      display: 'inline-flex', 
-                      padding: '0.8rem 2rem', 
-                      textDecoration: 'none', 
-                      alignItems: 'center', 
-                      gap: '8px', 
-                      width: 'fit-content'
-                    }}
-                  >
-                    <span>Pre-ordenar Comida Ahora</span>
-                  </Link>
-                  <span style={{ fontSize: '0.85rem', color: 'var(--accent-light)', fontStyle: 'italic' }}>
-                    * Asegura tu comida/refrigerio con anticipación y retírala sin filas en los recesos de la conferencia.
-                  </span>
-                </div>
-              </div>
-
-              {/* Location Section */}
-              <div className="modal-section" style={{ marginTop: '3rem' }}>
-                <h3 className="modal-section-title">Ubicación del Evento</h3>
-                <div className="location-panel glass-panel" style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '2rem', padding: '2rem' }}>
-                  <div className="location-info-block">
-                    <span className="location-badge">Lugar del Evento</span>
-                    <h3>Iglesia De Convertidos a Cristo</h3>
-                    <p className="location-address" style={{ fontSize: '0.95rem', marginBottom: '1.5rem', lineHeight: '1.6', color: 'var(--text-secondary)' }}>
-                      Calle Dr. Núñez Domínguez #30,<br />
-                      Ensanche La Julia, Santo Domingo 10109,<br />
-                      República Dominicana.
-                    </p>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
-                      <a 
-                        href="https://maps.app.goo.gl/jRX8PC4S3oVrPMQz6" 
-                        target="_blank" 
-                        rel="noopener noreferrer" 
-                        className="btn-primary"
-                        style={{ width: 'fit-content', padding: '0.7rem 1.5rem', fontSize: '0.9rem' }}
-                      >
-                        <MapPin size={16} />
-                        Abrir en Google Maps
-                      </a>
-                      <a 
-                        href="https://www.convertidosacristo.org/" 
-                        target="_blank" 
-                        rel="noopener noreferrer" 
-                        className="feature-link"
-                        style={{ marginTop: '0.3rem', width: 'fit-content', display: 'flex', alignItems: 'center', gap: '5px', fontSize: '0.85rem' }}
-                      >
-                        Web de la Iglesia <ExternalLink size={12} />
-                      </a>
-                    </div>
-                  </div>
-                  
-                  <div className="location-map-mock" style={{ height: '220px' }}>
-                    <div className="map-mock-bg"></div>
-                    <div className="map-pin-pulse">
-                      <div className="pin-icon-wrap" style={{ width: '40px', height: '40px' }}>
-                        <MapPin size={20} />
-                      </div>
-                      <div className="pin-tag" style={{ fontSize: '0.75rem', padding: '0.3rem 0.8rem' }}>ICC Santo Domingo</div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
           </div>
         </div>
       )}
