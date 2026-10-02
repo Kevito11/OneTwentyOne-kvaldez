@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { Calendar, MapPin, ArrowRight, Clock, Plus, Star, ChevronLeft, ChevronRight, Heart, MessageCircle, Send, Bookmark, MoreHorizontal, X, Sparkles } from 'lucide-react';
 import { getImageUrl } from '../../config/images';
+import ActiveServicesBanner from '../../components/ActiveServicesBanner/ActiveServicesBanner';
 import './Home.css';
 
 // Componente para imágenes del Lightbox con animación fluida onLoad
@@ -271,6 +272,9 @@ const Home = () => {
       <section className="hero-section">
         <div className="hero-bg-overlay"></div>
         <div className="container hero-container">
+          {/* Publicaciones Oficiales de Servicios Activos (OneTwentyOne y JPC) */}
+          <ActiveServicesBanner />
+
           <div className="hero-split-layout">
             <div className="hero-content-col">
               <span className="hero-subtitle">

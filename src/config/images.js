@@ -109,7 +109,9 @@ export const CRITICAL_IMAGES = [
   "/merch/Merch SIN FILTROS Tshirt atrs 3.jpeg",
   "/pastores/Pr-Luis-Valdera-Sept-2024.jpg",
   "/pastores/Pr-Narciso-Nadal-Sept-2024.jpg",
-  "/pastores/Pr-Santiago-Peralta-Sept-2024.jpg"
+  "/pastores/Pr-Santiago-Peralta-Sept-2024.jpg",
+  "/servicios/portada-121-actual.jpg",
+  "/servicios/portada-jpc-actual.jpg"
 ];
 
 // Precarga automática al cargar el módulo en el navegador
