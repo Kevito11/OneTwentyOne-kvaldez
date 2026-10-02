@@ -438,6 +438,19 @@
   box-shadow: 0 6px 18px rgba(225, 48, 108, 0.45);
 }
 
+.btn-icon-subtle.btn-calendar-direct {
+  background: rgba(255, 255, 255, 0.07);
+  border-color: rgba(255, 255, 255, 0.16);
+  color: var(--text-primary);
+}
+
+.btn-icon-subtle.btn-calendar-direct:hover {
+  background: var(--accent-gradient, #f97316);
+  border-color: transparent;
+  color: #ffffff;
+  box-shadow: 0 4px 14px var(--accent-glow, rgba(255, 255, 255, 0.25));
+}
+
 /* Calendar Dropdown Wrapper & Trigger Button */
 .calendar-dropdown-container {
   position: relative;

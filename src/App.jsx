@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import Navbar from './components/layout/Navbar';
 import Footer from './components/layout/Footer';
@@ -44,6 +44,7 @@ function AppContent() {
           <Route path="/confirmar-asistencia" element={<ConfirmAttendance />} />
         </Routes>
       </main>
+
       {!hideLayout && <Footer />}
     </div>
   );
@@ -51,36 +52,27 @@ function AppContent() {
 
 function App() {
   useEffect(() => {
-    const checkTheme = () => {
-      try {
-        const hash = window.location.hash;
-        const now = new Date();
-        const targetYellowDate = new Date(2026, 7, 1); // August 1st, 2026
-        const targetOrangeDate = new Date(2026, 7, 24); // August 24th, 2026
-
-        // Reset theme classes
-        document.body.classList.remove('yellow-theme', 'orange-theme');
-
-        if (hash === '#orange') {
-          document.body.classList.add('orange-theme');
-        } else if (hash === '#yellow') {
-          document.body.classList.add('yellow-theme');
-        } else {
-          // Automatic date-based selection
-          if (now >= targetOrangeDate) {
-            document.body.classList.add('orange-theme');
-          } else if (now >= targetYellowDate) {
-            document.body.classList.add('yellow-theme');
-          }
-        }
-      } catch (e) {
-        console.error("Error setting dynamic colors theme:", e);
-      }
-    };
-
-    checkTheme();
-    window.addEventListener('hashchange', checkTheme);
-    return () => window.removeEventListener('hashchange', checkTheme);
+    try {
+      localStorage.removeItem('icc_preview_theme');
+      document.body.classList.remove('yellow-theme', 'orange-theme');
+      const root = document.documentElement;
+      const body = document.body;
+      const cssVars = [
+        '--bg-primary', '--bg-secondary', '--bg-tertiary',
+        '--text-primary', '--text-secondary', '--text-muted',
+        '--accent-color', '--accent-light', '--accent-blue',
+        '--accent-gradient', '--accent-glow', '--blue-glow',
+        '--glass-border', '--glass-bg', '--border-color'
+      ];
+      cssVars.forEach(v => {
+        root.style.removeProperty(v);
+        body.style.removeProperty(v);
+      });
+      body.style.removeProperty('background-color');
+      body.style.removeProperty('background-image');
+    } catch (e) {
+      console.error("Error resetting theme:", e);
+    }
   }, []);
 
   return (

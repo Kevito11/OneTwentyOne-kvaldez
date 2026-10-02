@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { Calendar, ChevronDown, Download, Clock, MapPin, ExternalLink, Sparkles, Flame, Eye, X } from 'lucide-react';
+import { Calendar, Clock, MapPin, ExternalLink, Sparkles, Flame, Eye, X } from 'lucide-react';
 import { getImageUrl } from '../../config/images';
 import { SERVICIOS_PUBLICACIONES } from '../../data/serviciosData';
 import './ActiveServicesBanner.css';
@@ -18,20 +18,7 @@ const InstagramIcon = ({ size = 16, className = "" }) => (
   </svg>
 );
 
-const AppleIcon = ({ size = 15, className = "" }) => (
-  <svg 
-    width={size} 
-    height={size} 
-    viewBox="0 0 24 24" 
-    fill="currentColor" 
-    className={className}
-    aria-hidden="true"
-  >
-    <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 6.84c.64-.78 1.08-1.87.96-2.96-.93.04-2.06.62-2.72 1.4-.58.67-1.09 1.76-.95 2.82 1.04.08 2.1-.51 2.71-1.26z"/>
-  </svg>
-);
-
-// Formato UTC estándar para Google Calendar y especificación iCalendar (YYYYMMDDTHHmmssZ)
+// Formato UTC estándar para especificación iCalendar (YYYYMMDDTHHmmssZ)
 const formatCalendarUTC = (date) => {
   const pad = (n) => String(n).padStart(2, '0');
   const d = new Date(date);
@@ -47,38 +34,38 @@ const formatCalendarUTC = (date) => {
   );
 };
 
-// Generador de enlace directo a Google Calendar (1 clic)
-const getGoogleCalendarUrl = (servicio) => {
-  const start = formatCalendarUTC(servicio.fechaInicio);
-  const end = formatCalendarUTC(servicio.fechaFin);
-  const title = `Culto Juvenil: ${servicio.ministerio} - "${servicio.tema}"`;
-  const details = `Tema: "${servicio.tema}"\n${servicio.descripcion}\n\nMinisterio: ${servicio.ministerio} (${servicio.grupoEdad})\nLugar: ${servicio.lugar}, Iglesia De Convertidos a Cristo (ICC)\nInstagram: ${servicio.instagramUrl}`;
-  const location = `${servicio.lugar}, Iglesia De Convertidos a Cristo (ICC), Santo Domingo`;
-
-  return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(title)}&dates=${start}/${end}&details=${encodeURIComponent(details)}&location=${encodeURIComponent(location)}`;
-};
-
-// Descarga directa de archivo .ics compatible con Apple Calendar, Outlook y agendas de teléfonos
-const downloadICSFile = (servicio) => {
+// Agendar directamente en la aplicación de calendario predeterminada o instalada del dispositivo
+const openNativeCalendar = (servicio) => {
   const start = formatCalendarUTC(servicio.fechaInicio);
   const end = formatCalendarUTC(servicio.fechaFin);
   const now = formatCalendarUTC(new Date());
 
+  const summary = `Culto Juvenil: ${servicio.ministerio} - "${servicio.tema}"`;
+  const cleanDesc = servicio.descripcion.replace(/[\r\n]+/g, ' ').trim();
+  const description = `Tema: "${servicio.tema}"\\n${cleanDesc}\\n\\nIglesia De Convertidos a Cristo (ICC)\\nInstagram: ${servicio.instagramUrl}`;
+  const location = `${servicio.lugar}, Iglesia De Convertidos a Cristo (ICC), Santo Domingo`;
+
   const icsLines = [
     "BEGIN:VCALENDAR",
     "VERSION:2.0",
-    "PRODID:-//Ministerio de Jovenes ICC//Cultos//ES",
+    "PRODID:-//Ministerio de Jovenes ICC//ES",
     "CALSCALE:GREGORIAN",
     "METHOD:PUBLISH",
     "BEGIN:VEVENT",
-    `UID:servicio-${servicio.id}@jovenesicc.org`,
+    `UID:culto-${servicio.id}-${new Date(servicio.fechaInicio).getTime()}@jovenesicc.org`,
     `DTSTAMP:${now}`,
     `DTSTART:${start}`,
     `DTEND:${end}`,
-    `SUMMARY:Culto Juvenil: ${servicio.ministerio} - "${servicio.tema}"`,
-    `DESCRIPTION:${servicio.descripcion.replace(/\n/g, " ")} | Iglesia De Convertidos a Cristo (ICC) | ${servicio.instagramUrl}`,
-    `LOCATION:${servicio.lugar}, Iglesia De Convertidos a Cristo (ICC), Santo Domingo`,
+    `SUMMARY:${summary}`,
+    `DESCRIPTION:${description}`,
+    `LOCATION:${location}`,
     "STATUS:CONFIRMED",
+    "SEQUENCE:0",
+    "BEGIN:VALARM",
+    "TRIGGER:-PT1H",
+    "ACTION:DISPLAY",
+    "DESCRIPTION:Recordatorio Culto Juvenil ICC",
+    "END:VALARM",
     "END:VEVENT",
     "END:VCALENDAR"
   ];
@@ -87,91 +74,17 @@ const downloadICSFile = (servicio) => {
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
-  a.download = `culto-${servicio.id}.ics`;
+  a.setAttribute("download", `culto-${servicio.id}.ics`);
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
-  URL.revokeObjectURL(url);
-};
-
-// Componente de menú sutil para agendar en Google Calendar o Apple/Otra agenda
-const CalendarDropdown = ({ servicio, isOpen, onToggle, onClose, direction = 'up', isIconOnly = true }) => {
-  return (
-    <div className="calendar-dropdown-container">
-      <button 
-        type="button" 
-        className={`btn-calendar-trigger ${isOpen ? 'active' : ''} ${isIconOnly ? 'icon-only' : ''}`}
-        onClick={(e) => {
-          e.stopPropagation();
-          onToggle();
-        }}
-        title="Agendar culto en Google o Apple Calendar"
-        aria-label="Agendar culto en calendario"
-      >
-        <Calendar size={isIconOnly ? 18 : 15} />
-        {!isIconOnly && <span>Agendar</span>}
-        {!isIconOnly && <ChevronDown size={13} className={`chevron-indicator ${isOpen ? 'open' : ''}`} />}
-      </button>
-
-      {isOpen && (
-        <div 
-          className={`calendar-popover direction-${direction} animate-fade-in`} 
-          onClick={(e) => e.stopPropagation()}
-        >
-          <div className="popover-title">Agendar en calendario:</div>
-          
-          <a 
-            href={getGoogleCalendarUrl(servicio)} 
-            target="_blank" 
-            rel="noopener noreferrer" 
-            className="popover-item"
-            onClick={onClose}
-          >
-            <span className="popover-icon-box google">
-              <Calendar size={15} />
-            </span>
-            <div className="popover-text">
-              <strong>Google Agenda</strong>
-              <small>Google Calendar (web / app)</small>
-            </div>
-            <ExternalLink size={12} className="popover-link-icon" />
-          </a>
-
-          <button 
-            type="button" 
-            className="popover-item"
-            onClick={() => {
-              downloadICSFile(servicio);
-              onClose();
-            }}
-          >
-            <span className="popover-icon-box apple">
-              <AppleIcon size={15} />
-            </span>
-            <div className="popover-text">
-              <strong>Apple / Otra agenda</strong>
-              <small>Calendario del celular (.ics)</small>
-            </div>
-            <Download size={12} className="popover-link-icon" />
-          </button>
-        </div>
-      )}
-    </div>
-  );
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
 };
 
 const ActiveServicesBanner = () => {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [previewAll, setPreviewAll] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
-  const [openMenuId, setOpenMenuId] = useState(null);
-
-  // Cerrar cualquier popover al hacer clic fuera
-  useEffect(() => {
-    const handleClickOutside = () => setOpenMenuId(null);
-    window.addEventListener('click', handleClickOutside);
-    return () => window.removeEventListener('click', handleClickOutside);
-  }, []);
 
   // Comprobar parámetros de URL o hash para permitir previsualización de pruebas
   useEffect(() => {
@@ -298,15 +211,13 @@ const ActiveServicesBanner = () => {
           {activeServices.map((servicio) => {
             const status = getLiveStatus(servicio);
             const isToday = servicio.badge.includes('HOY');
-            const isMenuOpen = openMenuId === 'card-' + servicio.id;
 
             return (
               <div 
                 key={servicio.id} 
-                className={`service-card glass-panel ${isMenuOpen ? 'menu-active' : ''}`}
+                className="service-card glass-panel"
                 style={{
-                  '--card-accent': servicio.accentColor,
-                  zIndex: isMenuOpen ? 50 : 1
+                  '--card-accent': servicio.accentColor
                 }}
               >
                 {/* Portada / Cover Image (Clic para ver imagen completa) */}
@@ -438,15 +349,19 @@ const ActiveServicesBanner = () => {
                         <InstagramIcon size={18} />
                       </a>
 
-                      {/* Botón Agendar: solo icono de calendario */}
-                      <CalendarDropdown 
-                        servicio={servicio}
-                        isOpen={openMenuId === 'card-' + servicio.id}
-                        onToggle={() => setOpenMenuId(openMenuId === 'card-' + servicio.id ? null : 'card-' + servicio.id)}
-                        onClose={() => setOpenMenuId(null)}
-                        direction="up"
-                        isIconOnly={true}
-                      />
+                      {/* Botón Agendar: 1 solo clic abre la app de agenda instalada */}
+                      <button 
+                        type="button" 
+                        className="btn-icon-subtle btn-calendar-direct"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          openNativeCalendar(servicio);
+                        }}
+                        title="Agendar en tu aplicación de calendario"
+                        aria-label="Agendar culto en calendario"
+                      >
+                        <Calendar size={18} />
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -462,7 +377,6 @@ const ActiveServicesBanner = () => {
           className="services-lightbox-overlay" 
           onClick={() => {
             setSelectedImage(null);
-            setOpenMenuId(null);
           }}
           role="dialog"
           aria-modal="true"
@@ -473,7 +387,6 @@ const ActiveServicesBanner = () => {
             onClick={(e) => {
               e.stopPropagation();
               setSelectedImage(null);
-              setOpenMenuId(null);
             }}
             aria-label="Cerrar vista de portada"
             title="Cerrar (Esc)"
@@ -509,15 +422,19 @@ const ActiveServicesBanner = () => {
                   <InstagramIcon size={18} />
                 </a>
 
-                {/* Botón Agendar: solo icono de calendario */}
-                <CalendarDropdown 
-                  servicio={selectedImage}
-                  isOpen={openMenuId === 'lightbox-' + selectedImage.id}
-                  onToggle={() => setOpenMenuId(openMenuId === 'lightbox-' + selectedImage.id ? null : 'lightbox-' + selectedImage.id)}
-                  onClose={() => setOpenMenuId(null)}
-                  direction="up"
-                  isIconOnly={true}
-                />
+                {/* Botón Agendar: 1 solo clic abre la app de agenda instalada */}
+                <button 
+                  type="button" 
+                  className="btn-icon-subtle btn-calendar-direct"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    openNativeCalendar(selectedImage);
+                  }}
+                  title="Agendar en tu aplicación de calendario"
+                  aria-label="Agendar culto en calendario"
+                >
+                  <Calendar size={18} />
+                </button>
               </div>
             </div>
           </div>

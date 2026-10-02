@@ -1,28 +1,29 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Outfit:wght@400;500;700;800;900&display=swap');
 
 :root {
-  /* Colors - Premium High-Contrast Monochrome (Black and White) Scheme */
-  --bg-primary: #000000; /* Pure Pitch Black */
-  --bg-secondary: #080808; /* Deep Obsidian Charcoal */
-  --bg-tertiary: #121212; /* Rich Dark Charcoal */
+  /* Colors - Tema 3: Azul Zafiro & Cyan Eléctrico */
+  --bg-primary: #030712; /* Deep Obsidian Blue Night */
+  --bg-secondary: #0a101f; /* Midnight Blue */
+  --bg-tertiary: #111827; /* Rich Dark Slate Blue */
   
-  --text-primary: #ffffff; /* Pure High Contrast White */
-  --text-secondary: #a3a3a3; /* Soft Silver Grey */
-  --text-muted: #555555; /* Muted Charcoal Grey */
+  --text-primary: #F8FAFC; /* Crisp Pure High-Contrast White */
+  --text-secondary: #94A3B8; /* Slate Blue-Grey */
+  --text-muted: #64748B; /* Muted Slate */
 
-  /* Accent Colors - High Contrast Grayscale and Pure White */
-  --accent-color: #ffffff; /* Pure White Accent */
-  --accent-light: #f5f5f5; /* Soft Off-White */
-  --accent-blue: #888888; /* Silver Grey */
-  --accent-gradient: linear-gradient(135deg, #ffffff 0%, #888888 50%, #262626 100%);
-  --accent-glow: rgba(255, 255, 255, 0.08);
-  --blue-glow: rgba(136, 136, 136, 0.12);
+  /* Accent Colors - Electric Cyan & Sapphire Blue */
+  --accent-color: #00D2FF; /* Cyan Eléctrico Neón */
+  --accent-light: #E0F2FE; /* Ice White Cyan Tint */
+  --accent-blue: #3B82F6; /* Sapphire Electric Blue */
+  --accent-secondary: #3B82F6;
+  --accent-gradient: linear-gradient(135deg, #00D2FF 0%, #3B82F6 50%, #1D4ED8 100%);
+  --accent-glow: rgba(0, 210, 255, 0.25);
+  --blue-glow: rgba(59, 130, 246, 0.20);
 
-  /* Borders & Glassmorphism - Crisp Grayscale Highlights */
-  --border-color: rgba(255, 255, 255, 0.08);
-  --glass-bg: rgba(10, 10, 10, 0.82);
-  --glass-border: rgba(255, 255, 255, 0.08);
-  --glass-glow: rgba(255, 255, 255, 0.02);
+  /* Borders & Glassmorphism */
+  --border-color: rgba(0, 210, 255, 0.15);
+  --glass-bg: rgba(10, 16, 31, 0.85);
+  --glass-border: rgba(0, 210, 255, 0.20);
+  --glass-glow: rgba(0, 210, 255, 0.05);
 
   /* Typography */
   --font-body: 'Inter', sans-serif;
@@ -44,9 +45,11 @@ body {
   font-family: var(--font-body);
   background-color: var(--bg-primary);
   background-image: 
-    radial-gradient(at 10% 20%, rgba(255, 255, 255, 0.02) 0px, transparent 55%),
-    radial-gradient(at 90% 80%, rgba(136, 136, 136, 0.03) 0px, transparent 55%),
-    radial-gradient(at 50% 50%, rgba(255, 255, 255, 0.01) 0px, transparent 50%);
+    radial-gradient(at 15% 15%, rgba(0, 210, 255, 0.15) 0px, transparent 60%),
+    radial-gradient(at 85% 20%, rgba(59, 130, 246, 0.14) 0px, transparent 60%),
+    radial-gradient(at 50% 50%, rgba(0, 210, 255, 0.04) 0px, transparent 70%),
+    radial-gradient(at 85% 85%, rgba(29, 78, 216, 0.15) 0px, transparent 60%),
+    radial-gradient(at 15% 80%, rgba(0, 210, 255, 0.08) 0px, transparent 60%);
   background-attachment: fixed;
   color: var(--text-primary);
   line-height: 1.6;
@@ -446,31 +449,26 @@ body.vigilia-mode {
   z-index: -1;
   pointer-events: none;
   color: var(--accent-color);
-  opacity: 0.02; /* Very subtle default watermark */
+  opacity: 0.08; /* Clearly visible cyan/sapphire diagonal ray */
   transition: color 0.8s ease, opacity 0.8s ease;
 }
 
-body.yellow-theme .bg-animal-stripes.lightning-bolt {
-  opacity: 0.08; /* Clearly visible golden/amber diagonal ray */
-}
-
-body.orange-theme .bg-animal-stripes.lightning-bolt {
-  opacity: 0.08; /* Clearly visible orange diagonal ray */
-}
-
-body.vigilia-mode .bg-animal-stripes.lightning-bolt {
-  opacity: 0.06; /* Clearly visible purple lightning ray */
-}
-
 /* Transparencia del footer para que pase el fondo con luces */
+.footer,
 body.yellow-theme .footer,
 body.orange-theme .footer,
 body.vigilia-mode .footer {
   background-color: transparent !important;
-  border-top: 1px solid rgba(255, 255, 255, 0.03);
+  border-top: 1px solid rgba(0, 210, 255, 0.12) !important;
 }
 
-/* Correcciones del Hero para los temas personalizados */
+/* Correcciones del Hero para el tema por defecto y personalizados */
+.hero-bg-overlay {
+  background: 
+    radial-gradient(circle at 80% 20%, rgba(0, 210, 255, 0.15) 0%, transparent 60%),
+    radial-gradient(circle at 20% 80%, rgba(59, 130, 246, 0.12) 0%, transparent 55%),
+    radial-gradient(circle at 50% 50%, rgba(0, 0, 0, 0.4) 0%, transparent 100%) !important;
+}
 body.yellow-theme .hero-bg-overlay {
   background: 
     radial-gradient(circle at 80% 20%, rgba(248, 193, 24, 0.12) 0%, transparent 60%),
