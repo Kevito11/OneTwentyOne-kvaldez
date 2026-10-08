@@ -13,55 +13,31 @@
 
 export const SERVICIOS_PUBLICACIONES = [
   {
-    id: "121-2026-10-02",
-    ministerio: "Siervos para Cristo (OneTwentyOne)",
-    grupoEdad: "Jóvenes 18+ años",
-    lema: "Siervos Para Cristo",
-    tema: "MALAS LENGUAS",
-    descripcion: "¡Volvimos! nos vemos este viernes, trae a un amigo 🫪🫵🏻",
-    fechaTexto: "Viernes 2 de Octubre, 2026",
-    diaTexto: "Hoy Viernes",
-    horaTexto: "8:00 PM - 10:00 PM",
-    lugar: "Salón Principal ICC",
-    mapLink: "https://maps.app.goo.gl/jRX8PC4S3oVrPMQz6",
-    instagramUrl: "https://www.instagram.com/p/Dd7o3X4z_3T/",
-    instagramUsername: "onetwentyoneicc",
-    portadaUrl: "/servicios/portada-121-actual.jpg",
-    // Fecha y hora de inicio: 2 de Octubre 2026 a las 20:00 (8:00 PM)
-    fechaInicio: new Date(2026, 9, 2, 20, 0, 0),
-    // Fecha y hora de expiración: 2 de Octubre 2026 a las 22:00 (10:00 PM)
-    // Concluido el servicio, desaparece de la página principal.
-    fechaFin: new Date(2026, 9, 2, 22, 0, 0),
-    badge: "¡HOY VIERNES!",
-    accentColor: "#6366f1", // Color acento índigo moderno
-    badgeBg: "rgba(99, 102, 241, 0.2)",
-    badgeBorder: "rgba(99, 102, 241, 0.4)",
-    badgeText: "#a5b4fc"
-  },
-  {
-    id: "jpc-2026-10-03",
+    id: "jpc-2026-10-10",
     ministerio: "Jóvenes Para Cristo (JPC)",
     grupoEdad: "Adolescentes 12 a 17 años",
     lema: "Equipo Ministerial de Jóvenes",
-    tema: "¿Y ESO E' PECADO?",
-    descripcion: "Nos vemos el sábado a la 7 pm 🍎",
-    fechaTexto: "Sábado 3 de Octubre, 2026",
-    diaTexto: "Mañana Sábado",
+    tema: "SALVACIÓN",
+    subtema: "Jesús Pagó Todo · Cero Mérito",
+    descripcion: "Nos vemos el sábado 10 a las 7 pm 🧾 Jesús pagó toda la deuda por nosotros.",
+    fechaTexto: "Sábado 10 de Octubre, 2026",
+    diaTexto: "Este Sábado",
     horaTexto: "7:00 PM - 8:30 PM",
     lugar: "Salón Principal ICC",
     mapLink: "https://maps.app.goo.gl/jRX8PC4S3oVrPMQz6",
-    instagramUrl: "https://www.instagram.com/p/Dd7hBmxJxFZ/",
+    instagramUrl: "https://www.instagram.com/p/DeM-jg8JgpK/",
     instagramUsername: "jovenes_icc",
     portadaUrl: "/servicios/portada-jpc-actual.jpg",
-    // Fecha y hora de inicio: 3 de Octubre 2026 a las 19:00 (7:00 PM)
-    fechaInicio: new Date(2026, 9, 3, 19, 0, 0),
-    // Fecha y hora de expiración: 3 de Octubre 2026 a las 20:30 (8:30 PM)
-    // Concluido el servicio, desaparece de la página principal.
-    fechaFin: new Date(2026, 9, 3, 20, 30, 0),
-    badge: "MAÑANA SÁBADO",
-    accentColor: "#f43f5e", // Color acento coral/rojo manzana
-    badgeBg: "rgba(244, 63, 94, 0.2)",
-    badgeBorder: "rgba(244, 63, 94, 0.4)",
-    badgeText: "#fda4af"
+    // Fecha y hora de inicio: Sábado 10 de Octubre 2026 a las 19:00 (7:00 PM)
+    fechaInicio: new Date(2026, 9, 10, 19, 0, 0),
+    // Fecha y hora de expiración: Sábado 10 de Octubre 2026 a las 20:30 (8:30 PM)
+    // Concluido el servicio, desaparece automáticamente de la página principal.
+    fechaFin: new Date(2026, 9, 10, 20, 30, 0),
+    badge: "ESTE SÁBADO",
+    accentColor: "#0ea5e9", // Color acento cyan/azul cielo armónico con el afiche
+    badgeBg: "rgba(14, 165, 233, 0.2)",
+    badgeBorder: "rgba(14, 165, 233, 0.45)",
+    badgeText: "#7dd3fc"
   }
 ];
+
