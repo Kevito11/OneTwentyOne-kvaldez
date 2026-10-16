@@ -103,10 +103,10 @@ const activitiesList = [
   },
   {
     id: 1,
-    title: "Culto de Jóvenes Para Cristo (JPC)",
+    title: "Culto de Jóvenes Para Cristo (JOPECE)",
     date: "Todos los Sábados",
     time: "7:00 PM - 8:30 PM",
-    location: "Salón Principal ICC",
+    location: "Salón Multiusos",
     mapLink: "https://maps.app.goo.gl/jRX8PC4S3oVrPMQz6",
     description: "Nuestra reunión y espacio de adoración diseñado especialmente para adolescentes de 12 a 17 años. Un tiempo enfocado en la alabanza, la enseñanza expositiva de la Palabra y el compañerismo cristiano.",
     tag: "Edades 12-17"
@@ -116,7 +116,7 @@ const activitiesList = [
     title: "Culto de Siervos Para Cristo (OneTwentyOne)",
     date: "Viernes Quincenales",
     time: "8:00 PM - 10:00 PM",
-    location: "Salón Principal ICC",
+    location: "Salón Multiusos",
     mapLink: "https://maps.app.goo.gl/jRX8PC4S3oVrPMQz6",
     description: "Nuestra reunión y culto de adoración para jóvenes de 18 años en adelante. Un tiempo quincenal enfocado en la predicación expositiva, la consejería pastoral, la comunión y la edificación mutua.",
     tag: "Edades 18+"
@@ -928,7 +928,7 @@ const Activities = () => {
                 <div className="modal-section" style={{ marginBottom: '3rem' }}>
                   <h3 className="modal-section-title">Comunidad en Instagram</h3>
                   <p style={{ color: 'var(--text-secondary)', marginBottom: '1.2rem', lineHeight: '1.6' }}>
-                    Para enterarte de los próximos temas, avisos especiales de última hora y novedades del grupo, síguenos en nuestra cuenta de Instagram oficial de JPC:
+                    Para enterarte de los próximos temas, avisos especiales de última hora y novedades del grupo, síguenos en nuestra cuenta de Instagram oficial de JOPECE:
                   </p>
                   <a 
                     href="https://www.instagram.com/jovenes_icc/" 

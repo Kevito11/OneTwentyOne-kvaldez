@@ -1,0 +1,738 @@
+/* =========================================================
+   INSTAGRAM HIGHLIGHTS (IMAGEN NATIVA Y CARRUSEL LIMPIO)
+   Vanilla CSS Puro - Sin marcos externos, responsivo y compacto
+   ========================================================= */
+
+.ig-native-section {
+  width: 100%;
+  max-width: 980px;
+  margin: 0 auto 3rem auto;
+  padding: 0 1rem;
+  box-sizing: border-box;
+  animation: igNativeFadeIn 0.35s ease-out;
+}
+
+@keyframes igNativeFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Cabecera compacta */
+.ig-native-header {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.ig-native-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--accent-color, #f59e0b);
+  background: rgba(245, 158, 11, 0.1);
+  border: 1px solid rgba(245, 158, 11, 0.25);
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  margin-bottom: 0.4rem;
+}
+
+.ig-native-section-title {
+  font-size: clamp(1.4rem, 3vw, 1.9rem);
+  font-weight: 800;
+  color: #ffffff;
+  margin: 0;
+  letter-spacing: -0.02em;
+}
+
+/* Grilla Responsiva: 2 columnas centradas en escritorio, 1 en móviles */
+.ig-native-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 440px));
+  justify-content: center;
+  align-items: start;
+  gap: 1.5rem;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Si una expira y queda 1 sola, se centra con un ancho máximo armónico */
+.ig-native-grid.ig-grid-count-1 {
+  grid-template-columns: minmax(0, 480px);
+}
+
+/* Tarjeta individual limpia con Glassmorphism */
+.ig-native-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background: rgba(18, 18, 18, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 14px;
+  padding: 0.85rem;
+  box-sizing: border-box;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  transition: transform 0.22s ease, border-color 0.22s ease, box-shadow 0.22s ease;
+  overflow: hidden;
+}
+
+.ig-native-card:hover {
+  border-color: rgba(255, 255, 255, 0.18);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
+}
+
+/* Cabecera interna de la tarjeta */
+.ig-native-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.65rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  gap: 0.5rem;
+}
+
+.ig-native-badge {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--accent-blue, #0ea5e9);
+  background: rgba(14, 165, 233, 0.12);
+  border: 1px solid rgba(14, 165, 233, 0.28);
+  padding: 0.2rem 0.55rem;
+  border-radius: 6px;
+  white-space: nowrap;
+}
+
+.ig-native-ministerio {
+  font-size: 0.76rem;
+  color: var(--text-secondary, #94a3b8);
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Contenedor del visor de imagen / carrusel */
+.ig-native-image-container {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  background: #09090b;
+  border-radius: 10px;
+  overflow: hidden;
+  user-select: none;
+  display: block;
+}
+
+/* Track de carrusel con CSS Scroll Snap nativo (Mobile y Desktop) */
+.ig-carousel-track {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE / Edge */
+}
+
+/* Ocultar barra de desplazamiento manteniendo scroll táctil activo */
+.ig-carousel-track::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Edge */
+}
+
+/* Diapositivas individuales del carrusel */
+.ig-carousel-slide {
+  flex: 0 0 100%;
+  width: 100%;
+  height: 100%;
+  scroll-snap-align: center;
+  scroll-snap-stop: always;
+  position: relative;
+  overflow: hidden;
+}
+
+.ig-native-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  user-select: none;
+  -webkit-user-drag: none;
+  pointer-events: none;
+  transition: transform 0.3s ease;
+}
+
+.ig-native-card:hover .ig-native-image {
+  transform: scale(1.018);
+}
+
+/* =========================================================
+   INDICADOR DISTINTIVO DE EVENTO ACTIVO ('EN CURSO' / 'HOY')
+   Badge flotante en esquina superior izquierda con animación
+   ========================================================= */
+
+.ig-native-live-badge {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.38rem;
+  padding: 0.28rem 0.65rem;
+  border-radius: 9999px;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  z-index: 5;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  pointer-events: none;
+}
+
+/* Variante Rojo Brillante: 🔴 EN CURSO / EN VIVO */
+.ig-badge-live {
+  background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  box-shadow: 0 0 14px rgba(239, 68, 68, 0.6), 0 2px 6px rgba(0, 0, 0, 0.4);
+  animation: igPulseLive 2s infinite ease-in-out;
+}
+
+/* Variante Ámbar / Dorado Brillante: ⚡ HOY */
+.ig-badge-today {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  color: #000000;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow: 0 0 14px rgba(245, 158, 11, 0.65), 0 2px 6px rgba(0, 0, 0, 0.4);
+  animation: igPulseToday 2s infinite ease-in-out;
+}
+
+.ig-native-live-badge-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: currentColor;
+  box-shadow: 0 0 6px currentColor;
+  animation: igBlinkDot 1s infinite alternate ease-in-out;
+}
+
+@keyframes igPulseLive {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 0 10px rgba(239, 68, 68, 0.5), 0 2px 6px rgba(0, 0, 0, 0.4);
+  }
+  50% {
+    transform: scale(1.05);
+    box-shadow: 0 0 18px rgba(239, 68, 68, 0.85), 0 2px 8px rgba(0, 0, 0, 0.5);
+  }
+}
+
+@keyframes igPulseToday {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 0 10px rgba(245, 158, 11, 0.5), 0 2px 6px rgba(0, 0, 0, 0.4);
+  }
+  50% {
+    transform: scale(1.05);
+    box-shadow: 0 0 18px rgba(245, 158, 11, 0.85), 0 2px 8px rgba(0, 0, 0, 0.5);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 0 10px rgba(239, 68, 68, 0.5), 0 2px 6px rgba(0, 0, 0, 0.4);
+  }
+  50% {
+    transform: scale(1.06);
+    box-shadow: 0 0 20px rgba(239, 68, 68, 0.85), 0 2px 8px rgba(0, 0, 0, 0.5);
+  }
+}
+
+.ig-native-live-badge.is-pulsing {
+  animation: pulse 1.8s infinite ease-in-out;
+}
+
+@keyframes igBlinkDot {
+  0% {
+    opacity: 0.35;
+    transform: scale(0.85);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1.15);
+  }
+}
+
+/* Indicador de número de fotos (1/2) */
+.ig-native-counter-pill {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  background: rgba(0, 0, 0, 0.65);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: #ffffff;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 0.2rem 0.5rem;
+  border-radius: 9999px;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 3;
+}
+
+/* Flechas de navegación interactiva */
+.ig-nav-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 4;
+  transition: background 0.2s ease, transform 0.15s ease, opacity 0.2s ease;
+  padding: 0;
+  outline: none;
+}
+
+.ig-nav-prev {
+  left: 8px;
+}
+
+.ig-nav-next {
+  right: 8px;
+}
+
+.ig-nav-btn:hover {
+  background: rgba(0, 0, 0, 0.85);
+  border-color: rgba(255, 255, 255, 0.4);
+  transform: translateY(-50%) scale(1.08);
+}
+
+.ig-nav-btn:active {
+  transform: translateY(-50%) scale(0.96);
+}
+
+/* Puntos indicadores (Dots) */
+.ig-dots-row {
+  position: absolute;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(0, 0, 0, 0.55);
+  padding: 4px 8px;
+  border-radius: 9999px;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  z-index: 3;
+}
+
+.ig-dot-indicator {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.4);
+  cursor: pointer;
+  padding: 0;
+  transition: all 0.2s ease;
+}
+
+.ig-dot-indicator.active {
+  background: var(--accent-blue, #0ea5e9);
+  width: 14px;
+  border-radius: 9999px;
+}
+
+.ig-native-image-container {
+  cursor: pointer;
+}
+
+.ig-native-image-container:hover .ig-native-image {
+  transform: scale(1.02);
+}
+
+/* Hint sutil para primer clic sobre la imagen */
+.ig-tap-hint {
+  position: absolute;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  background: rgba(0, 0, 0, 0.65);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #f1f5f9;
+  font-size: 0.68rem;
+  font-weight: 600;
+  padding: 0.25rem 0.65rem;
+  border-radius: 9999px;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  pointer-events: none;
+  z-index: 4;
+  white-space: nowrap;
+  animation: igHintPulse 2.5s infinite ease-in-out;
+}
+
+.ig-tap-hint.with-dots {
+  bottom: 28px;
+}
+
+@keyframes igHintPulse {
+  0%, 100% {
+    opacity: 0.85;
+    transform: translateX(-50%) scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: translateX(-50%) scale(1.03);
+  }
+}
+
+/* =========================================================
+   FULL SCREEN MODAL PARA INSTAGRAM HIGHLIGHTS
+   position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 9999;
+   Fondo oscuro rgba(0,0,0,0.9) con backdrop-filter: blur(10px) y centrado con Flexbox.
+   ========================================================= */
+
+.ig-fullscreen-modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.9);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  z-index: 9999;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 1.5rem;
+  box-sizing: border-box;
+  animation: igModalFadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  overflow-y: auto;
+}
+
+@keyframes igModalFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Botón claro con 'X' en la esquina superior derecha de la pantalla */
+.ig-modal-screen-close-btn {
+  position: fixed;
+  top: 22px;
+  right: 22px;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  padding: 0;
+  z-index: 10000;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+}
+
+.ig-modal-screen-close-btn:hover {
+  background: rgba(255, 255, 255, 0.26);
+  border-color: rgba(255, 255, 255, 0.5);
+  transform: scale(1.08);
+}
+
+.ig-modal-screen-close-btn:active {
+  transform: scale(0.95);
+}
+
+/* Diálogo central del modal (Centrado vertical y horizontalmente con Flexbox) */
+.ig-fullscreen-modal-dialog {
+  position: relative;
+  width: 100%;
+  max-width: 440px;
+  background: rgba(18, 18, 24, 0.96);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 20px;
+  padding: 2.25rem 1.85rem;
+  box-sizing: border-box;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.8), 0 0 35px rgba(245, 158, 11, 0.1);
+  animation: igModalScaleIn 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+  margin: auto;
+}
+
+@keyframes igModalScaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.92) translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.ig-overlay-badge {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--accent-color, #f59e0b);
+  background: rgba(245, 158, 11, 0.15);
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  margin-bottom: 0.75rem;
+  display: inline-block;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.ig-overlay-title {
+  font-size: clamp(1.05rem, 2.5vw, 1.25rem);
+  font-weight: 800;
+  color: #ffffff;
+  margin: 0 0 0.35rem 0;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+}
+
+.ig-overlay-subtext {
+  font-size: 0.78rem;
+  color: #94a3b8;
+  margin: 0 0 1.25rem 0;
+  line-height: 1.4;
+}
+
+/* Pastillas visuales oscuras con bordes sutiles */
+.ig-overlay-pills {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  width: 100%;
+  max-width: 290px;
+  margin-bottom: 1.35rem;
+}
+
+.ig-overlay-pill {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  padding: 0.55rem 0.95rem;
+  border-radius: 9999px;
+  font-size: 0.82rem;
+  color: #f1f5f9;
+  font-weight: 600;
+  text-align: left;
+}
+
+.ig-pill-icon {
+  color: var(--accent-color, #f59e0b);
+  flex-shrink: 0;
+}
+
+/* Botón grande y ancho con degradado llamativo hacia Instagram */
+.ig-overlay-cta-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  max-width: 290px;
+  background: linear-gradient(135deg, #e1306c 0%, #c13584 50%, #833ab4 100%);
+  color: #ffffff;
+  font-size: 0.85rem;
+  font-weight: 700;
+  padding: 0.75rem 1.15rem;
+  border-radius: 9999px;
+  text-decoration: none;
+  box-shadow: 0 4px 18px rgba(225, 48, 108, 0.45);
+  transition: all 0.22s ease;
+  box-sizing: border-box;
+}
+
+.ig-overlay-cta-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 24px rgba(225, 48, 108, 0.65);
+  filter: brightness(1.08);
+}
+
+.ig-overlay-cta-btn:active {
+  transform: translateY(0);
+}
+
+.ig-overlay-hint {
+  font-size: 0.68rem;
+  color: #64748b;
+  margin-top: 0.85rem;
+}
+
+/* Botón de acceso a detalles en el footer de la tarjeta */
+.ig-native-details-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  padding: 0.4rem 0.75rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.ig-native-details-btn:hover {
+  background: var(--accent-color, #f59e0b);
+  border-color: var(--accent-color, #f59e0b);
+  color: #000000;
+  transform: translateY(-1px);
+}
+
+.ig-native-title-link {
+  text-decoration: none;
+  color: inherit;
+  display: inline-block;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.ig-native-title-link:hover .ig-native-tema {
+  color: var(--accent-color, #f59e0b);
+}
+
+/* Pie de la tarjeta */
+.ig-native-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 0.85rem;
+  padding-top: 0.65rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.ig-native-title-col {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+  flex: 1;
+}
+
+.ig-native-tema {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ig-native-subtext {
+  font-size: 0.73rem;
+  color: #94a3b8;
+}
+
+.ig-native-link-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  padding: 0.4rem 0.75rem;
+  border-radius: 8px;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.ig-native-link-btn:hover {
+  background: var(--accent-color, #f59e0b);
+  border-color: var(--accent-color, #f59e0b);
+  color: #000000;
+  transform: translateY(-1px);
+}
+
+/* =========================================================
+   ADAPTACIÓN RESPONSIVA (MÓVILES)
+   ========================================================= */
+
+@media (max-width: 768px) {
+  .ig-native-grid {
+    grid-template-columns: 1fr;
+    max-width: 440px;
+    gap: 1.25rem;
+  }
+
+  .ig-native-section {
+    margin-bottom: 2.25rem;
+    padding: 0 0.75rem;
+  }
+
+  .ig-native-card {
+    padding: 0.75rem;
+  }
+}
+
+@media (max-width: 420px) {
+  .ig-native-section {
+    padding: 0 0.5rem;
+  }
+
+  .ig-native-card {
+    border-radius: 12px;
+  }
+
+  .ig-native-card-header {
+    flex-wrap: wrap;
+  }
+}

@@ -14,7 +14,7 @@
 export const SERVICIOS_PUBLICACIONES = [
   {
     id: "jpc-2026-10-10",
-    ministerio: "Jóvenes Para Cristo (JPC)",
+    ministerio: "Jóvenes Para Cristo (JOPECE)",
     grupoEdad: "Adolescentes 12 a 17 años",
     lema: "Equipo Ministerial de Jóvenes",
     tema: "SALVACIÓN",
@@ -23,7 +23,7 @@ export const SERVICIOS_PUBLICACIONES = [
     fechaTexto: "Sábado 10 de Octubre, 2026",
     diaTexto: "Este Sábado",
     horaTexto: "7:00 PM - 8:30 PM",
-    lugar: "Salón Principal ICC",
+    lugar: "Salón Multiusos",
     mapLink: "https://maps.app.goo.gl/jRX8PC4S3oVrPMQz6",
     instagramUrl: "https://www.instagram.com/p/DeM-jg8JgpK/",
     instagramUsername: "jovenes_icc",

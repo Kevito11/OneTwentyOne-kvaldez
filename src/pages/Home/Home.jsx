@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Calendar, MapPin, ArrowRight, Clock, Plus, Star, Sparkles } from 'lucide-react';
 import { getImageUrl } from '../../config/images';
-import ActiveServicesBanner from '../../components/ActiveServicesBanner/ActiveServicesBanner';
+import InstagramHighlights from '../../components/InstagramHighlights/InstagramHighlights';
 import './Home.css';
 
 const Home = () => {
@@ -104,8 +104,8 @@ const Home = () => {
       <section className="hero-section">
         <div className="hero-bg-overlay"></div>
         <div className="container hero-container">
-          {/* Publicaciones Oficiales de Servicios Activos (OneTwentyOne y JPC) */}
-          <ActiveServicesBanner />
+          {/* Publicaciones Destacadas de Instagram (Servicio de Siervos y JOPECE) */}
+          <InstagramHighlights />
 
           <div className="hero-split-layout">
             <div className="hero-content-col">
