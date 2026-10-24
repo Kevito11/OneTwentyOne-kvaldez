@@ -104,7 +104,7 @@ const Home = () => {
       <section className="hero-section">
         <div className="hero-bg-overlay"></div>
         <div className="container hero-container">
-          {/* Publicaciones Destacadas de Instagram (Servicio de Siervos y JOPECE) */}
+          {/* Publicaciones Destacadas de Instagram (Servicio de Siervos) */}
           <InstagramHighlights />
 
           <div className="hero-split-layout">

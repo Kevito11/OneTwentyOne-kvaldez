@@ -419,101 +419,103 @@
 }
 
 /* =========================================================
-   FULL SCREEN MODAL PARA INSTAGRAM HIGHLIGHTS
-   position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 9999;
-   Fondo oscuro rgba(0,0,0,0.9) con backdrop-filter: blur(10px) y centrado con Flexbox.
+   LIGHTBOX DE PANTALLA COMPLETA CON ZOOM TÁCTIL E INMERSIVO
+   Modo Inmersivo (scale > 1): desvanece suavemente la UI
+   Cero botones estáticos: zoom orgánico por pellizco y doble toque
+   Carrusel con CSS Scroll Snap y bloqueo estricto anti-conflicto
    ========================================================= */
 
-.ig-fullscreen-modal-backdrop {
+.ig-lightbox-modal {
   position: fixed;
-  top: 0;
-  left: 0;
+  inset: 0;
   width: 100vw;
   height: 100vh;
-  background: rgba(0, 0, 0, 0.9);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  z-index: 9999;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 1.5rem;
-  box-sizing: border-box;
-  animation: igModalFadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-  overflow-y: auto;
-}
-
-@keyframes igModalFadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-/* Botón claro con 'X' en la esquina superior derecha de la pantalla */
-.ig-modal-screen-close-btn {
-  position: fixed;
-  top: 22px;
-  right: 22px;
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.12);
-  border: 1px solid rgba(255, 255, 255, 0.28);
-  color: #ffffff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  padding: 0;
-  z-index: 10000;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
-}
-
-.ig-modal-screen-close-btn:hover {
-  background: rgba(255, 255, 255, 0.26);
-  border-color: rgba(255, 255, 255, 0.5);
-  transform: scale(1.08);
-}
-
-.ig-modal-screen-close-btn:active {
-  transform: scale(0.95);
-}
-
-/* Diálogo central del modal (Centrado vertical y horizontalmente con Flexbox) */
-.ig-fullscreen-modal-dialog {
-  position: relative;
-  width: 100%;
-  max-width: 440px;
-  background: rgba(18, 18, 24, 0.96);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  border-radius: 20px;
-  padding: 2.25rem 1.85rem;
-  box-sizing: border-box;
-  text-align: center;
+  z-index: 99999;
   display: flex;
   flex-direction: column;
+  justify-content: space-between;
   align-items: center;
-  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.8), 0 0 35px rgba(245, 158, 11, 0.1);
-  animation: igModalScaleIn 0.28s cubic-bezier(0.16, 1, 0.3, 1);
-  margin: auto;
+  overflow: hidden;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: pan-y;
+  animation: igLightboxFadeIn 0.28s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-@keyframes igModalScaleIn {
+@keyframes igLightboxFadeIn {
   from {
     opacity: 0;
-    transform: scale(0.92) translateY(12px);
   }
   to {
     opacity: 1;
-    transform: scale(1) translateY(0);
   }
 }
 
-.ig-overlay-badge {
+/* Fondo Oscuro de Alta Gama con Desenfoque */
+.ig-lightbox-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(4, 4, 6, 0.94);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* =========================================================
+   MODO INMERSIVO: OCULTAMIENTO DINÁMICO DE TODA LA UI
+   Al superar escala 1 (zoom > 1), la barra superior (con X),
+   la barra inferior (título, horarios, ubicación, botón Instagram)
+   y las flechas se ocultan con fade-out fluido.
+   ========================================================= */
+
+.ig-lightbox-modal.is-immersive .ig-lightbox-top-bar,
+.ig-lightbox-modal.is-zoomed .ig-lightbox-top-bar {
+  opacity: 0 !important;
+  pointer-events: none !important;
+  transform: translateY(-24px);
+  visibility: hidden;
+}
+
+.ig-lightbox-modal.is-immersive .ig-lightbox-bottom-bar,
+.ig-lightbox-modal.is-zoomed .ig-lightbox-bottom-bar {
+  opacity: 0 !important;
+  pointer-events: none !important;
+  transform: translateY(24px);
+  visibility: hidden;
+}
+
+.ig-lightbox-modal.is-immersive .ig-lightbox-nav-btn,
+.ig-lightbox-modal.is-zoomed .ig-lightbox-nav-btn {
+  opacity: 0 !important;
+  pointer-events: none !important;
+  transform: translateY(-50%) scale(0.8);
+  visibility: hidden;
+}
+
+/* 1. Barra Superior Flotante */
+.ig-lightbox-top-bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 30;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.25rem 1.5rem;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.82) 0%, rgba(0, 0, 0, 0.35) 65%, transparent 100%);
+  transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1), transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.3s ease;
+  pointer-events: auto;
+}
+
+.ig-lightbox-top-left {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.ig-lightbox-badge {
   font-size: 0.72rem;
   font-weight: 700;
   color: var(--accent-color, #f59e0b);
@@ -521,91 +523,346 @@
   border: 1px solid rgba(245, 158, 11, 0.35);
   padding: 0.25rem 0.75rem;
   border-radius: 9999px;
-  margin-bottom: 0.75rem;
-  display: inline-block;
   letter-spacing: 0.04em;
   text-transform: uppercase;
 }
 
-.ig-overlay-title {
-  font-size: clamp(1.05rem, 2.5vw, 1.25rem);
+.ig-lightbox-counter {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #e2e8f0;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 0.22rem 0.6rem;
+  border-radius: 9999px;
+  letter-spacing: 0.03em;
+}
+
+/* Botón de Cierre 'X' */
+.ig-lightbox-close-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+}
+
+.ig-lightbox-close-btn:hover {
+  background: rgba(255, 255, 255, 0.25);
+  border-color: rgba(255, 255, 255, 0.45);
+  transform: scale(1.08);
+}
+
+.ig-lightbox-close-btn:active {
+  transform: scale(0.95);
+}
+
+/* 2. Flechas de Navegación Lateral */
+.ig-lightbox-nav-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 25;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background: rgba(18, 18, 22, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
+  pointer-events: auto;
+}
+
+.ig-lightbox-nav-btn.prev {
+  left: 1.25rem;
+}
+
+.ig-lightbox-nav-btn.next {
+  right: 1.25rem;
+}
+
+.ig-lightbox-nav-btn:hover {
+  background: rgba(245, 158, 11, 0.2);
+  border-color: var(--accent-color, #f59e0b);
+  color: var(--accent-color, #f59e0b);
+  transform: translateY(-50%) scale(1.1);
+}
+
+.ig-lightbox-nav-btn:active {
+  transform: translateY(-50%) scale(0.95);
+}
+
+/* 3. Viewport Principal */
+.ig-lightbox-viewport {
+  position: relative;
+  z-index: 10;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+/* Carrusel Táctil Fluido (CSS Scroll Snap) */
+.ig-lightbox-carousel-track {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  touch-action: pan-x pan-y;
+}
+
+.ig-lightbox-carousel-track::-webkit-scrollbar {
+  display: none;
+}
+
+/* CONDICIÓN ESTRICTA ANTI-CONFLICTO:
+   Si hay zoom activo (scale > 1), se bloquea el scroll y snap del carrusel.
+   El movimiento táctil se entrega exclusivamente a react-zoom-pan-pinch para pan multi-direccional. */
+.ig-lightbox-carousel-track.is-zoom-locked {
+  overflow-x: hidden !important;
+  overflow-y: hidden !important;
+  scroll-snap-type: none !important;
+  touch-action: none !important;
+}
+
+.ig-lightbox-slide {
+  flex: 0 0 100%;
+  width: 100%;
+  height: 100%;
+  scroll-snap-align: center;
+  scroll-snap-stop: always;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  box-sizing: border-box;
+}
+
+.ig-lightbox-transform-wrapper {
+  width: 100% !important;
+  height: 100% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: grab;
+}
+
+.ig-lightbox-transform-wrapper:active {
+  cursor: grabbing;
+}
+
+.ig-lightbox-transform-content {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.ig-lightbox-hero-img {
+  max-width: 90vw;
+  max-height: 76vh;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  border-radius: 14px;
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.7);
+  user-select: none;
+  -webkit-user-drag: none;
+  transition: box-shadow 0.25s ease;
+  pointer-events: auto;
+}
+
+.ig-lightbox-modal.is-zoomed .ig-lightbox-hero-img {
+  max-width: none;
+  max-height: none;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+/* 4. Barra Inferior Flotante */
+.ig-lightbox-bottom-bar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 30;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 1.5rem 1.25rem 1.25rem 1.25rem;
+  background: linear-gradient(0deg, rgba(0, 0, 0, 0.94) 0%, rgba(0, 0, 0, 0.65) 60%, transparent 100%);
+  transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1), transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.3s ease;
+  gap: 0.75rem;
+  pointer-events: auto;
+}
+
+.ig-lightbox-info-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  max-width: 520px;
+}
+
+.ig-lightbox-title {
+  font-size: clamp(1.05rem, 2.5vw, 1.28rem);
   font-weight: 800;
   color: #ffffff;
-  margin: 0 0 0.35rem 0;
+  margin: 0;
   line-height: 1.25;
   letter-spacing: -0.01em;
 }
 
-.ig-overlay-subtext {
+.ig-lightbox-subtext {
   font-size: 0.78rem;
   color: #94a3b8;
-  margin: 0 0 1.25rem 0;
-  line-height: 1.4;
+  margin: 0;
 }
 
-/* Pastillas visuales oscuras con bordes sutiles */
-.ig-overlay-pills {
-  display: flex;
-  flex-direction: column;
-  gap: 0.6rem;
-  width: 100%;
-  max-width: 290px;
-  margin-bottom: 1.35rem;
-}
-
-.ig-overlay-pill {
+/* Pastillas de Horario y Ubicación */
+.ig-lightbox-pills-row {
   display: flex;
   align-items: center;
-  gap: 0.65rem;
-  background: rgba(255, 255, 255, 0.07);
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  padding: 0.55rem 0.95rem;
-  border-radius: 9999px;
-  font-size: 0.82rem;
-  color: #f1f5f9;
-  font-weight: 600;
-  text-align: left;
+  justify-content: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+  margin-top: 0.45rem;
 }
 
-.ig-pill-icon {
+.ig-lightbox-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  padding: 0.35rem 0.8rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  color: #f1f5f9;
+  font-weight: 600;
+}
+
+.ig-lightbox-pill-icon {
   color: var(--accent-color, #f59e0b);
   flex-shrink: 0;
 }
 
-/* Botón grande y ancho con degradado llamativo hacia Instagram */
-.ig-overlay-cta-btn {
+/* Botón CTA hacia Instagram */
+.ig-lightbox-cta-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  width: 100%;
-  max-width: 290px;
   background: linear-gradient(135deg, #e1306c 0%, #c13584 50%, #833ab4 100%);
   color: #ffffff;
-  font-size: 0.85rem;
+  font-size: 0.82rem;
   font-weight: 700;
-  padding: 0.75rem 1.15rem;
+  padding: 0.55rem 1.25rem;
   border-radius: 9999px;
   text-decoration: none;
   box-shadow: 0 4px 18px rgba(225, 48, 108, 0.45);
   transition: all 0.22s ease;
-  box-sizing: border-box;
+  margin-top: 0.2rem;
 }
 
-.ig-overlay-cta-btn:hover {
+.ig-lightbox-cta-btn:hover {
   transform: translateY(-2px);
   box-shadow: 0 6px 24px rgba(225, 48, 108, 0.65);
   filter: brightness(1.08);
 }
 
-.ig-overlay-cta-btn:active {
+.ig-lightbox-cta-btn:active {
   transform: translateY(0);
 }
 
-.ig-overlay-hint {
+/* Puntos de paginación (Dots) para Carrusel JOPECE */
+.ig-lightbox-dots-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+}
+
+.ig-lightbox-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.ig-lightbox-dot.active {
+  background: var(--accent-color, #f59e0b);
+  width: 18px;
+  border-radius: 9999px;
+}
+
+/* Hint de Gestos */
+.ig-lightbox-gestures-hint {
   font-size: 0.68rem;
   color: #64748b;
-  margin-top: 0.85rem;
+  letter-spacing: 0.01em;
+}
+
+/* Adaptación Responsiva para Móviles */
+@media (max-width: 768px) {
+  .ig-lightbox-top-bar {
+    padding: 0.9rem 1rem;
+  }
+
+  .ig-lightbox-nav-btn {
+    display: none; /* En móvil prima el gesto táctil swipe */
+  }
+
+  .ig-lightbox-hero-img {
+    max-width: 96vw;
+    max-height: 70vh;
+    border-radius: 10px;
+  }
+
+  .ig-lightbox-bottom-bar {
+    padding: 1.2rem 1rem 1rem 1rem;
+    gap: 0.6rem;
+  }
+
+  .ig-lightbox-pills-row {
+    gap: 0.4rem;
+  }
+
+  .ig-lightbox-pill {
+    font-size: 0.72rem;
+    padding: 0.3rem 0.65rem;
+  }
+
+  .ig-lightbox-gestures-hint {
+    font-size: 0.64rem;
+  }
 }
 
 /* Botón de acceso a detalles en el footer de la tarjeta */
