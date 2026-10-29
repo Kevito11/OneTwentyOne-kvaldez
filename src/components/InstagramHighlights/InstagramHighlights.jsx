@@ -28,65 +28,124 @@ const INSTAGRAM_PUBLICATIONS = [
     id: 'siervos-post',
     badge: 'Servicio de Siervos',
     ministerio: 'Siervos Para Cristo · OneTwentyOne',
-    titulo: 'Servicio de Siervos',
+    titulo: 'La Ira y Yo',
     subtitulo: 'Jóvenes adultos (18+) · Salón Multiusos',
     horarioTexto: 'Viernes 08:00 PM - 10:00 PM',
     ubicacion: 'Salón Multiusos',
-    instagramUrl: 'https://www.instagram.com/p/DehdiWgzxOV/',
+    instagramUrl: 'https://www.instagram.com/p/DfBGU4BTmKz/',
     images: [
-      '/assets/121.jpeg'
+      '/assets/121-30-10-2026.jpeg'
     ],
+    // Fecha y hora de inicio: Viernes 30 de Octubre 2026 a las 20:00 (8:00 PM)
+    fechaInicio: new Date(2026, 9, 30, 20, 0, 0),
+    // Fecha y hora de expiración estricta: Viernes 30 de Octubre 2026 a las 22:00 (10:00 PM)
+    fechaFin: new Date(2026, 9, 30, 22, 0, 0),
     schedule: {
+      year: 2026,
+      month: 10,
+      day: 30,
       dayOfWeek: 5,   // Viernes
       startHour: 20,  // 08:00 PM (20:00)
       startMinute: 0,
       endHour: 22,    // 10:00 PM (22:00)
       endMinute: 0
     }
+  },
+  {
+    id: 'jopece-post',
+    badge: 'Culto de JOTAPECE',
+    ministerio: 'Jóvenes Para Cristo · JOTAPECE',
+    titulo: 'Contenido Bloqueado',
+    subtitulo: 'Adolescentes (Edades 12-17) · Salón Multiusos',
+    horarioTexto: 'Sábado 07:00 PM - 08:30 PM',
+    ubicacion: 'Salón Multiusos',
+    instagramUrl: 'https://www.instagram.com/p/DfCcEeLxSWY/',
+    images: [
+      '/assets/JOTAPECE-31-10-2026.jpeg'
+    ],
+    // Fecha y hora de inicio: Sábado 31 de Octubre 2026 a las 19:00 (7:00 PM)
+    fechaInicio: new Date(2026, 9, 31, 19, 0, 0),
+    // Fecha y hora de expiración estricta: Sábado 31 de Octubre 2026 a las 20:30 (8:30 PM)
+    fechaFin: new Date(2026, 9, 31, 20, 30, 0),
+    schedule: {
+      year: 2026,
+      month: 10,
+      day: 31,
+      dayOfWeek: 6,   // Sábado
+      startHour: 19,  // 07:00 PM (19:00)
+      startMinute: 0,
+      endHour: 20,    // 08:30 PM (20:30)
+      endMinute: 30
+    }
   }
 ];
 
 /**
- * Evaluación estricta de horarios:
- * - Evalúa getDay(), getHours() y getMinutes().
- * - Si currentTime supera endHour:endMinute (ej. Viernes 22:01 para Siervos), isExpired = true.
+ * Evaluación estricta de fechas y horarios:
+ * - Evalúa año, mes, día y horas contra currentTime.
+ * - Si currentTime supera fechaFin (fecha y hora exacta de conclusión), isExpired = true y desaparece de la app.
  * - Si currentTime coincide con la ventana del evento, isLive = true (Badge '🔴 EN VIVO').
  * - Si es el mismo día antes del inicio, isToday = true (Badge '⚡ HOY').
+ * - Si es el día anterior, badgeText = '📅 MAÑANA'.
  */
 export function evaluateEventStatus(post, currentTime) {
-  const currentDay = currentTime.getDay(); // 0: Domingo, 1: Lun, ..., 5: Viernes, 6: Sábado
-  const currentMinutes = currentTime.getHours() * 60 + currentTime.getMinutes();
+  // Construir fechas exactas de inicio y fin
+  const startDate = post.fechaInicio || new Date(
+    post.schedule.year,
+    post.schedule.month - 1,
+    post.schedule.day,
+    post.schedule.startHour,
+    post.schedule.startMinute,
+    0
+  );
+  
+  const endDate = post.fechaFin || new Date(
+    post.schedule.year,
+    post.schedule.month - 1,
+    post.schedule.day,
+    post.schedule.endHour,
+    post.schedule.endMinute,
+    0
+  );
 
-  const targetDay = post.schedule.dayOfWeek;
-  const startMinutes = post.schedule.startHour * 60 + post.schedule.startMinute;
-  const endMinutes = post.schedule.endHour * 60 + post.schedule.endMinute;
+  // 1. Expiración estricta por fecha: si el tiempo actual superó la hora de conclusión de la fecha del evento
+  if (currentTime > endDate) {
+    return { isExpired: true, isLive: false, isToday: false, badgeText: null };
+  }
 
-  // 1. Mismo día del servicio
-  if (currentDay === targetDay) {
-    if (currentMinutes > endMinutes) {
-      return { isExpired: true, isLive: false, isToday: true, badgeText: null };
-    }
-    if (currentMinutes >= startMinutes && currentMinutes <= endMinutes) {
-      return { isExpired: false, isLive: true, isToday: true, badgeText: '🔴 EN VIVO' };
-    }
+  // 2. En vivo ahora mismo (durante la ventana del culto)
+  if (currentTime >= startDate && currentTime <= endDate) {
+    return { isExpired: false, isLive: true, isToday: true, badgeText: '🔴 EN VIVO' };
+  }
+
+  // 3. Comprobar si el evento es HOY (mismo año, mes y día, antes del inicio)
+  const isSameDay = 
+    currentTime.getFullYear() === startDate.getFullYear() &&
+    currentTime.getMonth() === startDate.getMonth() &&
+    currentTime.getDate() === startDate.getDate();
+
+  if (isSameDay) {
     return { isExpired: false, isLive: false, isToday: true, badgeText: '⚡ HOY' };
   }
 
-  // 2. Días posteriores en la semana (evento ya concluido en el ciclo semanal)
-  if (targetDay === 5 && (currentDay === 6 || currentDay === 0)) {
-    return { isExpired: true, isLive: false, isToday: false, badgeText: null };
-  }
-  if (targetDay === 6 && currentDay === 0) {
-    return { isExpired: true, isLive: false, isToday: false, badgeText: null };
+  // 4. Comprobar si el evento es MAÑANA
+  const tomorrow = new Date(currentTime);
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  const isTomorrow = 
+    tomorrow.getFullYear() === startDate.getFullYear() &&
+    tomorrow.getMonth() === startDate.getMonth() &&
+    tomorrow.getDate() === startDate.getDate();
+
+  if (isTomorrow) {
+    return { isExpired: false, isLive: false, isToday: false, badgeText: '📅 MAÑANA' };
   }
 
-  // 3. Días previos en la semana (anuncio activo)
-  const isTomorrow = (currentDay + 1) % 7 === targetDay;
+  // 5. Fecha futura previa (anuncio activo)
   return { 
     isExpired: false, 
     isLive: false, 
     isToday: false, 
-    badgeText: isTomorrow ? '📅 MAÑANA' : null 
+    badgeText: null 
   };
 }
 
@@ -118,20 +177,9 @@ function InstagramLightboxModal({ post, initialSlideIndex = 0, onClose }) {
   const transformRef = useRef(null);
   const trackRef = useRef(null);
   const isScrollingRef = useRef(false);
-  const stagePointerStartRef = useRef({ x: 0, y: 0, time: 0 });
-  const imagePointerStartRef = useRef({ x: 0, y: 0, time: 0 });
-  const singleTapTimerRef = useRef(null);
+  const isPanningRef = useRef(false);
 
   const isImmersive = isZoomed || isManualUIHidden;
-
-  // Limpieza de temporizadores al desmontar
-  useEffect(() => {
-    return () => {
-      if (singleTapTimerRef.current) {
-        clearTimeout(singleTapTimerRef.current);
-      }
-    };
-  }, []);
 
   // Sincronización del carrusel con la diapositiva inicial
   useEffect(() => {
@@ -231,75 +279,47 @@ function InstagramLightboxModal({ post, initialSlideIndex = 0, onClose }) {
     const scale = ref.state.scale;
     currentScaleRef.current = scale;
 
-    if (scale > 1.01) {
+    if (scale > 1.015) {
       if (!isZoomed) setIsZoomed(true);
-    } else {
+    } else if (scale <= 1.005) {
       if (isZoomed) setIsZoomed(false);
     }
   }, [isZoomed]);
 
-  // Detección de toques sobre el escenario (Backdrop)
-  const handleStagePointerDown = (e) => {
-    stagePointerStartRef.current = {
-      x: e.clientX,
-      y: e.clientY,
-      time: Date.now()
-    };
-  };
-
-  // Clic en el fondo oscuro: cierra el modal si no hay zoom activo
+  // Clic en el fondo oscuro: cierra el modal SOLO si se pulsó fuera de la imagen
   const handleBackdropClick = (e) => {
-    const dist = Math.hypot(
-      e.clientX - stagePointerStartRef.current.x,
-      e.clientY - stagePointerStartRef.current.y
-    );
-    const duration = Date.now() - stagePointerStartRef.current.time;
-
-    if (dist < 8 && duration < 300) {
-      if (currentScaleRef.current > 1.01) {
-        // Si hay zoom, un clic en el fondo resetea la escala a 1x
-        transformRef.current?.resetTransform();
-        currentScaleRef.current = 1;
-        setIsZoomed(false);
-      } else {
-        onClose();
-      }
+    // Si el clic fue en la imagen, NUNCA cerrar la imagen
+    if (e.target.tagName === 'IMG' || e.target.closest('.ig-lightbox-hero-img')) {
+      return;
     }
+
+    // Si el clic fue en barras de herramientas o botones, no cerrar
+    if (
+      e.target.closest('.ig-lightbox-top-bar') || 
+      e.target.closest('.ig-lightbox-bottom-bar') || 
+      e.target.closest('.ig-lightbox-nav-btn') ||
+      e.target.closest('button') ||
+      e.target.closest('a')
+    ) {
+      return;
+    }
+
+    // Si fue un arrastre de paneo, ignorar
+    if (isPanningRef.current) return;
+
+    // Cierra el modal únicamente al hacer clic fuera de la imagen
+    onClose();
   };
 
-  // Detección de toques sobre la imagen para alternar Modo Inmersivo sin conflicto con doble toque
-  const handleImagePointerDown = (e) => {
-    imagePointerStartRef.current = {
-      x: e.clientX,
-      y: e.clientY,
-      time: Date.now()
-    };
-  };
-
-  const handleImageClick = (e) => {
+  // Clic sobre la foto: oculta o muestra la información SIN CERRAR la imagen
+  const handlePhotoClick = (e) => {
     e.stopPropagation();
-    const dist = Math.hypot(
-      e.clientX - imagePointerStartRef.current.x,
-      e.clientY - imagePointerStartRef.current.y
-    );
-    const duration = Date.now() - imagePointerStartRef.current.time;
+    
+    // Si el usuario estaba arrastrando/paneando la imagen ampliada, no alternar UI
+    if (isPanningRef.current) return;
 
-    // Solo evaluar como un toque intencional si no fue un arrastre
-    if (dist < 8 && duration < 300) {
-      if (singleTapTimerRef.current) {
-        // Es un doble toque: react-zoom-pan-pinch se encarga del zoom orgánico
-        clearTimeout(singleTapTimerRef.current);
-        singleTapTimerRef.current = null;
-      } else {
-        // Toque simple: alternar visibilidad de la UI de forma limpia
-        singleTapTimerRef.current = setTimeout(() => {
-          singleTapTimerRef.current = null;
-          if (currentScaleRef.current <= 1.01) {
-            setIsManualUIHidden(prev => !prev);
-          }
-        }, 220);
-      }
-    }
+    // Clic limpio sobre la imagen: oculta/muestra información sin cerrar
+    setIsManualUIHidden(prev => !prev);
   };
 
   return (
@@ -309,7 +329,6 @@ function InstagramLightboxModal({ post, initialSlideIndex = 0, onClose }) {
       aria-modal="true"
       aria-label={`Detalles de ${post.titulo}`}
       onClick={handleBackdropClick}
-      onPointerDown={handleStagePointerDown}
     >
       {/* Fondo Oscuro con Desenfoque */}
       <div className="ig-lightbox-backdrop" />
@@ -367,14 +386,14 @@ function InstagramLightboxModal({ post, initialSlideIndex = 0, onClose }) {
       )}
 
       {/* 3. Viewport Principal con Carrusel CSS Scroll Snap y Zoom Táctil */}
-      <div className="ig-lightbox-viewport">
+      <div className="ig-lightbox-viewport" onClick={handleBackdropClick}>
         <div 
           ref={trackRef}
           className={`ig-lightbox-carousel-track ${isZoomed ? 'is-zoom-locked' : ''}`}
           onScroll={handleTrackScroll}
         >
           {images.map((src, idx) => (
-            <div key={idx} className="ig-lightbox-slide">
+            <div key={idx} className="ig-lightbox-slide" onClick={handleBackdropClick}>
               {idx === activeSlideIndex ? (
                 <TransformWrapper
                   ref={transformRef}
@@ -384,13 +403,23 @@ function InstagramLightboxModal({ post, initialSlideIndex = 0, onClose }) {
                   centerOnInit={true}
                   smooth={true}
                   disabled={false}
+                  alignmentAnimation={{
+                    animationType: 'easeOutCubic',
+                    animationTime: 280
+                  }}
+                  zoomAnimation={{
+                    animationType: 'easeOutCubic',
+                    animationTime: 280,
+                    step: 0.5
+                  }}
                   doubleClick={{
                     disabled: false,
                     mode: 'toggle',
-                    step: 1.5,
-                    animationTime: 220
+                    step: 1.8,
+                    animationTime: 280,
+                    animationType: 'easeOutCubic'
                   }}
-                  pinch={{ disabled: false, step: 5 }}
+                  pinch={{ disabled: false, step: 1 }}
                   panning={{ 
                     disabled: false, 
                     velocityDisabled: false 
@@ -398,26 +427,37 @@ function InstagramLightboxModal({ post, initialSlideIndex = 0, onClose }) {
                   velocityAnimation={{
                     disabled: false,
                     sensitivityTouch: 1,
-                    animationTime: 400,
-                    animationType: 'easeOutQuart',
-                    inertia: 0.95
+                    animationTime: 300,
+                    animationType: 'easeOutCubic',
+                    inertia: 0.85
                   }}
-                  wheel={{ step: 0.15 }}
-                  onTransformed={handleTransform}
+                  wheel={{ step: 0.08, smoothStep: 0.005 }}
+                  onZoomStart={() => {
+                    setIsZoomed(true);
+                  }}
+                  onPinchingStart={() => {
+                    setIsZoomed(true);
+                  }}
+                  onPanningStart={() => {
+                    isPanningRef.current = true;
+                  }}
+                  onPanningStop={() => {
+                    setTimeout(() => {
+                      isPanningRef.current = false;
+                    }, 100);
+                  }}
                   onZoom={handleTransform}
-                  onPinching={handleTransform}
+                  onTransformed={handleTransform}
                   onPanning={handleTransform}
                 >
                   <TransformComponent
                     wrapperClass="ig-lightbox-transform-wrapper"
                     contentClass="ig-lightbox-transform-content"
                     wrapperProps={{
-                      onClick: handleBackdropClick,
-                      onPointerDown: handleStagePointerDown
+                      onClick: handleBackdropClick
                     }}
                     contentProps={{
-                      onClick: handleBackdropClick,
-                      onPointerDown: handleStagePointerDown
+                      onClick: handleBackdropClick
                     }}
                   >
                     <img 
@@ -425,19 +465,18 @@ function InstagramLightboxModal({ post, initialSlideIndex = 0, onClose }) {
                       alt={`${post.titulo} - Foto ${idx + 1}`}
                       className="ig-lightbox-hero-img"
                       draggable={false}
-                      onPointerDown={handleImagePointerDown}
-                      onClick={handleImageClick}
-                      title="Pellizca para zoom natural • Doble toque para acercar • Toca para pantalla limpia"
+                      onClick={handlePhotoClick}
                     />
                   </TransformComponent>
                 </TransformWrapper>
               ) : (
-                <div className="ig-lightbox-transform-wrapper">
+                <div className="ig-lightbox-transform-wrapper" onClick={handleBackdropClick}>
                   <img 
                     src={src}
                     alt={`${post.titulo} - Foto ${idx + 1}`}
                     className="ig-lightbox-hero-img"
                     draggable={false}
+                    onClick={handlePhotoClick}
                   />
                 </div>
               )}
@@ -491,11 +530,6 @@ function InstagramLightboxModal({ post, initialSlideIndex = 0, onClose }) {
             ))}
           </div>
         )}
-
-        {/* Hint amigable de gestos táctiles */}
-        <div className="ig-lightbox-gestures-hint">
-          <span>Pellizca para zoom natural • Doble toque para acercar • Desliza para cambiar foto</span>
-        </div>
       </footer>
     </div>
   );

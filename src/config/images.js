@@ -111,7 +111,11 @@ export const CRITICAL_IMAGES = [
   "/pastores/Pr-Narciso-Nadal-Sept-2024.jpg",
   "/pastores/Pr-Santiago-Peralta-Sept-2024.jpg",
   "/servicios/portada-121-actual.jpg",
-  "/servicios/portada-jpc-actual.jpg"
+  "/servicios/portada-jpc-actual.jpg",
+  "/assets/121-30-10-2026.jpeg",
+  "/assets/JOTAPECE-31-10-2026.jpeg",
+  "/servicios/121-30-10-2026.jpeg",
+  "/servicios/JOTAPECE-31-10-2026.jpeg"
 ];
 
 // Precarga automática al cargar el módulo en el navegador
