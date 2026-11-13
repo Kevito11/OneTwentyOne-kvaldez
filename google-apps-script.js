@@ -628,6 +628,33 @@ function doGet(e) {
 }
 
 /**
+ * Función auxiliar para enmascarar el correo en búsquedas públicas
+ */
+function maskEmailForSearch(email) {
+  if (!email) return "";
+  var parts = email.split("@");
+  if (parts.length < 2) return "***";
+  var name = parts[0];
+  var domain = parts[1];
+  if (name.length <= 2) return "**@" + domain;
+  return name.substring(0, 2) + "***@" + domain;
+}
+
+
+/**
+ * Función auxiliar para enmascarar el correo en búsquedas públicas
+ */
+function maskEmailForSearch(email) {
+  if (!email) return "";
+  var parts = email.split("@");
+  if (parts.length < 2) return "***";
+  var name = parts[0];
+  var domain = parts[1];
+  if (name.length <= 2) return "**@" + domain;
+  return name.substring(0, 2) + "***@" + domain;
+}
+
+/**
  * 3. GENERACIÓN Y ENVÍO DE CORREO POR MAILAPP
  */
 function enviarCorreoConfirmacion(data) {
@@ -900,6 +927,134 @@ function enviarCorreoConfirmacion(data) {
 }
 
 /**
+ * Retorna las variables de diseño para el correo según el evento y la fecha actual o el tema activo.
+ */
+function getEmailTheme(isVigilia, activeThemeOverride) {
+  var now = new Date();
+  var isAugust1st2026OrLater = now >= new Date(2026, 7, 1); // 0-indexed month: 7 = August
+  var isAugust24th2026OrLater = now >= new Date(2026, 7, 24);
+
+  var isOrange = activeThemeOverride === 'orange' || (!activeThemeOverride && isAugust24th2026OrLater);
+  var isYellow = activeThemeOverride === 'yellow' || (!activeThemeOverride && isAugust1st2026OrLater && !isAugust24th2026OrLater);
+
+  if (activeThemeOverride === 'classic') {
+    isOrange = false;
+    isYellow = false;
+  }
+
+  // Default Conferencia colors (Stage 1)
+  var theme = {
+    outerBg: "#000000",
+    cardBg: "#0a0a0a",
+    cardBorderColor: "#222222",
+    detailsBg: "#111111",
+    detailsBorderColor: "#333333",
+    accentColorText: "#ffffff",
+    textColorMuted: "#888888",
+    textCodeColor: "#ffffff",
+    headerColor: "#ffffff"
+  };
+
+  if (isVigilia) {
+    theme.outerBg = "#030202";
+    theme.cardBg = "#0b0a0a";
+    theme.cardBorderColor = "#3c1910";
+    theme.detailsBg = "#141110";
+    theme.detailsBorderColor = "#542013";
+    theme.accentColorText = "#FF3800";
+    theme.textColorMuted = "#a69385";
+    theme.textCodeColor = "#fddfd6";
+    theme.headerColor = "#FF3800"; // RESET Red-Orange
+  } else if (isOrange) {
+    // Stage 3: Orange Theme
+    theme.outerBg = "#030202"; // Negro PDF
+    theme.cardBg = "#0b0a0a";
+    theme.cardBorderColor = "#3c1910";
+    theme.detailsBg = "#141110";
+    theme.detailsBorderColor = "#542013";
+    theme.accentColorText = "#FF3800"; // Naranja PDF
+    theme.textColorMuted = "#a69385"; // Muted Crema/Silver
+    theme.textCodeColor = "#E1D2BD"; // Crema PDF
+    theme.headerColor = "#FF3800"; // Naranja PDF
+  } else if (isYellow) {
+    // Stage 2: Yellow Theme
+    theme.outerBg = "#030202"; // Negro PDF
+    theme.cardBg = "#0b0a09";
+    theme.cardBorderColor = "#3c3310";
+    theme.detailsBg = "#141310";
+    theme.detailsBorderColor = "#544613";
+    theme.accentColorText = "#F8C118"; // Amarillo PDF
+    theme.textColorMuted = "#a6a085"; // Muted Crema/Silver
+    theme.textCodeColor = "#E1D2BD"; // Crema PDF
+    theme.headerColor = "#F8C118"; // Amarillo PDF
+  }
+
+  return theme;
+}
+/**
+ * Retorna las variables de diseño para el correo según el evento y la fecha actual o el tema activo.
+ */
+function getEmailTheme(isVigilia, activeThemeOverride) {
+  var now = new Date();
+  var isAugust1st2026OrLater = now >= new Date(2026, 7, 1);
+  var isAugust24th2026OrLater = now >= new Date(2026, 7, 24);
+
+  var isOrange = activeThemeOverride === 'orange' || (!activeThemeOverride && isAugust24th2026OrLater);
+  var isYellow = activeThemeOverride === 'yellow' || (!activeThemeOverride && isAugust1st2026OrLater && !isAugust24th2026OrLater);
+
+  if (activeThemeOverride === 'classic') {
+    isOrange = false;
+    isYellow = false;
+  }
+
+  var theme = {
+    outerBg: "#000000",
+    cardBg: "#0a0a0a",
+    cardBorderColor: "#222222",
+    detailsBg: "#111111",
+    detailsBorderColor: "#333333",
+    accentColorText: "#ffffff",
+    textColorMuted: "#888888",
+    textCodeColor: "#ffffff",
+    headerColor: "#ffffff"
+  };
+
+  if (isVigilia) {
+    theme.outerBg = "#030202";
+    theme.cardBg = "#0b0a0a";
+    theme.cardBorderColor = "#3c1910";
+    theme.detailsBg = "#141110";
+    theme.detailsBorderColor = "#542013";
+    theme.accentColorText = "#FF3800";
+    theme.textColorMuted = "#a69385";
+    theme.textCodeColor = "#fddfd6";
+    theme.headerColor = "#FF3800";
+  } else if (isOrange) {
+    theme.outerBg = "#030202";
+    theme.cardBg = "#0b0a0a";
+    theme.cardBorderColor = "#3c1910";
+    theme.detailsBg = "#141110";
+    theme.detailsBorderColor = "#542013";
+    theme.accentColorText = "#FF3800";
+    theme.textColorMuted = "#a69385";
+    theme.textCodeColor = "#E1D2BD";
+    theme.headerColor = "#FF3800";
+  } else if (isYellow) {
+    theme.outerBg = "#030202";
+    theme.cardBg = "#0b0a09";
+    theme.cardBorderColor = "#3c3310";
+    theme.detailsBg = "#141310";
+    theme.detailsBorderColor = "#544613";
+    theme.accentColorText = "#F8C118";
+    theme.textColorMuted = "#a6a085";
+    theme.textCodeColor = "#E1D2BD";
+    theme.headerColor = "#F8C118";
+  }
+
+  return theme;
+}
+
+/**
  * 4. FUNCIÓN AUXILIAR PARA FORZAR PERMISOS
  */
 function probarPermisos() {
@@ -913,34 +1068,13 @@ function probarPermisos() {
 function onOpen() {
   var ui = SpreadsheetApp.getUi();
 
-  // Submenú para pruebas de Media Vigilia
-  var pruebasVigiliaMenu = ui.createMenu('Pruebas')
-    .addItem('1. Enviar Prueba: Mañana nos encontramos', 'enviarPruebaVigiliaManana')
-    .addItem('2. Enviar Prueba: Hoy es el día', 'enviarPruebaVigiliaHoy');
-
-  // Menú principal de Media Vigilia
-  var vigiliaMenu = ui.createMenu('Media Vigilia')
-    .addItem('1. Enviar Masivo: Mañana nos encontramos', 'enviarMasivoVigiliaManana')
-    .addItem('2. Enviar Masivo: Hoy es el día', 'enviarMasivoVigiliaHoy')
-    .addSeparator()
-    .addSubMenu(pruebasVigiliaMenu);
-
-  // Submenú de pruebas para Conferencia (solo Menú & Asistencia)
-  var pruebasConferenciaMenu = ui.createMenu('Pruebas')
-    .addItem('1. Enviar Prueba: Menú y precios & Asistencia (kevito.valdez@gmail.com)', 'enviarCorreoPrueba')
-    .addItem('2. Consultar correos disponibles hoy', 'mostrarCuotaRestante');
-
-  // Menú principal de Conferencia
-  var conferenciaMenu = ui.createMenu('Conferencia Sin Filtros')
-    .addItem('1. Enviar Masivo: Menú y precios & Asistencia (A PENDIENTES DE ENVÍO)', 'enviarCorreoMasivoInscritos')
-    .addSeparator()
-    .addSubMenu(pruebasConferenciaMenu);
-
   // Submenú de pruebas para Cena de Jóvenes 2026
   var pruebasCenaMenu = ui.createMenu('Pruebas')
     .addItem('1. Enviar Prueba: Primer Envío (Inscripciones Abiertas)', 'enviarPruebaCenaPreRegistrados')
     .addItem('2. Enviar Prueba: Segundo Envío / Paso Final (Título Diferente)', 'enviarPruebaCenaSegundoMensaje')
-    .addItem('3. Enviar Prueba: Confirmación de Nuevo Registro', 'enviarPruebaCenaNuevoRegistro');
+    .addItem('3. Enviar Prueba: Confirmación de Nuevo Registro', 'enviarPruebaCenaNuevoRegistro')
+    .addSeparator()
+    .addItem('📊 Consultar correos restantes hoy', 'consultarCorreosRestantes');
 
   // Menú principal de Cena de Jóvenes 2026
   var cenaMenu = ui.createMenu('Cena de Jóvenes 2026')
@@ -951,8 +1085,9 @@ function onOpen() {
   // Registrar el menú principal en la interfaz
   ui.createMenu('OneTwentyOne - Admin')
     .addSubMenu(cenaMenu)
-    .addSubMenu(vigiliaMenu)
-    .addSubMenu(conferenciaMenu)
+    .addSeparator()
+    .addItem('📊 Consultar correos restantes hoy', 'consultarCorreosRestantes')
+    .addItem('⚙️ Probar permisos de correo', 'probarPermisos')
     .addToUi();
 }
 
@@ -1406,1242 +1541,30 @@ function enviarMasivoCenaPreRegistrados() {
   );
 }
 
-/**
- * Envía una prueba del correo de "Mañana nos encontramos" al administrador.
- */
-function enviarPruebaVigiliaManana() {
-  var adminEmail = "kevito.valdez@gmail.com";
-  try {
-    enviarCorreoRecordatorioVigilia(adminEmail, "Kevin (Prueba)", "Valdez", false);
-    SpreadsheetApp.getUi().alert("Correo de prueba (Mañana nos encontramos) enviado a " + adminEmail);
-  } catch (e) {
-    SpreadsheetApp.getUi().alert("Error al enviar prueba: " + e.toString());
-  }
-}
 
 /**
- * Envía una prueba del correo de "Hoy es el día" al administrador.
+ * 6. CONSULTAR CUOTA DE CORREOS RESTANTES
+ * Muestra una alerta en Google Sheets con los correos disponibles hoy según MailApp.
  */
-function enviarPruebaVigiliaHoy() {
-  var adminEmail = "kevito.valdez@gmail.com";
-  try {
-    enviarCorreoRecordatorioVigilia(adminEmail, "Kevin (Prueba)", "Valdez", true);
-    SpreadsheetApp.getUi().alert("Correo de prueba (Hoy es el día) enviado a " + adminEmail);
-  } catch (e) {
-    SpreadsheetApp.getUi().alert("Error al enviar prueba: " + e.toString());
-  }
-}
-
-/**
- * Envía el correo de "Mañana nos encontramos" de forma masiva a todos los inscritos en la Media Vigilia.
- */
-function enviarMasivoVigiliaManana() {
+function consultarCorreosRestantes() {
+  var cuota = MailApp.getRemainingDailyQuota();
   var ui = SpreadsheetApp.getUi();
-  var response = ui.alert(
-    'Confirmación de envío masivo (Mañana nos encontramos)',
-    '¿Estás seguro de que deseas enviar el mensaje "Mañana nos encontramos" a todos los inscritos en la hoja "Media Vigilia"?',
-    ui.ButtonSet.YES_NO
-  );
-
-  if (response !== ui.Button.YES) {
-    return;
-  }
-
-  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Media Vigilia");
-  if (!sheet) {
-    ui.alert("Error", "No se encontró la hoja con el nombre 'Media Vigilia'. Asegúrate de que existe.", ui.ButtonSet.OK);
-    return;
-  }
-
-  var data = sheet.getDataRange().getValues();
-  var count = 0;
-
-  for (var i = 1; i < data.length; i++) {
-    var firstName = data[i][3]; // Columna D
-    var lastName = data[i][4]; // Columna E
-    var email = data[i][5]; // Columna F
-
-    if (email && email.trim() !== "") {
-      try {
-        enviarCorreoRecordatorioVigilia(email.trim(), firstName, lastName, false);
-        count++;
-        Utilities.sleep(150); // Pausa prudente para respetar límites de cuota de Apps Script
-      } catch (e) {
-        console.error("Error enviando correo a " + email + ": " + e.toString());
-      }
-    }
-  }
-
-  ui.alert("Proceso completado", "Se han enviado " + count + " correos de recordatorio (Mañana nos encontramos).", ui.ButtonSet.OK);
+  
+  var mensaje = "📊 Tienes " + cuota + " correos disponibles para enviar hoy.\n\n" +
+                "ℹ️ Información sobre límites de Google:\n" +
+                "• Cuentas personales (@gmail.com): 100 correos cada 24 horas.\n" +
+                "• Cuentas Google Workspace / educativas: 1,500 correos cada 24 horas.\n" +
+                "• La cuota se reinicia automáticamente cada 24 horas.";
+                
+  ui.alert("Cuota de Correos Disponibles Hoy", mensaje, ui.ButtonSet.OK);
 }
 
-/**
- * Envía el correo de "Hoy es el día" de forma masiva a todos los inscritos en la Media Vigilia.
- */
-function enviarMasivoVigiliaHoy() {
-  var ui = SpreadsheetApp.getUi();
-  var response = ui.alert(
-    'Confirmación de envío masivo (Hoy es el día)',
-    '¿Estás seguro de que deseas enviar el mensaje "Hoy es el día" a todos los inscritos en la hoja "Media Vigilia"?',
-    ui.ButtonSet.YES_NO
-  );
-
-  if (response !== ui.Button.YES) {
-    return;
-  }
-
-  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Media Vigilia");
-  if (!sheet) {
-    ui.alert("Error", "No se encontró la hoja con el nombre 'Media Vigilia'. Asegúrate de que existe.", ui.ButtonSet.OK);
-    return;
-  }
-
-  var data = sheet.getDataRange().getValues();
-  var count = 0;
-
-  for (var i = 1; i < data.length; i++) {
-    var firstName = data[i][3]; // Columna D
-    var lastName = data[i][4]; // Columna E
-    var email = data[i][5]; // Columna F
-
-    if (email && email.trim() !== "") {
-      try {
-        enviarCorreoRecordatorioVigilia(email.trim(), firstName, lastName, true);
-        count++;
-        Utilities.sleep(150); // Pausa prudente para respetar límites de cuota de Apps Script
-      } catch (e) {
-        console.error("Error enviando correo a " + email + ": " + e.toString());
-      }
-    }
-  }
-
-  ui.alert("Proceso completado", "Se han enviado " + count + " correos de recordatorio (Hoy es el día).", ui.ButtonSet.OK);
-}
-
-function enviarCorreoRecordatorioVigilia(email, firstName, lastName, isHoy) {
-  var subject = isHoy
-    ? "🔥 Hoy es el día 🤍 | Media Vigilia RESET"
-    : "🔔 Mañana nos encontramos 🤍 | Media Vigilia RESET";
-
-  var htmlMessage = isHoy
-    ? `<strong>Hoy es el día. 🤍</strong><br><br>
-       En pocas horas estaremos juntos en nuestra Media Vigilia: <span style="color: #FF3800; font-weight: bold;">+ Cristo − yo</span>.<br><br>
-       A las 6:00 p. m. comenzamos, y queremos recordarte algo sencillo: ven con un corazón dispuesto.<br><br>
-       Dispuesto a escuchar.<br>
-       Dispuesto a ser confrontado por la Palabra.<br>
-       Dispuesto a dejar a un lado el ruido, las cargas y el “yo”, para poner nuestra mirada en Cristo.<br><br>
-       No vengas esperando simplemente una actividad más.<br>
-       Ven esperando que Dios use Su Palabra para trabajar en tu corazón.<br><br>
-       Si el “yo” mengua, Cristo crece.<br><br>
-       🕕 <strong>Hoy | 6:00 p. m.</strong><br><br>
-       Nos vemos en unas horas.<br><br>
-       <span style="color: #FF3800; font-weight: bold; font-size: 18px;">+ Cristo</span><br>
-       <span style="color: #a69385; font-weight: bold; font-size: 18px;">− yo</span>`
-    : `<strong>Mañana nos encontramos. 🤍</strong><br><br>
-       Estamos a solo un día de nuestra Media Vigilia: <span style="color: #FF3800; font-weight: bold;">+ Cristo − yo</span>.<br><br>
-       Más que una actividad, queremos que sea un tiempo para detenernos, silenciar el ruido y volver nuestra atención a quien verdaderamente importa: Cristo.<br><br>
-       No tienes que llevar nada especial.<br>
-       Solo preséntate dispuesto a escuchar a Cristo, a ser confrontado por Su Palabra y a rendir aquello que todavía ocupa demasiado espacio en ti.<br><br>
-       Porque mientras Cristo crece en nosotros, el “yo” debe menguar.<br><br>
-       📅 <strong>Mañana, sábado 22 de agosto</strong><br>
-       🕕 <strong>Iniciamos a las 6:00 p. m.</strong><br><br>
-       Ven con un corazón dispuesto.<br><br>
-       <span style="color: #FF3800; font-weight: bold; font-size: 18px;">+ Cristo</span><br>
-       <span style="color: #a69385; font-weight: bold; font-size: 18px;">− yo</span>`;
-
-  var htmlBody = `
-    <!DOCTYPE html>
-    <html>
-    <head>
-      <meta charset="utf-8">
-    </head>
-    <body style="background-color: #030202; color: #ffffff; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
-      <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #030202; padding: 40px 20px;">
-        <tr>
-          <td align="center">
-            <table width="100%" max-width="500" border="0" cellspacing="0" cellpadding="0" style="max-width: 500px; background-color: #0b0a0a; border: 1px solid #FF3800; border-radius: 16px; padding: 32px; text-align: left;">
-              <tr>
-                <td align="center" style="padding-bottom: 24px; border-bottom: 1px solid #FF3800;">
-                  <div style="color: #a69385; font-size: 11px; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 6px;">Pre-Conferencia: Media Vigilia</div>
-                  <div style="font-size: 24px; font-weight: 800; color: #FF3800; letter-spacing: -0.5px;">RESET</div>
-                  <div style="color: #666666; font-size: 13px; margin-top: 4px;">OneTwentyOne</div>
-                </td>
-              </tr>
-              <!-- Portada de la Media Vigilia -->
-              <tr>
-                <td align="center" style="padding-top: 24px;">
-                  <img src="https://ministeriodejovenesicc.netlify.app/media-vigilia-reset.jpeg" alt="Media Vigilia RESET 2026" style="width: 100%; max-width: 100%; height: auto; border-radius: 8px; border: 1px solid #FF3800; display: block;" />
-                </td>
-              </tr>
-              <tr>
-                <td style="font-size: 15px; color: #dddddd; line-height: 1.6; padding: 24px 0 16px 0;">
-                  ¡Hola <strong>${firstName}</strong>! 👋<br><br>
-                  ${htmlMessage}
-                </td>
-              </tr>
-              <tr>
-                <td style="padding-top: 24px; font-size: 12px; color: #a69385; line-height: 1.5; border-top: 1px solid #FF3800; margin-top: 24px;">
-                  Si tienes alguna duda o necesitas asistencia, escríbenos a nuestra cuenta de Instagram <a href="https://www.instagram.com/onetwentyoneicc" target="_blank" style="color: #ffffff; text-decoration: underline;">@onetwentyoneicc</a>.
-                </td>
-              </tr>
-            </table>
-            <table width="100%" max-width="500" border="0" cellspacing="0" cellpadding="0" style="max-width: 500px; text-align: center; margin-top: 20px;">
-              <tr>
-                <td style="font-size: 10px; color: #555555; line-height: 1.4;">
-                  Este correo fue enviado automáticamente por tu registro en la plataforma de OneTwentyOne.<br>
-                  © 2026 Iglesia De Convertidos a Cristo. Todos los derechos reservados.
-                </td>
-              </tr>
-            </table>
-          </td>
-        </tr>
-      </table>
-    </body>
-    </html>
-  `;
-
-  MailApp.sendEmail({
-    to: email,
-    subject: subject,
-    htmlBody: htmlBody,
-    name: "Media Vigilia RESET"
-  });
-}
-
-
-
-/**
- * Envía una prueba del correo de extensión a kevito.valdezg@gmail.com usando datos de la hoja.
- */
-function enviarCorreoPruebaAdmin() {
-  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Conferencia") || SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
-  var data = sheet.getDataRange().getValues();
-
-  var sampleRecord = null;
-
-  // Buscar el primer registro de la conferencia con mercancía y sin pagar
-  for (var i = 1; i < data.length; i++) {
-    var ticketCode = data[i][2];
-    var interestedInMerch = data[i][9];
-    var merchTotal = Number(data[i][11] || 0);
-    var event = data[i][12] || '';
-    var pago = String(data[i][13] || '').trim(); // Columna N
-
-    var isVigilia = (ticketCode && ticketCode.indexOf("RESET") !== -1) || (event.indexOf("RESET") !== -1);
-
-    if (!isVigilia && interestedInMerch === "Sí" && merchTotal > 0 && pago !== "Si") {
-      sampleRecord = {
-        firstName: data[i][3],
-        lastName: data[i][4],
-        ticketCode: ticketCode,
-        merchItems: data[i][10],
-        merchTotal: merchTotal
-      };
-      break;
-    }
-  }
-
-  // Si no hay registros que coincidan, usamos datos ficticios de prueba
-  if (!sampleRecord) {
-    sampleRecord = {
-      firstName: "Kevin (Prueba)",
-      lastName: "Valdez",
-      ticketCode: "121-ICC-5727",
-      merchItems: "1x Gorra \"Sin Filtros\" - Negro",
-      merchTotal: 750
-    };
-  }
-
-  // Sobrescribimos el correo para que sea el de Kevin para la prueba
-  sampleRecord.email = "kevito.valdez@gmail.com";
-
-  enviarCorreoNotificacionExtension(sampleRecord);
-  SpreadsheetApp.getUi().alert("Correo de prueba enviado a kevito.valdez@gmail.com con el código de boleto: " + sampleRecord.ticketCode);
-}
-
-/**
- * Envía la notificación a todas las personas que reservaron mercancía y NO han pagado aún.
- */
-function enviarNotificacionExtensionPago() {
-  var ui = SpreadsheetApp.getUi();
-  var response = ui.alert(
-    'Confirmación de envío masivo',
-    '¿Estás seguro de que deseas enviar el correo de extensión de pago a todos los registrados que tienen mercancía reservada y NO han pagado (Columna N no contiene "Si")?',
-    ui.ButtonSet.YES_NO
-  );
-
-  if (response !== ui.Button.YES) {
-    return;
-  }
-
-  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Conferencia") || SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
-  var data = sheet.getDataRange().getValues();
-  var count = 0;
-
-  for (var i = 1; i < data.length; i++) {
-    var email = data[i][5]; // Columna F
-    var ticketCode = data[i][2]; // Columna C
-    var firstName = data[i][3]; // Columna D
-    var lastName = data[i][4]; // Columna E
-    var interestedInMerch = data[i][9]; // Columna J
-    var merchItems = data[i][10]; // Columna K
-    var merchTotal = Number(data[i][11] || 0); // Columna L
-    var event = data[i][12] || ''; // Columna M
-    var pago = String(data[i][13] || '').trim(); // Columna N
-
-    var isConferencia = (event === "Conferencia Sin Filtros") && (ticketCode && ticketCode.indexOf("RESET") === -1);
-
-    if (isConferencia && interestedInMerch === "Sí" && merchTotal > 0 && pago !== "Si" && email) {
-      try {
-        enviarCorreoNotificacionExtension({
-          email: email.trim(),
-          firstName: firstName,
-          lastName: lastName,
-          ticketCode: ticketCode,
-          merchItems: merchItems,
-          merchTotal: merchTotal
-        });
-        count++;
-        Utilities.sleep(150); // Pausa prudente para respetar la cuota diaria de correos en Apps Script
-      } catch (e) {
-        console.error("Error enviando correo a " + email + ": " + e.toString());
-      }
-    }
-  }
-
-  ui.alert("Proceso completado", "Se han enviado " + count + " correos de notificación de extensión.", ui.ButtonSet.OK);
-}
-
-/**
- * Función encargada del diseño y envío del correo electrónico de extensión de pago.
- */
-function enviarCorreoNotificacionExtension(data) {
-  var email = data.email;
-  var subject = "👕 ¡Aún estás a tiempo! Nueva fecha de pago para tu mercancía de Sin Filtros 2026";
-
-  var ticketUrl = "https://ministeriodejovenesicc.netlify.app/ticket/" + data.ticketCode;
-  var totalVal = "RD$ " + Number(data.merchTotal).toLocaleString();
-
-  var theme = getEmailTheme(false, data.activeTheme);
-
-  var htmlBody = `
-    <!DOCTYPE html>
-    <html>
-    <head>
-      <meta charset="utf-8">
-    </head>
-    <body style="background-color: ${theme.outerBg}; color: #ffffff; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
-      <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: ${theme.outerBg}; padding: 40px 20px;">
-        <tr>
-          <td align="center">
-            <table width="100%" max-width="500" border="0" cellspacing="0" cellpadding="0" style="max-width: 500px; background-color: ${theme.cardBg}; border: 1px solid ${theme.cardBorderColor}; border-radius: 16px; padding: 32px; text-align: left;">
-              <tr>
-                <td align="center" style="padding-bottom: 24px; border-bottom: 1px solid ${theme.cardBorderColor};">
-                  <div style="color: ${theme.textColorMuted}; font-size: 11px; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 6px;">Conferencia de Jóvenes ICC</div>
-                  <div style="font-size: 24px; font-weight: 800; color: ${theme.headerColor}; letter-spacing: -0.5px;">SIN FILTROS 2026</div>
-                  <div style="color: #666666; font-size: 13px; margin-top: 4px;">OneTwentyOne</div>
-                </td>
-              </tr>
-              <tr>
-                <td style="font-size: 15px; color: #dddddd; line-height: 1.6; padding: 24px 0 16px 0;">
-                  ¡Hola <strong>${data.firstName}</strong>! 👋 ¡Que Dios te bendiga mucho!<br><br>
-                  Pasamos por aquí para dejarte un saludito y darte una excelente noticia. Sabemos lo mucho que quieres tu mercancía de <strong>Sin Filtros 2026</strong> y queremos ponértela fácil para que no te quedes sin ella: <strong>¡hemos extendido el plazo de pago!</strong> 🥳<br><br>
-                  Tienes hasta el <strong>domingo, 9 de agosto de 2026</strong> para completar tu pago y asegurar tus artículos. ¡Aprovecha estos días extras! 💻✨
-                </td>
-              </tr>
-              <tr>
-                <td>
-                  <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: ${theme.detailsBg}; border: 1px solid ${theme.detailsBorderColor}; border-radius: 12px; padding: 20px;">
-                    <tr>
-                      <td style="font-size: 11px; color: ${theme.textColorMuted}; padding-bottom: 2px;">Asistente</td>
-                    </tr>
-                    <tr>
-                      <td style="font-size: 15px; font-weight: bold; color: #ffffff; padding-bottom: 12px;">${data.firstName} ${data.lastName}</td>
-                    </tr>
-                    <tr>
-                      <td style="font-size: 11px; color: ${theme.textColorMuted}; padding-bottom: 2px;">Código de Entrada / Boleto</td>
-                    </tr>
-                    <tr>
-                      <td style="font-size: 16px; font-weight: bold; font-family: monospace; color: ${theme.textCodeColor}; padding-bottom: 12px; letter-spacing: 0.5px;">${data.ticketCode}</td>
-                    </tr>
-                    <tr>
-                      <td style="font-size: 11px; color: ${theme.textColorMuted}; padding-bottom: 2px;">Artículos Reservados</td>
-                    </tr>
-                    <tr>
-                      <td style="font-size: 13px; color: #aaaaaa; padding-bottom: 12px; line-height: 1.4;">${data.merchItems}</td>
-                    </tr>
-                    <tr>
-                      <td style="font-size: 11px; color: ${theme.textColorMuted}; padding-bottom: 2px;">Total a Pagar (100%)</td>
-                    </tr>
-                    <tr>
-                      <td style="font-size: 16px; font-weight: bold; color: #ffffff;">${totalVal}</td>
-                    </tr>
-                  </table>
-                </td>
-              </tr>
-              <tr>
-                <td style="padding-top: 16px;">
-                  <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #141414; border: 1px dashed ${theme.detailsBorderColor}; border-radius: 12px; padding: 20px;">
-                    <tr>
-                      <td style="font-size: 11px; color: #888888; line-height: 1.4;">
-                        <strong>Instrucciones de Pago:</strong><br>
-                        Deposita o transfiere el monto total e indica como concepto: <strong>${data.ticketCode} - ${data.firstName} ${data.lastName}</strong>.<br><br>
-                        • <strong>Banreservas (Ahorro):</strong> <code>9607274318</code> &mdash; Joelmary Hernandez &mdash; Cédula: 402-3603056-1<br>
-                        • <strong>Banco Popular (Corriente):</strong> <code>836288449</code> &mdash; David J. Chez &mdash; Cédula: 402-0037969-7<br><br>
-                        Una vez realizado el pago, envía tu comprobante por WhatsApp para validar tu reserva:<br>
-                        <a href="https://wa.me/18096299236?text=COMPROBANTE%20DE%20PAGO%20-%20REGISTRO%20CONFERENCIA%0A%0AAsistente%3A%20${encodeURIComponent(data.firstName + ' ' + data.lastName)}%0ACódigo%20de%20Boleto%3A%20${encodeURIComponent(data.ticketCode)}" target="_blank" style="color: ${theme.accentColorText}; font-weight: bold; text-decoration: underline;">Enviar comprobante por WhatsApp al (809) 629-9236</a>
-                        <br><br>
-                        <strong style="color: #f87171;">⚠️ Recordatorio importante:</strong><br>
-                        Para poder coordinar la entrega de toda la mercancía a tiempo, después de esta fecha (9 de agosto) liberaremos los pedidos que no estén confirmados para que otros jóvenes puedan adquirirlos. ¡Bendiciones y gracias por tu comprensión! 🙌
-                        <br><br>
-                        <em>* Si ya realizaste tu pago y enviaste tu comprobante por WhatsApp, no te preocupes, ya lo estamos procesando. ¡Nos vemos pronto!</em>
-                      </td>
-                    </tr>
-                  </table>
-                </td>
-              </tr>
-              <tr>
-                <td style="padding-top: 24px; font-size: 12px; color: ${theme.textColorMuted}; line-height: 1.5; border-top: 1px solid ${theme.cardBorderColor}; margin-top: 24px;">
-                  Si tienes alguna duda o necesitas modificar tus datos de registro, escríbenos a nuestra cuenta de Instagram <a href="https://www.instagram.com/onetwentyoneicc" target="_blank" style="color: #ffffff; text-decoration: underline;">@onetwentyoneicc</a>.
-                </td>
-              </tr>
-            </table>
-            <table width="100%" max-width="500" border="0" cellspacing="0" cellpadding="0" style="max-width: 500px; text-align: center; margin-top: 20px;">
-              <tr>
-                <td style="font-size: 10px; color: #555555; line-height: 1.4;">
-                  Este correo fue enviado automáticamente para notificar cambios en los plazos de pago.<br>
-                  © 2026 Iglesia De Convertidos a Cristo. Todos los derechos reservados.
-                </td>
-              </tr>
-            </table>
-          </td>
-        </tr>
-      </table>
-    </body>
-    </html>
-  `;
-
-  MailApp.sendEmail({
-    to: email,
-    subject: subject,
-    htmlBody: htmlBody,
-    name: "Sin Filtros 2026"
-  });
-}
-
-/**
- * Envía una prueba del correo de invitación a la mercancía a kevito.valdez@gmail.com.
- */
-function enviarCorreoPruebaInvitacionAdmin() {
-  var sampleRecord = {
-    firstName: "Kevin (Prueba)",
-    lastName: "Valdez",
-    ticketCode: "121-ICC-5727",
-    email: "kevito.valdez@gmail.com"
-  };
-
-  enviarCorreoInvitacionMercancia(sampleRecord);
-  SpreadsheetApp.getUi().alert("Correo de prueba de invitación enviado a kevito.valdez@gmail.com con el código de boleto: " + sampleRecord.ticketCode);
-}
-
-/**
- * Envía la invitación de mercancía a todas las personas que NO han reservado ni pagado nada (No interesados).
- */
-function enviarNotificacionInvitacionMercancia() {
-  var ui = SpreadsheetApp.getUi();
-  var response = ui.alert(
-    'Confirmación de envío masivo de invitación',
-    '¿Estás seguro de que deseas enviar el correo de invitación de mercancía a todos los registrados que NO marcaron interés y tienen la columna de pago vacía (Columna J no es "Sí" y Columna N está vacía)?',
-    ui.ButtonSet.YES_NO
-  );
-
-  if (response !== ui.Button.YES) {
-    return;
-  }
-
-  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Conferencia") || SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
-  var data = sheet.getDataRange().getValues();
-  var count = 0;
-
-  for (var i = 1; i < data.length; i++) {
-    var email = data[i][5]; // Columna F
-    var ticketCode = data[i][2]; // Columna C
-    var firstName = data[i][3]; // Columna D
-    var lastName = data[i][4]; // Columna E
-    var interestedInMerch = data[i][9]; // Columna J
-    var event = data[i][12] || ''; // Columna M
-    var pago = String(data[i][13] || '').trim(); // Columna N
-
-    var isConferencia = (event === "Conferencia Sin Filtros") && (ticketCode && ticketCode.indexOf("RESET") === -1);
-
-    // Condición: Es conferencia, no mostró interés en mercancía ("Sí") y la columna de pago está vacía, y tiene correo
-    if (isConferencia && interestedInMerch !== "Sí" && pago === "" && email) {
-      try {
-        enviarCorreoInvitacionMercancia({
-          email: email.trim(),
-          firstName: firstName,
-          lastName: lastName,
-          ticketCode: ticketCode
-        });
-        count++;
-        Utilities.sleep(150); // Pausa prudente para respetar la cuota diaria de correos en Apps Script
-      } catch (e) {
-        console.error("Error enviando correo de invitación a " + email + ": " + e.toString());
-      }
-    }
-  }
-
-  ui.alert("Proceso completado", "Se han enviado " + count + " correos de invitación de mercancía.", ui.ButtonSet.OK);
-}
-
-/**
- * Función encargada del diseño y envío del correo electrónico de invitación a la mercancía.
- */
-function enviarCorreoInvitacionMercancia(data) {
-  var email = data.email;
-  var subject = "👕 ¡Completa tu outfit para Sin Filtros 2026! Mira la mercancía oficial disponible";
-
-  var ticketUrl = "https://ministeriodejovenesicc.netlify.app/ticket/" + data.ticketCode;
-
-  var theme = getEmailTheme(false, data.activeTheme);
-
-  var htmlBody = `
-    <!DOCTYPE html>
-    <html>
-    <head>
-      <meta charset="utf-8">
-    </head>
-    <body style="background-color: ${theme.outerBg}; color: #ffffff; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
-      <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: ${theme.outerBg}; padding: 40px 20px;">
-        <tr>
-          <td align="center">
-            <table width="100%" max-width="500" border="0" cellspacing="0" cellpadding="0" style="max-width: 500px; background-color: ${theme.cardBg}; border: 1px solid ${theme.cardBorderColor}; border-radius: 16px; padding: 32px; text-align: left;">
-              <tr>
-                <td align="center" style="padding-bottom: 24px; border-bottom: 1px solid ${theme.cardBorderColor};">
-                  <div style="color: ${theme.textColorMuted}; font-size: 11px; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 6px;">Conferencia de Jóvenes ICC</div>
-                  <div style="font-size: 24px; font-weight: 800; color: ${theme.headerColor}; letter-spacing: -0.5px;">SIN FILTROS 2026</div>
-                  <div style="color: #666666; font-size: 13px; margin-top: 4px;">OneTwentyOne</div>
-                </td>
-              </tr>
-              <tr>
-                <td style="font-size: 15px; color: #dddddd; line-height: 1.6; padding: 24px 0 16px 0;">
-                  ¡Hola <strong>${data.firstName}</strong>! 👋 ¡Que Dios te bendiga mucho!<br><br>
-                  Esperamos que estés súper bien y con el corazón expectante para lo que viviremos en <strong>Sin Filtros 2026</strong>. ¡Ya falta muy poco! 🥳<br><br>
-                  Pasamos por aquí para contarte que aún estás a tiempo de adquirir la <strong>mercancía oficial de la conferencia</strong> (t-shirts, gorras y más) para que vayas con el outfit completo. ¡Los diseños quedaron increíbles!<br><br>
-                  Puedes ver el catálogo de artículos y hacer tu reserva directamente desde tu boleto digital haciendo clic en el botón de abajo:
-                </td>
-              </tr>
-              <tr>
-                <td align="center" style="padding: 16px 0 24px 0;">
-                  <a href="${ticketUrl}" target="_blank" style="background-color: ${theme.accentColorText}; color: #000000; display: inline-block; padding: 14px 28px; font-weight: bold; border-radius: 8px; text-decoration: none; font-size: 15px; letter-spacing: 0.5px;">🛒 Ver Mercancía y Reservar</a>
-                </td>
-              </tr>
-              <tr>
-                <td style="font-size: 12px; color: ${theme.textColorMuted}; line-height: 1.5; padding: 20px; background-color: ${theme.detailsBg}; border: 1px dashed ${theme.detailsBorderColor}; border-radius: 12px;">
-                  ⚠️ <strong>Nota importante:</strong> La fecha límite para realizar tu reserva y completar el pago es el <strong>domingo, 9 de agosto de 2026</strong>. Pasada esta fecha, cerraremos los pedidos de producción para garantizar que todo esté listo para el día del evento.<br><br>
-                  ¡Bendiciones y nos vemos pronto! 🙌
-                </td>
-              </tr>
-              <tr>
-                <td style="padding-top: 24px; font-size: 12px; color: ${theme.textColorMuted}; line-height: 1.5; border-top: 1px solid ${theme.cardBorderColor}; margin-top: 24px;">
-                  Si tienes alguna duda o necesitas asistencia, escríbenos a nuestra cuenta de Instagram <a href="https://www.instagram.com/onetwentyoneicc" target="_blank" style="color: #ffffff; text-decoration: underline;">@onetwentyoneicc</a>.
-                </td>
-              </tr>
-            </table>
-            <table width="100%" max-width="500" border="0" cellspacing="0" cellpadding="0" style="max-width: 500px; text-align: center; margin-top: 20px;">
-              <tr>
-                <td style="font-size: 10px; color: #555555; line-height: 1.4;">
-                  Este correo fue enviado automáticamente por tu registro en la plataforma de OneTwentyOne.<br>
-                  © 2026 Iglesia De Convertidos a Cristo. Todos los derechos reservados.
-                </td>
-              </tr>
-            </table>
-          </td>
-        </tr>
-      </table>
-    </body>
-    </html>
-  `;
-
-  MailApp.sendEmail({
-    to: email,
-    subject: subject,
-    htmlBody: htmlBody,
-    name: "Sin Filtros 2026"
-  });
-}
-
-/**
- * Envía una prueba del correo de confirmación de pago recibido a la mercancía a kevito.valdez@gmail.com.
- */
-function enviarCorreoPruebaPagoConfirmadoAdmin() {
-  var sampleRecord = {
-    firstName: "Kevin (Prueba)",
-    lastName: "Valdez",
-    ticketCode: "121-ICC-5727",
-    merchItems: "1x Gorra \"Sin Filtros\" - Negro, 1x Camiseta \"Sin Filtros\" - Negro (M)",
-    merchTotal: 1950,
-    email: "kevito.valdez@gmail.com"
-  };
-
-  enviarCorreoPagoConfirmado(sampleRecord);
-  SpreadsheetApp.getUi().alert("Correo de prueba de confirmación de pago enviado a kevito.valdez@gmail.com con el código de boleto: " + sampleRecord.ticketCode);
-}
-
-/**
- * Envía la confirmación de pago recibido a todas las personas que ya pagaron (pago === "Si").
- */
-function enviarNotificacionConfirmacionPago() {
-  var ui = SpreadsheetApp.getUi();
-  var response = ui.alert(
-    'Confirmación de envío masivo de recibo de pago',
-    '¿Estás seguro de que deseas enviar la confirmación de pago recibido a todos los registrados que tienen mercancía pagada (Columna N contiene "Si")?',
-    ui.ButtonSet.YES_NO
-  );
-
-  if (response !== ui.Button.YES) {
-    return;
-  }
-
-  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Conferencia") || SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
-  var data = sheet.getDataRange().getValues();
-  var count = 0;
-
-  for (var i = 1; i < data.length; i++) {
-    var email = data[i][5]; // Columna F
-    var ticketCode = data[i][2]; // Columna C
-    var firstName = data[i][3]; // Columna D
-    var lastName = data[i][4]; // Columna E
-    var interestedInMerch = data[i][9]; // Columna J
-    var merchItems = data[i][10]; // Columna K
-    var merchTotal = Number(data[i][11] || 0); // Columna L
-    var event = data[i][12] || ''; // Columna M
-    var pago = String(data[i][13] || '').trim(); // Columna N
-
-    var isConferencia = (event === "Conferencia Sin Filtros") && (ticketCode && ticketCode.indexOf("RESET") === -1);
-
-    // Condición: Es conferencia, tiene mercancía y la columna de pago contiene "Si", y tiene correo
-    if (isConferencia && interestedInMerch === "Sí" && pago.toLowerCase() === "si" && email) {
-      try {
-        enviarCorreoPagoConfirmado({
-          email: email.trim(),
-          firstName: firstName,
-          lastName: lastName,
-          ticketCode: ticketCode,
-          merchItems: merchItems,
-          merchTotal: merchTotal
-        });
-        count++;
-        Utilities.sleep(150); // Pausa prudente para respetar la cuota diaria de correos en Apps Script
-      } catch (e) {
-        console.error("Error enviando confirmación de pago a " + email + ": " + e.toString());
-      }
-    }
-  }
-
-  ui.alert("Proceso completado", "Se han enviado " + count + " correos de confirmación de pago.", ui.ButtonSet.OK);
-}
-
-/**
- * Función encargada del diseño y envío del correo electrónico de confirmación de pago recibido.
- */
-function enviarCorreoPagoConfirmado(data) {
-  var email = data.email;
-  var subject = "✅ ¡Pago Recibido! Tu mercancía para Sin Filtros 2026 está asegurada";
-
-  var ticketUrl = "https://ministeriodejovenesicc.netlify.app/ticket/" + data.ticketCode;
-  var totalVal = "RD$ " + Number(data.merchTotal).toLocaleString();
-
-  var theme = getEmailTheme(false, data.activeTheme);
-
-  var htmlBody = `
-    <!DOCTYPE html>
-    <html>
-    <head>
-      <meta charset="utf-8">
-    </head>
-    <body style="background-color: ${theme.outerBg}; color: #ffffff; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
-      <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: ${theme.outerBg}; padding: 40px 20px;">
-        <tr>
-          <td align="center">
-            <table width="100%" max-width="500" border="0" cellspacing="0" cellpadding="0" style="max-width: 500px; background-color: ${theme.cardBg}; border: 1px solid ${theme.cardBorderColor}; border-radius: 16px; padding: 32px; text-align: left;">
-              <tr>
-                <td align="center" style="padding-bottom: 24px; border-bottom: 1px solid ${theme.cardBorderColor};">
-                  <div style="color: ${theme.textColorMuted}; font-size: 11px; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 6px;">Conferencia de Jóvenes ICC</div>
-                  <div style="font-size: 24px; font-weight: 800; color: ${theme.headerColor}; letter-spacing: -0.5px;">SIN FILTROS 2026</div>
-                  <div style="color: #666666; font-size: 13px; margin-top: 4px;">OneTwentyOne</div>
-                </td>
-              </tr>
-              <tr>
-                <td style="font-size: 15px; color: #dddddd; line-height: 1.6; padding: 24px 0 16px 0;">
-                  ¡Hola <strong>${data.firstName}</strong>! 👋 ¡Que Dios te bendiga mucho!<br><br>
-                  Te escribimos para confirmarte que <strong>hemos recibido tu pago con éxito</strong> 💸. ¡Tu mercancía oficial de <strong>Sin Filtros 2026</strong> ya está asegurada y reservada al 100%! 🥳👕<br><br>
-                  <strong>¿Qué sigue ahora?</strong><br>
-                  No te preocupes por nada más. Estamos trabajando en la producción de los artículos. Tan pronto estén listos y disponibles para retirar en la iglesia, <strong>te estaremos avisando de inmediato por este correo y también por WhatsApp</strong> para indicarte cuándo y dónde pasar a buscarlos. 📱✨<br><br>
-                  ¡Muchas gracias por tu compromiso y por completar tu pago a tiempo! Nos vemos muy pronto. 🙌
-                </td>
-              </tr>
-              <tr>
-                <td>
-                  <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: ${theme.detailsBg}; border: 1px solid ${theme.detailsBorderColor}; border-radius: 12px; padding: 20px;">
-                    <tr>
-                      <td style="font-size: 11px; color: ${theme.textColorMuted}; padding-bottom: 2px;">Asistente</td>
-                    </tr>
-                    <tr>
-                      <td style="font-size: 15px; font-weight: bold; color: #ffffff; padding-bottom: 12px;">${data.firstName} ${data.lastName}</td>
-                    </tr>
-                    <tr>
-                      <td style="font-size: 11px; color: ${theme.textColorMuted}; padding-bottom: 2px;">Código de Entrada / Boleto</td>
-                    </tr>
-                    <tr>
-                      <td style="font-size: 16px; font-weight: bold; font-family: monospace; color: ${theme.textCodeColor}; padding-bottom: 12px; letter-spacing: 0.5px;">${data.ticketCode}</td>
-                    </tr>
-                    <tr>
-                      <td style="font-size: 11px; color: ${theme.textColorMuted}; padding-bottom: 2px;">Artículos Pagados</td>
-                    </tr>
-                    <tr>
-                      <td style="font-size: 13px; color: #aaaaaa; padding-bottom: 12px; line-height: 1.4;">${data.merchItems}</td>
-                    </tr>
-                    <tr>
-                      <td style="font-size: 11px; color: ${theme.textColorMuted}; padding-bottom: 2px;">Total Recibido</td>
-                    </tr>
-                    <tr>
-                      <td style="font-size: 16px; font-weight: bold; color: #10b981;">${totalVal} (PAGADO)</td>
-                    </tr>
-                  </table>
-                </td>
-              </tr>
-              <tr>
-                <td align="center" style="padding: 24px 0 16px 0;">
-                  <a href="${ticketUrl}" target="_blank" style="background-color: ${theme.accentColorText}; color: #000000; display: inline-block; padding: 12px 24px; font-weight: bold; border-radius: 8px; text-decoration: none; font-size: 14px;">🎫 Ver mi Boleto Digital</a>
-                </td>
-              </tr>
-              <tr>
-                <td style="padding-top: 24px; font-size: 12px; color: ${theme.textColorMuted}; line-height: 1.5; border-top: 1px solid ${theme.cardBorderColor}; margin-top: 24px;">
-                  Si tienes alguna duda o necesitas asistencia, escríbenos a nuestra cuenta de Instagram <a href="https://www.instagram.com/onetwentyoneicc" target="_blank" style="color: #ffffff; text-decoration: underline;">@onetwentyoneicc</a>.
-                </td>
-              </tr>
-            </table>
-            <table width="100%" max-width="500" border="0" cellspacing="0" cellpadding="0" style="max-width: 500px; text-align: center; margin-top: 20px;">
-              <tr>
-                <td style="font-size: 10px; color: #555555; line-height: 1.4;">
-                  Este correo fue enviado automáticamente para confirmar tu pago en la plataforma de OneTwentyOne.<br>
-                  © 2026 Iglesia De Convertidos a Cristo. Todos los derechos reservados.
-                </td>
-              </tr>
-            </table>
-          </td>
-        </tr>
-      </table>
-    </body>
-    </html>
-  `;
-
-  MailApp.sendEmail({
-    to: email,
-    subject: subject,
-    htmlBody: htmlBody,
-    name: "Sin Filtros 2026"
-  });
-}
-
-/**
- * Retorna las variables de diseño para el correo según el evento y la fecha actual o el tema activo.
- */
-function getEmailTheme(isVigilia, activeThemeOverride) {
-  var now = new Date();
-  var isAugust1st2026OrLater = now >= new Date(2026, 7, 1); // 0-indexed month: 7 = August
-  var isAugust24th2026OrLater = now >= new Date(2026, 7, 24);
-
-  var isOrange = activeThemeOverride === 'orange' || (!activeThemeOverride && isAugust24th2026OrLater);
-  var isYellow = activeThemeOverride === 'yellow' || (!activeThemeOverride && isAugust1st2026OrLater && !isAugust24th2026OrLater);
-
-  if (activeThemeOverride === 'classic') {
-    isOrange = false;
-    isYellow = false;
-  }
-
-  // Default Conferencia colors (Stage 1)
-  var theme = {
-    outerBg: "#000000",
-    cardBg: "#0a0a0a",
-    cardBorderColor: "#222222",
-    detailsBg: "#111111",
-    detailsBorderColor: "#333333",
-    accentColorText: "#ffffff",
-    textColorMuted: "#888888",
-    textCodeColor: "#ffffff",
-    headerColor: "#ffffff"
-  };
-
-  if (isVigilia) {
-    theme.outerBg = "#030202";
-    theme.cardBg = "#0b0a0a";
-    theme.cardBorderColor = "#3c1910";
-    theme.detailsBg = "#141110";
-    theme.detailsBorderColor = "#542013";
-    theme.accentColorText = "#FF3800";
-    theme.textColorMuted = "#a69385";
-    theme.textCodeColor = "#fddfd6";
-    theme.headerColor = "#FF3800"; // RESET Red-Orange
-  } else if (isOrange) {
-    // Stage 3: Orange Theme
-    theme.outerBg = "#030202"; // Negro PDF
-    theme.cardBg = "#0b0a0a";
-    theme.cardBorderColor = "#3c1910";
-    theme.detailsBg = "#141110";
-    theme.detailsBorderColor = "#542013";
-    theme.accentColorText = "#FF3800"; // Naranja PDF
-    theme.textColorMuted = "#a69385"; // Muted Crema/Silver
-    theme.textCodeColor = "#E1D2BD"; // Crema PDF
-    theme.headerColor = "#FF3800"; // Naranja PDF
-  } else if (isYellow) {
-    // Stage 2: Yellow Theme
-    theme.outerBg = "#030202"; // Negro PDF
-    theme.cardBg = "#0b0a09";
-    theme.cardBorderColor = "#3c3310";
-    theme.detailsBg = "#141310";
-    theme.detailsBorderColor = "#544613";
-    theme.accentColorText = "#F8C118"; // Amarillo PDF
-    theme.textColorMuted = "#a6a085"; // Muted Crema/Silver
-    theme.textCodeColor = "#E1D2BD"; // Crema PDF
-    theme.headerColor = "#F8C118"; // Amarillo PDF
-  }
-
-  return theme;
-}
-
-/**
- * Envía un correo de confirmación de pre-orden de comida.
- */
-function enviarCorreoPreordenComida(data) {
-  var email = data.email;
-  console.log("Intentando enviar correo de confirmación de menú a: " + email);
-
-  var subject = "🍽️ Tu orden en los Breaks está confirmada - Sin Filtros 2026";
-  var theme = getEmailTheme(false, data.activeTheme);
-
-  // Build per-vendor HTML sections
-  var vendorBreakdowns = data.vendorBreakdowns || [];
-  var vendorSectionsHtml = "";
-
-  if (vendorBreakdowns.length > 0) {
-    for (var vi = 0; vi < vendorBreakdowns.length; vi++) {
-      var vb = vendorBreakdowns[vi];
-      var paymentMethod = vb.paymentMethods;
-      if (!paymentMethod) {
-        if (vb.vendorName && vb.vendorName.toLowerCase().indexOf("pechurica") !== -1) {
-          paymentMethod = "Efectivo y Tarjeta";
-        } else if (vb.vendorName && vb.vendorName.toLowerCase().indexOf("marit") !== -1) {
-          paymentMethod = "Efectivo y Transferencia";
-        } else {
-          paymentMethod = "Efectivo";
-        }
-      }
-
-      vendorSectionsHtml += `
-        <tr>
-          <td style="padding-top: 16px;">
-            <div style="background-color: ${theme.detailsBg}; border: 1px solid ${theme.detailsBorderColor}; border-radius: 10px; padding: 16px; margin-bottom: 4px;">
-              <div style="font-size: 11px; color: ${theme.textColorMuted}; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px;">Negocio</div>
-              <div style="font-size: 16px; font-weight: 800; color: #ffffff; margin-bottom: 10px;">${vb.vendorName}</div>
-              
-              <div style="font-size: 11px; color: ${theme.textColorMuted}; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px;">Detalle del Pedido</div>
-              <div style="font-size: 13px; color: #dddddd; margin-bottom: 12px; line-height: 1.5;">${vb.details}</div>
-              
-              <div style="background-color: rgba(245, 124, 0, 0.08); border-left: 3px solid #f57c00; padding: 8px 12px; border-radius: 4px; margin-bottom: 12px;">
-                <div style="font-size: 11px; color: #f57c00; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 700; margin-bottom: 2px;">💳 Métodos de Pago en este Stand:</div>
-                <div style="font-size: 13px; color: #ffffff; font-weight: 600;">${paymentMethod}</div>
-              </div>
-
-              <div style="font-size: 11px; color: ${theme.textColorMuted}; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px;">Total a Pagar en este Stand</div>
-              <div style="font-size: 18px; font-weight: 800; color: ${theme.headerColor};">RD$ ${Number(vb.subtotal).toLocaleString()}</div>
-            </div>
-          </td>
-        </tr>`;
-    }
-  } else {
-    // Legacy fallback
-    vendorSectionsHtml = `
-      <tr>
-        <td style="padding-top: 16px;">
-          <div style="background-color: ${theme.detailsBg}; border: 1px solid ${theme.detailsBorderColor}; border-radius: 10px; padding: 16px;">
-            <div style="font-size: 11px; color: ${theme.textColorMuted}; padding-bottom: 2px;">Detalle del Pedido</div>
-            <div style="font-size: 14px; color: #ffffff; padding-bottom: 12px; line-height: 1.4;">${data.preorderDetails}</div>
-            <div style="font-size: 11px; color: ${theme.textColorMuted}; padding-bottom: 2px;">Total Estimado</div>
-            <div style="font-size: 18px; font-weight: bold; color: ${theme.headerColor};">RD$ ${Number(data.totalEstimated).toLocaleString()}</div>
-          </div>
-        </td>
-      </tr>`;
-  }
-
-  var htmlBody = `
-    <!DOCTYPE html>
-    <html>
-    <head>
-      <meta charset="utf-8">
-      <title>Orden Confirmada - Sin Filtros 2026</title>
-    </head>
-    <body style="margin: 0; padding: 0; background-color: ${theme.outerBg}; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
-      <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: ${theme.outerBg}; padding: 40px 20px;">
-        <tr>
-          <td align="center">
-            <table width="100%" max-width="500" border="0" cellspacing="0" cellpadding="0" style="max-width: 500px; background-color: ${theme.cardBg}; border: 1px solid ${theme.cardBorderColor}; border-radius: 16px; padding: 32px; text-align: left;">
-              <tr>
-                <td align="center" style="padding-bottom: 24px; border-bottom: 1px solid ${theme.cardBorderColor};">
-                  <div style="color: ${theme.textColorMuted}; font-size: 11px; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 6px;">Menú & Precios - Breaks</div>
-                  <div style="font-size: 24px; font-weight: 800; color: ${theme.headerColor}; letter-spacing: -0.5px;">🍽️ ORDEN CONFIRMADA</div>
-                  <div style="color: #666666; font-size: 13px; margin-top: 4px;">Sin Filtros 2026</div>
-                </td>
-              </tr>
-              <tr>
-                <td style="font-size: 15px; color: #dddddd; line-height: 1.6; padding: 24px 0 8px 0;">
-                  Hola <strong>${data.firstName}</strong>,<br><br>
-                  ¡Tu orden en los stands de los Breaks ha sido registrada exitosamente! 🎉<br><br>
-                  A continuación encontrarás el detalle dividido por negocio. Recuerda que <strong>cada stand recibe su pago por separado</strong>:
-                </td>
-              </tr>
-
-              <!-- Asistente -->
-              <tr>
-                <td style="padding-top: 16px;">
-                  <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: ${theme.detailsBg}; border: 1px solid ${theme.detailsBorderColor}; border-radius: 10px; padding: 16px;">
-                    <tr><td style="font-size: 11px; color: ${theme.textColorMuted}; padding-bottom: 2px;">Asistente</td></tr>
-                    <tr><td style="font-size: 15px; font-weight: bold; color: #ffffff; padding-bottom: 8px;">${data.firstName} ${data.lastName}</td></tr>
-                    <tr><td style="font-size: 11px; color: ${theme.textColorMuted}; padding-bottom: 2px;">Código de Boleto</td></tr>
-                    <tr><td style="font-size: 16px; font-weight: bold; font-family: monospace; color: ${theme.textCodeColor};">${data.ticketCode}</td></tr>
-                  </table>
-                </td>
-              </tr>
-
-              <!-- Per-vendor sections -->
-              ${vendorSectionsHtml}
-
-              <tr>
-                <td style="padding-top: 24px; font-size: 12px; color: ${theme.textColorMuted}; line-height: 1.5; border-top: 1px solid ${theme.cardBorderColor}; margin-top: 24px;">
-                  <strong>⚠️ Recordatorio:</strong><br>
-                  El pago se realiza directamente en cada stand durante los Breaks del sábado 29 de agosto. No se cobra nada en línea.<br><br>
-                  ¿Tienes dudas? Escríbenos en Instagram <a href="https://www.instagram.com/onetwentyoneicc" target="_blank" style="color: #ffffff; text-decoration: underline;">@onetwentyoneicc</a>.
-                </td>
-              </tr>
-            </table>
-            <table width="100%" max-width="500" border="0" cellspacing="0" cellpadding="0" style="max-width: 500px; text-align: center; margin-top: 20px;">
-              <tr>
-                <td style="font-size: 10px; color: #555555; line-height: 1.4;">
-                  Este correo fue enviado automáticamente por tu registro de orden en OneTwentyOne.<br>
-                  © 2026 Iglesia De Convertidos a Cristo. Todos los derechos reservados.
-                </td>
-              </tr>
-            </table>
-          </td>
-        </tr>
-      </table>
-    </body>
-    </html>
-  `;
-
-  MailApp.sendEmail({
-    to: email,
-    subject: subject,
-    htmlBody: htmlBody,
-    name: "Sin Filtros 2026"
-  });
-
-  console.log("Correo de confirmación de menú enviado con éxito.");
-}
-
-
-// ==========================================
-// NUEVAS FUNCIONES DE PRE-ORDEN & ASISTENCIA
-// ==========================================
-
-var APP_URL = "https://ministeriodejovenesicc.netlify.app";
-
-// Consultar la cuota de envío restante de Google para hoy
+// Alias para mantener compatibilidad si se llama con el nombre anterior
 function mostrarCuotaRestante() {
-  var quota = MailApp.getRemainingDailyQuota();
-  SpreadsheetApp.getUi().alert("📊 Límite de Google:\n\nTienes " + quota + " envíos de correo disponibles para el día de hoy.");
+  consultarCorreosRestantes();
 }
 
-// Enviar un solo correo de prueba para validar el diseño y enlaces
-function enviarCorreoPrueba() {
-  var testEmail = "kevito.valdez@gmail.com";
-  var testName = "Kevin (Prueba)";
-  var testTicket = "121-ICC-0001";
-  
-  // Generar enlaces de autologin de prueba
-  var preorderLink = APP_URL + "/menu-preorden?code=" + encodeURIComponent(testTicket);
-  var confirmLink = APP_URL + "/confirmar-asistencia?code=" + encodeURIComponent(testTicket);
-  
-  // Obtener el HTML personalizado
-  var htmlBody = obtenerPlantillaHTML(testName, preorderLink, confirmLink);
-  
-  try {
-    MailApp.sendEmail({
-      to: testEmail,
-      subject: "🧪 [Prueba] Confirma tu asistencia y conoce el menú - Sin Filtros 2026",
-      htmlBody: htmlBody,
-      name: "Conferencia Sin Filtros"
-    });
-    SpreadsheetApp.getUi().alert("¡Correo de prueba enviado con éxito a " + testEmail + "!");
-  } catch (err) {
-    SpreadsheetApp.getUi().alert("Error enviando correo de prueba: " + err.toString());
-  }
-}
-
-// Enviar correos masivos a todos los inscritos activos sin confirmar
-function enviarCorreoMasivoInscritos() {
-  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Conferencia") || SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
-  var data = sheet.getDataRange().getValues();
-  
-  var count = 0;
-  var limitePorEjecucion = 100;
-  
-  for (var i = 1; i < data.length; i++) {
-    var ticketCode = data[i][2];  // Columna C: Código
-    var firstName = data[i][3];   // Columna D: Nombre
-    var email = data[i][5];       // Columna F: Correo
-    var event = data[i][12] || ''; // Columna M: Evento
-    var yaConfirmado = data[i][15]; // Columna P: Confirmación de Asistencia (Si/No)
-    var yaEnviado = data[i][16];    // Columna Q: Fecha/Estado de envío previo
-    
-    var isConferencia = (event === "Conferencia Sin Filtros") && (ticketCode && ticketCode.indexOf("RESET") === -1);
-    
-    // Solo enviar si: tiene correo válido, es de la conferencia, no ha confirmado aún Y NO se le ha enviado antes
-    if (email && email.indexOf("@") !== -1 && isConferencia && !yaConfirmado && !yaEnviado) {
-      // Generar enlaces personalizados de autologin
-      var preorderLink = APP_URL + "/menu-preorden?code=" + encodeURIComponent(ticketCode);
-      var confirmLink = APP_URL + "/confirmar-asistencia?code=" + encodeURIComponent(ticketCode);
-      
-      // Obtener el HTML personalizado
-      var htmlBody = obtenerPlantillaHTML(firstName, preorderLink, confirmLink);
-      
-      try {
-        MailApp.sendEmail({
-          to: email,
-          subject: "🎟️ Confirma tu asistencia y conoce el menú - Sin Filtros 2026",
-          htmlBody: htmlBody,
-          name: "Conferencia Sin Filtros"
-        });
-        
-        count++;
-        
-        // Registrar fecha de envío en la columna Q (Columna 17)
-        sheet.getRange(i + 1, 17).setValue("Enviado el " + new Date().toLocaleDateString());
-        Utilities.sleep(150); // Evitar saturación
-      } catch (err) {
-        console.error("Error enviando a " + email + ": " + err.toString());
-      }
-      
-      if (count >= limitePorEjecucion) {
-        break;
-      }
-    }
-  }
-  
-  SpreadsheetApp.getUi().alert("Envío masivo completado. Se enviaron " + count + " correos electrónicos.");
-}
-
-// Función auxiliar para enmascarar el correo
-function maskEmailForSearch(email) {
-  if (!email) return "";
-  var parts = email.split("@");
-  if (parts.length < 2) return "***";
-  var name = parts[0];
-  var domain = parts[1];
-  if (name.length <= 2) return "**@" + domain;
-  return name.substring(0, 2) + "***@" + domain;
-}
-
-function obtenerPlantillaHTML(nombre, linkPreorden, linkConfirmacion) {
-  var urlImagenPrograma = "https://ministeriodejovenesicc.netlify.app/cronograma-conferencia.jpeg";
-  
-  return `
-  <!DOCTYPE html>
-  <html>
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Conferencia Sin Filtros 2026</title>
-    <style>
-      body {
-        margin: 0;
-        padding: 0;
-        font-family: 'Segoe UI', Helvetica, Arial, sans-serif;
-        background-color: #0d0d0d;
-        color: #ffffff;
-      }
-      .email-container {
-        max-width: 600px;
-        margin: 0 auto;
-        background-color: #121212;
-        border-radius: 12px;
-        overflow: hidden;
-        border: 1px solid #222222;
-      }
-      .header {
-        background: linear-gradient(135deg, #f57c00 0%, #ffb74d 100%);
-        padding: 30px 20px;
-        text-align: center;
-      }
-      .header h1 {
-        margin: 0;
-        color: #000000;
-        font-size: 24px;
-        font-weight: 800;
-        letter-spacing: 1px;
-      }
-      .content {
-        padding: 30px 20px;
-        line-height: 1.6;
-        color: #cccccc;
-      }
-      .content h2 {
-        color: #ffffff;
-        font-size: 20px;
-        margin-top: 0;
-        border-bottom: 1px solid #333333;
-        padding-bottom: 10px;
-      }
-      .highlight {
-        color: #f57c00;
-        font-weight: 700;
-      }
-      .program-image-box {
-        text-align: center;
-        margin: 25px 0;
-      }
-      .program-image {
-        max-width: 100%;
-        border-radius: 8px;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-      }
-      .vendor-card {
-        background-color: #1a1a1a;
-        border: 1px solid #333333;
-        border-radius: 8px;
-        padding: 15px;
-        margin-bottom: 15px;
-        display: flex;
-        align-items: center;
-      }
-      .vendor-avatar {
-        font-size: 32px;
-        margin-right: 15px;
-      }
-      .vendor-info h4 {
-        margin: 0 0 5px 0;
-        color: #ffffff;
-        font-size: 16px;
-      }
-      .vendor-info p {
-        margin: 0;
-        font-size: 13px;
-        color: #aaaaaa;
-      }
-      .btn-container {
-        text-align: center;
-        margin: 30px 0;
-      }
-      .btn {
-        display: inline-block;
-        padding: 14px 28px;
-        border-radius: 8px;
-        font-weight: bold;
-        text-decoration: none;
-        font-size: 15px;
-        transition: transform 0.2s;
-        margin: 5px;
-      }
-      .btn-primary {
-        background-color: #f57c00;
-        color: #000000 !important;
-        box-shadow: 0 4px 15px rgba(245, 124, 0, 0.3);
-      }
-      .btn-success {
-        background-color: #10b981;
-        color: #ffffff !important;
-        box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
-      }
-      .footer {
-        background-color: #0a0a0a;
-        padding: 20px;
-        text-align: center;
-        font-size: 12px;
-        color: #666666;
-        border-top: 1px solid #222222;
-      }
-    </style>
-  </head>
-  <body>
-    <div class="email-container" style="margin-top: 20px; margin-bottom: 20px;">
-      <!-- Header -->
-      <div class="header">
-        <h1>CONFERENCIA "SIN FILTROS" 2026</h1>
-      </div>
-      
-      <!-- Body -->
-      <div class="content">
-        <h2>Hola, ${nombre} 👋</h2>
-        <p>¡Esperamos que estés listo para vivir una experiencia transformadora en nuestra próxima Conferencia <strong>"Sin Filtros" 2026</strong>!</p>
-        
-        <p>Queremos compartir contigo el cronograma del programa para que conozcas los detalles de las sesiones:</p>
-        
-        <!-- Imagen del programa -->
-        <div class="program-image-box">
-          <img src="${urlImagenPrograma}" alt="Programa Conferencia Sin Filtros" class="program-image" width="100%">
-        </div>
-
-        <h3 style="color: #ffffff; margin-top: 30px;">📢 Paso 1: Confirma tu Asistencia Física (Requerido)</h3>
-        <p>Debido al cupo limitado del auditorio, requerimos que nos confirmes si asistirás presencialmente. En caso de que no puedas ir, tu lugar se cederá a personas en lista de espera:</p>
-        
-        <div class="btn-container" style="margin-bottom: 40px;">
-          <a href="${linkConfirmacion}" class="btn btn-success" target="_blank">Confirmar mi Asistencia</a>
-        </div>
-
-        <h3 style="color: #ffffff; margin-top: 30px;">🍽️ Paso 2: Conoce el Menú y Precios (Opcional)</h3>
-        <p>Para agilizar la entrega en los breaks y evitar filas, contaremos con dos increíbles negocios locales. Conoce su menú y aparta tu orden con anticipación:</p>
-        
-        <!-- Pechurica Card -->
-        <div class="vendor-card">
-          <div class="vendor-logo-wrapper" style="margin-right: 15px; flex-shrink: 0;">
-            <img src="https://ministeriodejovenesicc.netlify.app/pechurica-logo.png" width="48" height="48" style="border-radius: 50%; border: 1px solid #333333; display: block;" alt="Pechurica La Fe">
-          </div>
-          <div class="vendor-info">
-            <h4>Pechurica La Fe</h4>
-            <p>Combos de pechuricas crujientes con papas fritas y refresco. Aceptan efectivo y tarjeta.</p>
-          </div>
-        </div>
-        
-        <!-- Marite Card -->
-        <div class="vendor-card">
-          <div class="vendor-logo-wrapper" style="margin-right: 15px; flex-shrink: 0;">
-            <img src="https://ministeriodejovenesicc.netlify.app/marite-logo.png" width="48" height="48" style="border-radius: 50%; border: 1px solid #333333; display: block;" alt="Marité Postres">
-          </div>
-          <div class="vendor-info">
-            <h4>Marité Postres Artesanales</h4>
-            <p>Deliciosos helados artesanales dominicanos (Coco, Dulce de Leche, etc.). Aceptan efectivo y transferencia.</p>
-          </div>
-        </div>
-
-        <p>El enlace de abajo abrirá el menú e **iniciará sesión automáticamente** con tu boleto para que solo tengas que elegir tu orden en segundos:</p>
-        
-        <div class="btn-container">
-          <a href="${linkPreorden}" class="btn btn-primary" target="_blank">Ver Menú y Apartar Mi Orden</a>
-        </div>
-        
-        <p style="font-size: 13px; color: #888888; border-top: 1px solid #333333; padding-top: 15px; margin-top: 30px;">
-          ⚠️ <em>Nota: El pago no se realiza en línea. Pagarás en efectivo, tarjeta o transferencia directamente en el stand de cada negocio durante los recesos.</em>
-        </p>
-      </div>
-      
-      <!-- Footer -->
-      <div class="footer">
-        <p>Este correo electrónico fue enviado de forma automática a los inscritos de la Conferencia Sin Filtros 2026.</p>
-        <p>© 2026 Ministerio de Jóvenes ICC. Todos los derechos reservados.</p>
-      </div>
-    </div>
-  </body>
-  </html>
-  `;
+// Función auxiliar de compatibilidad para pre-ordenes pasadas
+function enviarCorreoPreordenComida(data) {
+  console.log("enviarCorreoPreordenComida omitido (actividad pasada).");
 }
