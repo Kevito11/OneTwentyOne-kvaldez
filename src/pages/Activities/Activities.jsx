@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { Calendar, Clock, MapPin, ExternalLink, X, ChevronLeft, ChevronRight, Heart, MessageCircle, Send, Bookmark, MoreHorizontal } from 'lucide-react';
 import { getImageUrl } from '../../config/images';
+import PaymentInfoBox from '../../components/PaymentInfoBox/PaymentInfoBox';
 import './Activities.css';
 
 // Publicación oficial de Instagram de la Media Vigilia
@@ -84,13 +85,13 @@ const activitiesList = [
   },
   {
     id: 5,
-    title: "Cena de Jóvenes 2026",
+    title: "Cena de Jóvenes 2026: 'Christmas x Grace'",
     date: "Sábado 5 de Diciembre, 2026",
-    time: "07:00 PM",
+    time: "07:00 PM · Costo: RD$ 350 p/p · Temática: Pijamas",
     location: "Salón Principal ICC",
-    mapLink: "https://maps.app.goo.gl/jRX8PC4S3oVrPMQz6",
-    description: "Nuestra tradicional cena de fin de año. Un tiempo especial de comunión, cena compartida, dinámicas de grupo y agradecimiento al Señor por este año transcurrido.",
-    tag: "Pre-Registro Abierto",
+    mapLink: "https://maps.app.goo.gl/Fu3FiZrv18pzMzdU6",
+    description: "Nuestra tradicional cena de fin de año (Siervos x Jotapece). Un tiempo especial de comunión, cena compartida y agradecimiento al Señor. 👗 Código de vestimenta: ¡Tu pijama favorita! (Nota importante: Para mantener un ambiente súper cómodo y respetuoso para todos, te pedimos que tu pijama sea modesta. Por favor, asegúrate de llevar pantalones largos o tipo pants, camisetas holgadas y evita transparencias, shorts cortos, escotes o ropa muy ajustada. ¡La idea es estar cómodos y abrigaditos! 🧸)",
+    tag: "Registro Abierto · RD$ 350 p/p",
     countdownTarget: getDynamicTargetDate(12, 5, 19, 0)
   },
   {
@@ -862,29 +863,53 @@ const Activities = () => {
               {/* Cena de Jóvenes specific section */}
               {selectedActivity.id === 5 && (
                 <>
-                  <div className="modal-section" style={{ marginBottom: '3rem', textAlign: 'center' }}>
-                    <h3 className="modal-section-title">Pre-Registro Abierto</h3>
-                    <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem', lineHeight: '1.6' }}>
-                      Reserva tu cupo para la Cena de Jóvenes 2026. Al pre-registrarte nos ayudas a coordinar la comida, mesas y sorpresas de la cena.
+                  <div className="modal-section" style={{ marginBottom: '3rem' }}>
+                    <h3 className="modal-section-title">Registro & Métodos de Pago (RD$ 350 p/p)</h3>
+                    <p style={{ color: 'var(--text-secondary)', marginBottom: '1.2rem', lineHeight: '1.6' }}>
+                      Inscríbete para nuestra Cena de Jóvenes 2026: <strong>Christmas x Grace</strong>. El costo es de <strong>RD$ 350 por persona</strong> (esta actividad no requiere boleto físico ni digital; al registrarte recibirás un correo de confirmación con toda la información).
                     </p>
-                    <Link 
-                      to="/registro?event=cena" 
-                      className="btn-primary"
-                      style={{ display: 'inline-flex', padding: '0.8rem 2.2rem', textDecoration: 'none' }}
-                    >
-                      Pre-Registrarse Ahora
-                    </Link>
+                    <div className="glass-panel" style={{ padding: '1.2rem 1.5rem', borderRadius: '14px', border: '1px solid rgba(250, 204, 21, 0.3)', background: 'rgba(250, 204, 21, 0.05)', marginBottom: '1.2rem' }}>
+                      <div style={{ fontSize: '0.88rem', fontWeight: '800', color: '#fde047', marginBottom: '0.45rem' }}>
+                        👗 Código de vestimenta: ¡Tu pijama favorita!
+                      </div>
+                      <p style={{ margin: 0, fontSize: '0.92rem', color: 'var(--text-primary)', lineHeight: '1.55' }}>
+                        (<strong>Nota importante:</strong> Para mantener un ambiente súper cómodo y respetuoso para todos, te pedimos que tu pijama sea modesta. Por favor, asegúrate de llevar pantalones largos o tipo pants, camisetas holgadas y evita transparencias, shorts cortos, escotes o ropa muy ajustada. ¡La idea es estar cómodos y abrigaditos! 🧸)
+                      </p>
+                    </div>
+                    <div style={{ marginBottom: '1.5rem' }}>
+                      <PaymentInfoBox />
+                    </div>
+                    <div style={{ textAlign: 'center' }}>
+                      <Link 
+                        to="/registro?event=cena" 
+                        className="btn-primary"
+                        style={{ display: 'inline-flex', padding: '0.8rem 2.2rem', textDecoration: 'none' }}
+                      >
+                        Registrarse Ahora
+                      </Link>
+                    </div>
                   </div>
 
                   <div className="modal-section" style={{ marginBottom: '3rem' }}>
-                    <h3 className="modal-section-title">Portada del Evento</h3>
+                    <h3 className="modal-section-title">Afiche Oficial del Evento</h3>
                     <div style={{ display: 'flex', justifyContent: 'center' }}>
-                      <div className="glass-panel" style={{ border: '1px dashed rgba(219, 39, 119, 0.3)', padding: '3.5rem 2rem', textAlign: 'center', background: 'rgba(219, 39, 119, 0.02)', borderRadius: '16px', maxWidth: '320px', width: '100%' }}>
-                        <div style={{ fontSize: '2.5rem', marginBottom: '1rem' }}>🎉</div>
-                        <h4 style={{ fontSize: '1.2rem', marginBottom: '0.5rem', fontWeight: '700' }}>Portada en Proceso</h4>
-                        <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', lineHeight: '1.5' }}>
-                          La portada oficial del evento estará disponible próximamente.
-                        </p>
+                      <div 
+                        className="glass-panel" 
+                        style={{ 
+                          overflow: 'hidden', 
+                          borderRadius: '16px', 
+                          border: '1px solid rgba(255, 255, 255, 0.08)',
+                          background: 'rgba(10, 10, 10, 0.5)',
+                          boxShadow: '0 10px 30px rgba(0, 0, 0, 0.5)',
+                          maxWidth: '340px',
+                          width: '100%'
+                        }}
+                      >
+                        <img 
+                          src={getImageUrl("/cena-jovenes-2026.jpeg")} 
+                          alt="Afiche Oficial Cena de Jóvenes 2026 - Christmas x Grace" 
+                          style={{ width: '100%', display: 'block', height: 'auto', objectFit: 'cover' }} 
+                        />
                       </div>
                     </div>
                   </div>

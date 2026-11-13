@@ -384,7 +384,22 @@ function doPost(e) {
     var timeFormatted = Utilities.formatDate(now, timezone, "hh:mm:ss a");
 
     var rowData;
-    if (isVigilia || isCena || isCampamento) {
+    if (isCena) {
+      // Cena de Jóvenes (no requiere boleto; guardamos estado de notificación en Columna K para diferenciar de Pre-Registros)
+      rowData = [
+        dateFormatted,                // Fecha (Columna A)
+        timeFormatted,                // Hora (Columna B)
+        "REGISTRO-CENA",              // Referencia sin boleto (Columna C)
+        data.firstName,               // Nombre (Columna D)
+        data.lastName,                // Apellido (Columna E)
+        data.email,                   // Correo (Columna F)
+        data.phone,                   // Teléfono (Columna G)
+        data.church,                  // Iglesia (Columna H)
+        data.ageGroup,                // Rango de Edad (Columna I)
+        data.event || 'Cena de Jóvenes ICC 2026', // Nombre del Evento (Columna J)
+        "Registro Directo Enviado"    // Estado de Notificación (Columna K)
+      ];
+    } else if (isVigilia || isCampamento) {
       // Omit J, K, L columns (no merch)
       rowData = [
         dateFormatted,                // Fecha (Columna A)
@@ -396,7 +411,7 @@ function doPost(e) {
         data.phone,                   // Teléfono (Columna G)
         data.church,                  // Iglesia (Columna H)
         data.ageGroup,                // Rango de Edad (Columna I)
-        data.event || (isCena ? 'Cena de Jóvenes ICC 2026' : (isCampamento ? 'Campamento de Jóvenes ICC 2027' : 'Media Vigilia RESET')) // Nombre del Evento (Columna J)
+        data.event || (isCampamento ? 'Campamento de Jóvenes ICC 2027' : 'Media Vigilia RESET') // Nombre del Evento (Columna J)
       ];
     } else {
       // Standard Conferencia columns
@@ -587,6 +602,12 @@ function enviarCorreoConfirmacion(data) {
   var isVigilia = data.eventType === "vigilia" || (data.ticketCode && data.ticketCode.indexOf("RESET") !== -1);
   var isCena = data.eventType === "cena";
   var isCampamento = data.eventType === "campamento";
+
+  // La Cena de Jóvenes 2026 no requiere boleto ni QR; usa su propia plantilla con costos y cuentas ICC
+  if (isCena) {
+    enviarCorreoRegistroCena(data, false);
+    return;
+  }
 
   var subject = "";
   if (isVigilia) {
@@ -879,11 +900,349 @@ function onOpen() {
     .addSeparator()
     .addSubMenu(pruebasConferenciaMenu);
 
+  // Submenú de pruebas para Cena de Jóvenes 2026
+  var pruebasCenaMenu = ui.createMenu('Pruebas')
+    .addItem('1. Enviar Prueba: Info de Registro a Pre-Registrados (kevito.valdez@gmail.com)', 'enviarPruebaCenaPreRegistrados')
+    .addItem('2. Enviar Prueba: Confirmación de Nuevo Registro (kevito.valdez@gmail.com)', 'enviarPruebaCenaNuevoRegistro');
+
+  // Menú principal de Cena de Jóvenes 2026
+  var cenaMenu = ui.createMenu('Cena de Jóvenes 2026')
+    .addItem('1. Enviar Masivo: Info de Registro y Pago a Pre-Registrados', 'enviarMasivoCenaPreRegistrados')
+    .addSeparator()
+    .addSubMenu(pruebasCenaMenu);
+
   // Registrar el menú principal en la interfaz
   ui.createMenu('OneTwentyOne - Admin')
+    .addSubMenu(cenaMenu)
     .addSubMenu(vigiliaMenu)
     .addSubMenu(conferenciaMenu)
     .addToUi();
+}
+
+/**
+ * Envía el correo de la Cena de Jóvenes 2026 ("Christmas x Grace") SIN boleto ni QR,
+ * incluyendo el afiche oficial, costo de RD$ 350 p/p y cuentas bancarias de ICC
+ * (omitiendo la cuenta de ahorros del Banco Popular).
+ * 
+ * @param {Object} data - Datos del participante (firstName, lastName, email, church)
+ * @param {boolean} isPreRegistrado - true si es para alguien que ya hizo el Pre-Registro; false si acaba de registrarse
+ */
+function enviarCorreoRegistroCena(data, isPreRegistrado) {
+  var email = data.email;
+  var firstName = data.firstName || "Joven";
+  var lastName = data.lastName || "";
+  var fullName = (firstName + " " + lastName).trim();
+  var church = data.church || "Iglesia De Convertidos a Cristo";
+
+  var subject = isPreRegistrado
+    ? "🎄 ¡Inscripciones Abiertas! Información de Registro y Pago - Cena de Jóvenes 2026 (Christmas x Grace)"
+    : "🎄 ¡Registro Confirmado! - Cena de Jóvenes ICC 2026 (Christmas x Grace)";
+
+  var flyerUrl = "https://ministeriodejovenesicc.netlify.app/cena-jovenes-2026.jpeg";
+  var registroUrl = "https://ministeriodejovenesicc.netlify.app/registro?event=cena";
+  var copiarDatosUrl = "https://ministeriodejovenesicc.netlify.app/registro?event=cena&copy=datos";
+  var googleMapsUrl = "https://maps.app.goo.gl/Fu3FiZrv18pzMzdU6";
+  var mailtoSubject = encodeURIComponent("Comprobante de Pago - Cena de Jóvenes 2026 - " + fullName);
+  var mailtoBody = encodeURIComponent(
+    "Hola, bendiciones.\n\nAdjunto el comprobante de pago de la Cena de Jóvenes 2026 (\"Christmas x Grace\" - RD$ 350 p/p).\n\n• Participante: " + fullName + "\n• Actividad: Cena de Jóvenes ICC 2026\n• Monto: RD$ 350\n\n¡Muchas gracias!"
+  );
+  var mailtoPagoUrl = "mailto:secretaria@convertidosacristo.org?subject=" + mailtoSubject + "&body=" + mailtoBody;
+
+  var introHtml = isPreRegistrado
+    ? `¡Hola <strong>${firstName}</strong>! 👋 ¡Que Dios te bendiga mucho!<br><br>
+       Te escribimos porque realizaste tu <strong>Pre-Registro</strong> para nuestra esperada <strong>Cena de Jóvenes ICC 2026: "Christmas x Grace" (Siervos x Jotapece)</strong>. 🎉<br><br>
+       ¡Ya están abiertas las inscripciones oficiales! Te informamos que <strong>esta cena NO requerirá ningún tipo de boleto o ticket de entrada</strong>. A continuación te compartimos toda la información necesaria, el costo oficial y las cuentas bancarias de la iglesia para que puedas formalizar tu registro y realizar tu pago:`
+    : `¡Hola <strong>${firstName}</strong>! 👋 ¡Que Dios te bendiga mucho!<br><br>
+       ¡Hemos recibido con éxito tu registro para nuestra <strong>Cena de Jóvenes ICC 2026: "Christmas x Grace" (Siervos x Jotapece)</strong>! 🎉<br><br>
+       Te recordamos que <strong>esta actividad NO requiere ningún tipo de boleto o ticket de entrada</strong>; tus datos ya han quedado anotados en nuestra lista oficial de participantes.<br><br>
+       A continuación te compartimos el resumen de la actividad y las cuentas bancarias oficiales de la iglesia para realizar tu pago:`;
+
+  var preRegButtonHtml = isPreRegistrado
+    ? `<tr>
+         <td align="center" style="padding: 20px 0 8px 0;">
+           <a href="${registroUrl}" target="_blank" style="background-color: #ef4444; color: #ffffff; display: inline-block; padding: 14px 28px; font-weight: 800; border-radius: 50px; text-decoration: none; font-size: 14px; letter-spacing: 0.4px;">
+             🎄 Ver Página de Registro y Detalles
+           </a>
+         </td>
+       </tr>`
+    : "";
+
+  var htmlBody = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+    </head>
+    <body style="background-color: #07140d; color: #ffffff; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+      <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #07140d; padding: 40px 20px;">
+        <tr>
+          <td align="center">
+            <table width="100%" max-width="520" border="0" cellspacing="0" cellpadding="0" style="max-width: 520px; background-color: #0d2116; border: 1px solid #1f4731; border-radius: 16px; padding: 32px; text-align: left;">
+              <tr>
+                <td align="center" style="padding-bottom: 24px; border-bottom: 1px solid #1f4731;">
+                  <div style="color: #86efac; font-size: 11px; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 6px;">Siervos x Jotapece · Jóvenes ICC</div>
+                  <div style="font-size: 26px; font-weight: 900; color: #ef4444; letter-spacing: -0.5px;">CHRISTMAS x GRACE</div>
+                  <div style="color: #d1fae5; font-size: 13px; margin-top: 4px; font-weight: 600;">Cena de Jóvenes 2026</div>
+                </td>
+              </tr>
+
+              <!-- Flyer Oficial de la Cena de Jóvenes -->
+              <tr>
+                <td align="center" style="padding-top: 24px;">
+                  <img src="${flyerUrl}" alt="Cena de Jóvenes 2026 - Christmas x Grace" style="width: 100%; max-width: 100%; height: auto; border-radius: 12px; border: 1px solid #1f4731; display: block;" />
+                </td>
+              </tr>
+
+              <!-- Mensaje de Bienvenida / Notificación -->
+              <tr>
+                <td style="font-size: 15px; color: #e5e7eb; line-height: 1.6; padding: 24px 0 16px 0;">
+                  ${introHtml}
+                </td>
+              </tr>
+
+              <!-- Resumen del Evento (Sin Boleto / Sin QR) -->
+              <tr>
+                <td>
+                  <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #122c1e; border: 1px solid #235338; border-radius: 12px; padding: 20px;">
+                    <tr>
+                      <td style="font-size: 11px; color: #86efac; text-transform: uppercase; letter-spacing: 1px; padding-bottom: 2px;">Participante</td>
+                    </tr>
+                    <tr>
+                      <td style="font-size: 16px; font-weight: bold; color: #ffffff; padding-bottom: 12px;">${fullName}</td>
+                    </tr>
+                    <tr>
+                      <td style="font-size: 11px; color: #86efac; text-transform: uppercase; letter-spacing: 1px; padding-bottom: 2px;">Fecha y Hora</td>
+                    </tr>
+                    <tr>
+                      <td style="font-size: 14px; color: #ffffff; font-weight: 600; padding-bottom: 12px;">Sábado 05 de Diciembre, 2026 &mdash; 07:00 PM</td>
+                    </tr>
+                    <tr>
+                      <td style="font-size: 11px; color: #86efac; text-transform: uppercase; letter-spacing: 1px; padding-bottom: 2px;">Costo por Persona</td>
+                    </tr>
+                    <tr>
+                      <td style="font-size: 20px; font-weight: 900; color: #ef4444; padding-bottom: 12px;">RD$ 350 P/P</td>
+                    </tr>
+                    <tr>
+                      <td style="font-size: 11px; color: #86efac; text-transform: uppercase; letter-spacing: 1px; padding-bottom: 2px;">Código de Vestimenta</td>
+                    </tr>
+                    <tr>
+                      <td style="font-size: 13px; color: #fde047; font-weight: 700; padding-bottom: 12px; line-height: 1.55;">
+                        👗 Código de vestimenta: ¡Tu pijama favorita!<br>
+                        <span style="color: #e5e7eb; font-weight: normal; font-size: 12.5px;">(Nota importante: Para mantener un ambiente súper cómodo y respetuoso para todos, te pedimos que tu pijama sea modesta. Por favor, asegúrate de llevar pantalones largos o tipo pants, camisetas holgadas y evita transparencias, shorts cortos, escotes o ropa muy ajustada. ¡La idea es estar cómodos y abrigaditos! 🧸)</span>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td style="font-size: 11px; color: #86efac; text-transform: uppercase; letter-spacing: 1px; padding-bottom: 2px;">Iglesia</td>
+                    </tr>
+                    <tr>
+                      <td style="font-size: 13px; color: #ffffff; padding-bottom: 12px;">${church}</td>
+                    </tr>
+                    <tr>
+                      <td style="font-size: 11px; color: #86efac; text-transform: uppercase; letter-spacing: 1px; padding-bottom: 2px;">Lugar y Ubicación</td>
+                    </tr>
+                    <tr>
+                      <td style="font-size: 13px; color: #ffffff; line-height: 1.5;">
+                        Iglesia De Convertidos a Cristo (ICC)<br>
+                        C/ Dr. Núñez Domínguez #30, Ensanche La Julia, Santo Domingo<br>
+                        <div style="margin-top: 10px;">
+                          <a href="${googleMapsUrl}" target="_blank" style="background-color: #1f4731; border: 1px solid #34d399; color: #a7f3d0; display: inline-block; padding: 8px 16px; font-weight: 700; border-radius: 50px; text-decoration: none; font-size: 12px;">
+                            📍 Ver Ubicación Exacta en Google Maps
+                          </a>
+                        </div>
+                      </td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+
+              <!-- Cuentas Bancarias Oficiales de ICC (Omitiendo cuenta de ahorros del Popular) -->
+              <tr>
+                <td style="padding-top: 16px;">
+                  <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #141816; border: 1px dashed #ef4444; border-radius: 12px; padding: 20px;">
+                    <tr>
+                      <td style="font-size: 14px; font-weight: 800; color: #fca5a5; padding-bottom: 10px; text-transform: uppercase; letter-spacing: 0.5px;">
+                        🏦 Datos de Pago y Transferencia (RD$ 350 p/p)
+                      </td>
+                    </tr>
+                    <tr>
+                      <td style="font-size: 13px; color: #e5e7eb; line-height: 1.6;">
+                        Puedes realizar tu depósito o transferencia de <strong>RD$ 350 por persona</strong> a cualquiera de las siguientes cuentas corrientes de la <strong>Iglesia de Convertidos a Cristo (ICC)</strong> <span style="font-size: 11.5px; color: #9ca3af;">(toca cada recuadro para seleccionar y copiar el dato)</span>:<br><br>
+
+                        <table width="100%" border="0" cellspacing="0" cellpadding="0" style="margin-bottom: 12px;">
+                          <tr>
+                            <td style="background-color: #0b1610; border: 1px solid #264a36; border-radius: 8px; padding: 10px 12px; margin-bottom: 8px;">
+                              <div style="font-size: 11px; color: #9ca3af;">Banreservas (Cuenta Corriente)</div>
+                              <div style="font-size: 16px; font-weight: 800; color: #fde047; font-family: monospace; user-select: all; -webkit-user-select: all;">0102401330</div>
+                            </td>
+                          </tr>
+                          <tr><td style="height: 8px;"></td></tr>
+                          <tr>
+                            <td style="background-color: #0b1610; border: 1px solid #264a36; border-radius: 8px; padding: 10px 12px;">
+                              <div style="font-size: 11px; color: #9ca3af;">Banco Popular (Cuenta Corriente RD$)</div>
+                              <div style="font-size: 16px; font-weight: 800; color: #fde047; font-family: monospace; user-select: all; -webkit-user-select: all;">805943297</div>
+                            </td>
+                          </tr>
+                          <tr><td style="height: 8px;"></td></tr>
+                          <tr>
+                            <td style="background-color: #0b1610; border: 1px solid #264a36; border-radius: 8px; padding: 10px 12px;">
+                              <div style="font-size: 11px; color: #9ca3af;">RNC ICC (Iglesia de Convertidos a Cristo)</div>
+                              <div style="font-size: 15px; font-weight: 800; color: #fde047; font-family: monospace; user-select: all; -webkit-user-select: all;">424-00200-2</div>
+                            </td>
+                          </tr>
+                          <tr><td style="height: 8px;"></td></tr>
+                          <tr>
+                            <td style="background-color: #0b1610; border: 1px solid #264a36; border-radius: 8px; padding: 10px 12px;">
+                              <div style="font-size: 11px; color: #9ca3af;">Correo para enviar comprobante de pago</div>
+                              <div style="font-size: 14px; font-weight: 800; color: #86efac; font-family: monospace; user-select: all; -webkit-user-select: all;">secretaria@convertidosacristo.org</div>
+                            </td>
+                          </tr>
+                        </table>
+
+                        <span style="font-size: 12px; color: #a7f3d0; display: block; margin-bottom: 14px;">💡 <em>Sugerencia: En la descripción o concepto de la transferencia coloca <strong>"Cena Jóvenes - ${fullName}"</strong>.</em></span>
+
+                        <!-- Botones para Copiar Datos en 1 Clic y Enviar Correo con el Pago -->
+                        <table width="100%" border="0" cellspacing="0" cellpadding="0">
+                          <tr>
+                            <td align="center" style="padding-bottom: 10px;">
+                              <a href="${copiarDatosUrl}" target="_blank" style="background-color: #eab308; color: #000000; display: block; padding: 12px 18px; font-weight: 800; border-radius: 10px; text-decoration: none; font-size: 13px; text-align: center;">
+                                📋 Copiar Números de Cuenta y RNC (1 Clic en la Web)
+                              </a>
+                            </td>
+                          </tr>
+                          <tr>
+                            <td align="center">
+                              <a href="${mailtoPagoUrl}" style="background-color: #16a34a; color: #ffffff; display: block; padding: 12px 18px; font-weight: 800; border-radius: 10px; text-decoration: none; font-size: 13px; text-align: center;">
+                                📧 Enviar Correo con el Comprobante de Pago
+                              </a>
+                            </td>
+                          </tr>
+                        </table>
+                      </td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+
+              ${preRegButtonHtml}
+
+              <tr>
+                <td style="padding-top: 24px; font-size: 12px; color: #86efac; line-height: 1.5; border-top: 1px solid #1f4731; margin-top: 24px;">
+                  Si tienes alguna duda o consulta sobre la Cena de Jóvenes, escríbenos a nuestras cuentas de Instagram <a href="https://www.instagram.com/onetwentyoneicc" target="_blank" style="color: #ffffff; text-decoration: underline;">@onetwentyoneicc</a> o <a href="https://www.instagram.com/jovenes_icc" target="_blank" style="color: #ffffff; text-decoration: underline;">@jovenes_icc</a>.
+                </td>
+              </tr>
+            </table>
+            <table width="100%" max-width="520" border="0" cellspacing="0" cellpadding="0" style="max-width: 520px; text-align: center; margin-top: 20px;">
+              <tr>
+                <td style="font-size: 10px; color: #555555; line-height: 1.4;">
+                  Este correo fue enviado automáticamente por el Ministerio de Jóvenes de la Iglesia De Convertidos a Cristo (ICC).<br>
+                  © 2026 Iglesia De Convertidos a Cristo. Todos los derechos reservados.
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+      </table>
+    </body>
+    </html>
+  `;
+
+  MailApp.sendEmail({
+    to: email,
+    subject: subject,
+    htmlBody: htmlBody,
+    name: "Cena de Jóvenes ICC"
+  });
+}
+
+/**
+ * Envía un correo de prueba al administrador con la plantilla para quienes ya hicieron el Pre-Registro de la Cena.
+ */
+function enviarPruebaCenaPreRegistrados() {
+  var adminEmail = "kevito.valdez@gmail.com";
+  try {
+    enviarCorreoRegistroCena({
+      email: adminEmail,
+      firstName: "Kevin (Prueba Pre-Registro)",
+      lastName: "Valdez",
+      church: "Iglesia De Convertidos a Cristo"
+    }, true);
+    SpreadsheetApp.getUi().alert("Correo de prueba (Pre-Registrados Cena de Jóvenes) enviado a " + adminEmail);
+  } catch (e) {
+    SpreadsheetApp.getUi().alert("Error al enviar prueba: " + e.toString());
+  }
+}
+
+/**
+ * Envía un correo de prueba al administrador con la plantilla de confirmación para nuevos registros de la Cena.
+ */
+function enviarPruebaCenaNuevoRegistro() {
+  var adminEmail = "kevito.valdez@gmail.com";
+  try {
+    enviarCorreoRegistroCena({
+      email: adminEmail,
+      firstName: "Kevin (Prueba Nuevo Registro)",
+      lastName: "Valdez",
+      church: "Iglesia De Convertidos a Cristo"
+    }, false);
+    SpreadsheetApp.getUi().alert("Correo de prueba (Nuevo Registro Cena de Jóvenes) enviado a " + adminEmail);
+  } catch (e) {
+    SpreadsheetApp.getUi().alert("Error al enviar prueba: " + e.toString());
+  }
+}
+
+/**
+ * Botón / Función de envío masivo para todas las personas que ya hicieron el Pre-Registro
+ * en la hoja "Cena de Jóvenes", enviándoles las informaciones necesarias de registro y pago.
+ */
+function enviarMasivoCenaPreRegistrados() {
+  var ui = SpreadsheetApp.getUi();
+  var response = ui.alert(
+    'Confirmación de envío masivo - Cena de Jóvenes 2026',
+    '¿Estás seguro de que deseas enviar el correo con la información oficial (RD$ 350 p/p y cuentas de pago ICC) a todas las personas que hicieron el Pre-Registro en la hoja "Cena de Jóvenes"?',
+    ui.ButtonSet.YES_NO
+  );
+
+  if (response !== ui.Button.YES) {
+    return;
+  }
+
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Cena de Jóvenes");
+  if (!sheet) {
+    ui.alert("Error", "No se encontró la hoja 'Cena de Jóvenes'.", ui.ButtonSet.OK);
+    return;
+  }
+
+  var data = sheet.getDataRange().getValues();
+  var count = 0;
+
+  for (var i = 1; i < data.length; i++) {
+    var firstName = data[i][3]; // Columna D: Nombre
+    var lastName = data[i][4];  // Columna E: Apellido
+    var email = data[i][5];     // Columna F: Correo
+    var church = data[i][7];    // Columna H: Iglesia
+    var estadoEnvio = data[i][10] ? String(data[i][10]).trim() : ""; // Columna K: Estado de Notificación
+
+    // Enviar a todos los pre-registrados que tengan correo válido y aún no hayan sido notificados
+    if (email && String(email).trim().indexOf("@") !== -1 && estadoEnvio === "") {
+      try {
+        enviarCorreoRegistroCena({
+          email: String(email).trim(),
+          firstName: firstName,
+          lastName: lastName,
+          church: church
+        }, true);
+
+        count++;
+        sheet.getRange(i + 1, 11).setValue("Info Pre-Registro Enviada (" + new Date().toLocaleDateString() + ")");
+        Utilities.sleep(150); // Pausa prudente para respetar cuota de Apps Script
+      } catch (e) {
+        console.error("Error enviando correo de Cena a " + email + ": " + e.toString());
+      }
+    }
+  }
+
+  SpreadsheetApp.flush();
+  ui.alert("Proceso completado", "Se han enviado " + count + " correos con la información de registro y pago a los pre-registrados de la Cena de Jóvenes.", ui.ButtonSet.OK);
 }
 
 /**

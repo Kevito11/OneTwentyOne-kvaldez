@@ -141,77 +141,90 @@ const Home = () => {
             </div>
 
             <div className="hero-featured-col">
-              <div className="hero-featured-card glass-panel animate-fade-in" style={{ padding: '2rem' }}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.2rem' }}>
-                  <span className="featured-card-badge" style={{ position: 'static', background: 'rgba(255, 255, 255, 0.1)', color: 'var(--accent-light)', border: '1px solid rgba(255, 255, 255, 0.15)' }}>
+              <div className="hero-featured-card glass-panel animate-fade-in">
+                <div className="featured-card-image-wrap">
+                  <span className="featured-card-badge" style={{ background: 'rgba(13, 33, 22, 0.9)', color: '#86efac', border: '1px solid rgba(134, 239, 172, 0.35)' }}>
                     <Sparkles size={13} style={{ marginRight: '5px', verticalAlign: 'middle' }} />
                     PRÓXIMAS ACTIVIDADES
                   </span>
-                  <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>2026 - 2027</span>
-                </div>
-
-                <h3 style={{ fontSize: '1.35rem', fontWeight: '800', marginBottom: '0.8rem', color: 'var(--text-primary)' }}>
-                  Pre-Registros <span className="text-gradient">Abiertos</span>
-                </h3>
-                <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', lineHeight: '1.5', marginBottom: '1.5rem' }}>
-                  Asegura tu cupo en nuestras próximas actividades especiales. Al pre-registrarte recibirás las notificaciones de apertura oficial y métodos de pago.
-                </p>
-
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.9rem', marginBottom: '1.8rem' }}>
-                  {/* Cena item */}
-                  <div style={{ padding: '0.9rem 1.1rem', background: 'rgba(219, 39, 119, 0.08)', borderRadius: '12px', borderLeft: '3px solid #db2777', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <div>
-                      <div style={{ fontWeight: '700', fontSize: '0.92rem', color: 'var(--text-primary)' }}>Cena de Jóvenes 2026</div>
-                      <div style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', marginTop: '2px' }}>Sábado 5 de Diciembre, 2026</div>
-                    </div>
-                    <Link to="/registro?event=cena" style={{ fontSize: '0.82rem', fontWeight: '700', color: '#f472b6', textDecoration: 'none', padding: '0.4rem 0.8rem', background: 'rgba(219, 39, 119, 0.15)', borderRadius: '20px' }}>
-                      Pre-Registro
-                    </Link>
-                  </div>
-
-                  {/* Campamento item */}
-                  <div style={{ padding: '0.9rem 1.1rem', background: 'rgba(5, 150, 105, 0.08)', borderRadius: '12px', borderLeft: '3px solid #059669', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <div>
-                      <div style={{ fontWeight: '700', fontSize: '0.92rem', color: 'var(--text-primary)' }}>Campamento Jóvenes 2027</div>
-                      <div style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', marginTop: '2px' }}>16 al 18 de Abril, 2027</div>
-                    </div>
-                    <Link to="/registro?event=campamento" style={{ fontSize: '0.82rem', fontWeight: '700', color: '#34d399', textDecoration: 'none', padding: '0.4rem 0.8rem', background: 'rgba(5, 150, 105, 0.15)', borderRadius: '20px' }}>
-                      Pre-Registro
-                    </Link>
-                  </div>
-                </div>
-
-                <div style={{ display: 'flex', gap: '0.8rem' }}>
-                  <Link 
-                    to="/registro" 
-                    className="btn-primary-sm"
-                    style={{ flex: 1, margin: 0, padding: '0.75rem 1rem', fontSize: '0.88rem', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
-                  >
-                    Ir a Pre-Registro
-                    <ArrowRight size={14} />
-                  </Link>
-                  <Link 
-                    to="/actividades" 
-                    className="btn-secondary-sm"
-                    style={{ 
-                      flex: 1, 
-                      fontSize: '0.88rem', 
-                      padding: '0.75rem 1rem', 
-                      borderRadius: '50px',
-                      border: '1px solid rgba(255, 255, 255, 0.15)',
-                      background: 'rgba(255, 255, 255, 0.05)',
-                      color: 'var(--text-primary)',
-                      cursor: 'pointer',
-                      fontWeight: '700',
-                      textAlign: 'center',
-                      textDecoration: 'none',
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      justifyContent: 'center'
+                  <div
+                    role="button"
+                    tabIndex={0}
+                    onClick={() => window.dispatchEvent(new CustomEvent('open-cena-modal'))}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        window.dispatchEvent(new CustomEvent('open-cena-modal'));
+                      }
                     }}
+                    title="Toca para abrir el flyer y leer toda la información de la Cena de Jóvenes 2026"
+                    style={{ cursor: 'pointer', position: 'relative' }}
                   >
-                    Ver Actividades
-                  </Link>
+                    <img
+                      src={getImageUrl("/cena-jovenes-2026.jpeg")}
+                      alt="Cena de Jóvenes 2026 - Christmas x Grace"
+                      className="featured-card-poster"
+                    />
+                  </div>
+                </div>
+
+                <div className="featured-card-details" style={{ padding: '1.5rem' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginBottom: '0.5rem' }}>
+                    {/* Cena item */}
+                    <div style={{ padding: '0.85rem 1rem', background: 'rgba(239, 68, 68, 0.08)', borderRadius: '12px', borderLeft: '3px solid #ef4444', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '0.5rem' }}>
+                      <div>
+                        <div style={{ fontWeight: '700', fontSize: '0.9rem', color: 'var(--text-primary)' }}>Cena de Jóvenes: Christmas x Grace</div>
+                        <div style={{ fontSize: '0.76rem', color: 'var(--text-secondary)', marginTop: '2px' }}>Sáb. 5 Dic. · 7:00 PM · RD$ 350 p/p</div>
+                      </div>
+                      <Link to="/registro?event=cena" style={{ fontSize: '0.8rem', fontWeight: '700', color: '#fca5a5', textDecoration: 'none', padding: '0.38rem 0.75rem', background: 'rgba(239, 68, 68, 0.15)', borderRadius: '20px', flexShrink: 0 }}>
+                        Registro
+                      </Link>
+                    </div>
+
+                    {/* Campamento item */}
+                    <div style={{ padding: '0.85rem 1rem', background: 'rgba(5, 150, 105, 0.08)', borderRadius: '12px', borderLeft: '3px solid #059669', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '0.5rem' }}>
+                      <div>
+                        <div style={{ fontWeight: '700', fontSize: '0.9rem', color: 'var(--text-primary)' }}>Campamento Jóvenes 2027</div>
+                        <div style={{ fontSize: '0.76rem', color: 'var(--text-secondary)', marginTop: '2px' }}>16 al 18 de Abril, 2027</div>
+                      </div>
+                      <Link to="/registro?event=campamento" style={{ fontSize: '0.8rem', fontWeight: '700', color: '#34d399', textDecoration: 'none', padding: '0.38rem 0.75rem', background: 'rgba(5, 150, 105, 0.15)', borderRadius: '20px', flexShrink: 0 }}>
+                        Pre-Registro
+                      </Link>
+                    </div>
+                  </div>
+
+                  <div style={{ display: 'flex', gap: '0.8rem' }}>
+                    <Link 
+                      to="/registro?event=cena" 
+                      className="btn-primary-sm"
+                      style={{ flex: 1, margin: 0, padding: '0.75rem 1rem', fontSize: '0.88rem', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
+                    >
+                      Ir a Registro
+                      <ArrowRight size={14} />
+                    </Link>
+                    <Link 
+                      to="/actividades" 
+                      className="btn-secondary-sm"
+                      style={{ 
+                        flex: 1, 
+                        fontSize: '0.88rem', 
+                        padding: '0.75rem 1rem', 
+                        borderRadius: '50px',
+                        border: '1px solid rgba(255, 255, 255, 0.15)',
+                        background: 'rgba(255, 255, 255, 0.05)',
+                        color: 'var(--text-primary)',
+                        cursor: 'pointer',
+                        fontWeight: '700',
+                        textAlign: 'center',
+                        textDecoration: 'none',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        justifyContent: 'center'
+                      }}
+                    >
+                      Ver Actividades
+                    </Link>
+                  </div>
                 </div>
               </div>
             </div>
@@ -231,21 +244,22 @@ const Home = () => {
             {/* Card 1: Cena de Jóvenes */}
             <div className="pre-reg-card cena glass-panel">
               <div className="pre-reg-badge">
-                PRE-REGISTRO
+                REGISTRO ABIERTO
               </div>
-              <h3 className="pre-reg-title">Cena de Jóvenes ICC 2026</h3>
+              <h3 className="pre-reg-title">Cena de Jóvenes 2026: Christmas x Grace</h3>
               <p className="pre-reg-desc">
-                Acompáñanos a celebrar juntos este año de fe y bendición. Una noche especial llena de comunión, cena y edificación para cerrar el año de la mejor manera.
+                Acompáñanos a celebrar juntos este año de fe y bendición (Siervos x Jotapece).<br /><br />
+                <strong>👗 Código de vestimenta: ¡Tu pijama favorita!</strong> (Nota importante: Para mantener un ambiente súper cómodo y respetuoso para todos, te pedimos que tu pijama sea modesta. Por favor, asegúrate de llevar pantalones largos o tipo pants, camisetas holgadas y evita transparencias, shorts cortos, escotes o ropa muy ajustada. ¡La idea es estar cómodos y abrigaditos! 🧸)
               </p>
               
               <div className="pre-reg-meta-list">
                 <div className="pre-reg-meta-item">
                   <Calendar size={14} style={{ color: '#db2777' }} />
-                  <span>Sábado 5 de Diciembre, 2026</span>
+                  <span>Sábado 5 de Diciembre, 2026 · 7:00 PM</span>
                 </div>
                 <div className="pre-reg-meta-item">
                   <Clock size={14} style={{ color: '#db2777' }} />
-                  <span>Precio: Por anunciar</span>
+                  <span>Costo: RD$ 350 p/p (Cuentas ICC)</span>
                 </div>
               </div>
 
@@ -253,7 +267,7 @@ const Home = () => {
                 to="/registro?event=cena" 
                 className="pre-reg-btn"
               >
-                Pre-Registrarse Ahora
+                Registrarse Ahora
               </Link>
             </div>
 

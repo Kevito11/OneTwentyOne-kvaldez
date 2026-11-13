@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { Ticket, User, Mail, Phone, Home, Star, Printer, RotateCcw, MapPin, CheckCircle, X } from 'lucide-react';
 import QRCode from 'qrcode';
+import { getImageUrl } from '../../config/images';
+import PaymentInfoBox from '../../components/PaymentInfoBox/PaymentInfoBox';
 import './Registration.css';
 
 // Mock QR Code SVG
@@ -152,12 +154,12 @@ const Registration = () => {
       case 'cena':
       default:
         return {
-          label: 'Pre-Registro Cena ICC',
+          label: 'Registro Oficial · Christmas x Grace',
           name: 'CENA DE JÓVENES ICC 2026',
-          subtitle: 'Celebración Fin de Año ICC',
+          subtitle: 'Christmas x Grace · Siervos x Jotapece',
           date: 'Sábado 5 de Diciembre, 2026',
           time: '07:00 PM',
-          color: '#db2777',
+          color: '#ef4444',
           cardClass: 'ticket-cena'
         };
     }
@@ -344,45 +346,58 @@ const Registration = () => {
             <div className="registration-info animate-fade-in" key={selectedEvent}>
               {selectedEvent === 'cena' && (
                 <>
-                  <span className="subtitle" style={{ color: '#db2777' }}>
-                    <Star size={16} style={{ color: '#db2777', marginRight: '5px', verticalAlign: 'middle' }} />
-                    Pre-Registro: Cena de Jóvenes 2026
+                  <span className="subtitle" style={{ color: '#ef4444' }}>
+                    <Star size={16} style={{ color: '#ef4444', marginRight: '5px', verticalAlign: 'middle' }} />
+                    Inscripciones Abiertas · Christmas x Grace
                   </span>
                   <h1 className="title">Cena de <span className="text-gradient-cena">Jóvenes</span></h1>
                   <p className="description">
-                    Acompáñanos el <strong>Sábado 5 de Diciembre</strong> en nuestra tradicional Cena de Jóvenes. Un tiempo especial de comunión, cena compartida, dinámicas de grupo y agradecimiento al Señor por este año transcurrido.
+                    Acompáñanos el <strong>Sábado 5 de Diciembre a las 7:00 PM</strong> en nuestra tradicional Cena de Jóvenes: <strong>Christmas x Grace</strong> (Siervos x Jotapece). Un tiempo especial de comunión, cena compartida, dinámicas y agradecimiento al Señor por este año transcurrido.
                   </p>
 
                   <div className="ticket-perks">
                     <div className="perk-item">
-                      <div className="perk-icon" style={{ background: 'rgba(219, 39, 119, 0.1)', color: '#db2777' }}><Star size={24} /></div>
+                      <div className="perk-icon" style={{ background: 'rgba(239, 68, 68, 0.12)', color: '#ef4444' }}><Star size={24} /></div>
                       <div>
                         <h3>Cena & Compañerismo</h3>
-                        <p>Disfrutaremos de una deliciosa comida juntos y un ambiente de celebración en comunidad.</p>
+                        <p>Disfrutaremos de una deliciosa cena juntos y un ambiente de celebración en comunidad.</p>
                       </div>
                     </div>
 
                     <div className="perk-item">
-                      <div className="perk-icon" style={{ background: 'rgba(219, 39, 119, 0.1)', color: '#db2777' }}><Star size={24} /></div>
+                      <div className="perk-icon" style={{ background: 'rgba(239, 68, 68, 0.12)', color: '#ef4444' }}><Star size={24} /></div>
                       <div>
                         <h3>Dinámicas & Sorpresas</h3>
                         <p>Actividades interactivas preparadas especialmente para celebrar este año de fe.</p>
                       </div>
                     </div>
+
+                    <div className="perk-item">
+                      <div className="perk-icon" style={{ background: 'rgba(239, 68, 68, 0.12)', color: '#ef4444' }}><Star size={24} /></div>
+                      <div>
+                        <h3>👗 Código de vestimenta: ¡Tu pijama favorita!</h3>
+                        <p>
+                          (<strong>Nota importante:</strong> Para mantener un ambiente súper cómodo y respetuoso para todos, te pedimos que tu pijama sea modesta. Por favor, asegúrate de llevar pantalones largos o tipo pants, camisetas holgadas y evita transparencias, shorts cortos, escotes o ropa muy ajustada. ¡La idea es estar cómodos y abrigaditos! 🧸)
+                        </p>
+                      </div>
+                    </div>
                   </div>
 
-                  <div className="free-pass-badge" style={{ borderLeft: '4px solid #db2777' }}>
-                    <span className="badge-title">Pre-Registro Abierto</span>
-                    <span className="badge-price" style={{ fontSize: '1.8rem', color: '#db2777' }}>POR ANUNCIAR</span>
-                    <span className="badge-note">* Esta actividad tendrá un costo. Al pre-registrarte aseguras tu cupo, y te avisaremos por correo y redes una vez se abran las inscripciones formales con los montos y métodos de pago.</span>
+                  <div className="free-pass-badge" style={{ borderLeft: '4px solid #ef4444', textAlign: 'left' }}>
+                    <span className="badge-title" style={{ color: '#fca5a5' }}>Costo por Persona</span>
+                    <span className="badge-price" style={{ fontSize: '2.2rem', color: '#ef4444', marginBottom: '0.6rem' }}>RD$ 350 P/P</span>
+                    <span className="badge-note" style={{ display: 'block', marginBottom: '1rem', lineHeight: '1.5' }}>
+                      * Esta cena <strong>no requiere boleto de entrada</strong>. Al completar tu registro aquí recibirás un correo de confirmación con toda la información.
+                    </span>
+                    <PaymentInfoBox participantName={`${formData.firstName} ${formData.lastName}`} />
                   </div>
 
-                  <div className="registration-poster-wrapper glass-panel" style={{ border: '1px dashed rgba(219, 39, 119, 0.3)', padding: '3.5rem 2rem', textAlign: 'center', background: 'rgba(219, 39, 119, 0.02)', borderRadius: '16px' }}>
-                    <div style={{ fontSize: '2.5rem', marginBottom: '1rem' }}>🎉</div>
-                    <h4 style={{ fontSize: '1.2rem', marginBottom: '0.5rem', fontWeight: '700' }}>Portada en Proceso</h4>
-                    <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', lineHeight: '1.5' }}>
-                      La portada oficial de la Cena de Jóvenes estará disponible próximamente.
-                    </p>
+                  <div className="registration-poster-wrapper glass-panel">
+                    <img
+                      src={getImageUrl("/cena-jovenes-2026.jpeg")}
+                      alt="Afiche Oficial Cena de Jóvenes 2026 - Christmas x Grace"
+                      className="featured-card-poster"
+                    />
                   </div>
                 </>
               )}
@@ -435,7 +450,9 @@ const Registration = () => {
 
             {/* Form Column */}
             <div className="registration-form-container glass-panel">
-              <h2 className="form-title">Formulario de Pre-Registro</h2>
+              <h2 className="form-title">
+                {selectedEvent === 'cena' ? 'Formulario de Registro' : 'Formulario de Pre-Registro'}
+              </h2>
 
               {submitError && (
                 <div className="submit-error-alert">
@@ -583,7 +600,9 @@ const Registration = () => {
                 </div>
 
                 <button type="submit" className="submit-btn" disabled={isSubmitting}>
-                  {isSubmitting ? 'Guardando Pre-Registro...' : 'Completar Pre-Registro'}
+                  {isSubmitting
+                    ? (selectedEvent === 'cena' ? 'Guardando Registro...' : 'Guardando Pre-Registro...')
+                    : (selectedEvent === 'cena' ? 'Completar Registro' : 'Completar Pre-Registro')}
                 </button>
               </form>
             </div>
@@ -613,126 +632,235 @@ const Registration = () => {
               <X size={20} />
             </button>
             <div style={{ width: '100%', maxWidth: '700px', display: 'flex', flexDirection: 'column', gap: '2.5rem', alignItems: 'center' }}>
-            <div className="success-header">
-              <CheckCircle size={64} style={{ color: eventDetails.color, margin: '0 auto 1rem auto' }} />
-              <h2>¡Pre-Registro Completado!</h2>
-              <p>Tu cupo de pre-registro para la <strong>{eventDetails.name}</strong> ha sido reservado con éxito. <strong>Te hemos enviado una confirmación por correo</strong>. Más adelante, te notificaremos por correo electrónico y redes sociales con los montos del evento y las instrucciones para realizar tu registro y pago formal.</p>
-            </div>
+            {selectedEvent === 'cena' ? (
+              <>
+                <div className="success-header">
+                  <CheckCircle size={64} style={{ color: '#ef4444', margin: '0 auto 1rem auto' }} />
+                  <h2>¡Registro Completado!</h2>
+                  <p>
+                    Tu registro para la <strong>Cena de Jóvenes ICC 2026 — Christmas x Grace</strong> ha sido recibido con éxito. <strong>Te hemos enviado un correo electrónico de confirmación</strong> con todos los detalles y las cuentas bancarias para realizar tu pago de <strong>RD$ 350 p/p</strong>.
+                  </p>
+                </div>
 
-            {/* Virtual Ticket Card */}
-            <div className={`ticket-card animate-fade-in ${eventDetails.cardClass}`} onClick={(e) => e.stopPropagation()}>
-              <div className="ticket-top">
-                <div className="ticket-header">
-                  <div className="ticket-event-info">
-                    <span className="ticket-event-label">{eventDetails.label}</span>
-                    <span className="ticket-event-name text-gradient" style={{ backgroundImage: `linear-gradient(90deg, #fff 0%, ${eventDetails.color} 100%)` }}>
-                      {eventDetails.name}
-                    </span>
-                    <span className="ticket-event-subtitle">
-                      {eventDetails.subtitle}
-                    </span>
+                {/* Tarjeta de Confirmación de Registro (Sin Boleto / Sin QR) */}
+                <div className="ticket-card animate-fade-in ticket-cena" onClick={(e) => e.stopPropagation()}>
+                  <div className="ticket-top" style={{ borderBottom: 'none' }}>
+                    <div className="ticket-header">
+                      <div className="ticket-event-info">
+                        <span className="ticket-event-label" style={{ color: '#ef4444' }}>Confirmación de Registro</span>
+                        <span className="ticket-event-name text-gradient" style={{ backgroundImage: 'linear-gradient(90deg, #fff 0%, #ef4444 100%)' }}>
+                          CHRISTMAS X GRACE
+                        </span>
+                        <span className="ticket-event-subtitle">
+                          Cena de Jóvenes ICC 2026 · Siervos x Jotapece
+                        </span>
+                      </div>
+                      <div className="ticket-logo">
+                        <span className="t-logo-text">Jóvenes</span>
+                        <div className="t-logo-sub" style={{ color: '#ef4444' }}>I C C</div>
+                      </div>
+                    </div>
+
+                    <div className="ticket-body-grid">
+                      <div className="ticket-info-item">
+                        <span className="ticket-info-label">Participante Registrado</span>
+                        <span className="ticket-info-value">{formData.firstName} {formData.lastName}</span>
+                      </div>
+
+                      <div className="ticket-info-item">
+                        <span className="ticket-info-label">Costo por Persona</span>
+                        <span className="ticket-info-value" style={{ color: '#ef4444', fontWeight: '800' }}>
+                          RD$ 350 P/P
+                        </span>
+                      </div>
+
+                      <div className="ticket-info-item">
+                        <span className="ticket-info-label">Fecha del Evento</span>
+                        <span className="ticket-info-value">Sábado 5 de Diciembre, 2026</span>
+                      </div>
+
+                      <div className="ticket-info-item">
+                        <span className="ticket-info-label">Hora</span>
+                        <span className="ticket-info-value">07:00 PM</span>
+                      </div>
+
+                      <div className="ticket-info-item">
+                        <span className="ticket-info-label">Iglesia</span>
+                        <span className="ticket-info-value">{formData.church || 'Iglesia De Convertidos a Cristo'}</span>
+                      </div>
+
+                      <div className="ticket-info-item">
+                        <span className="ticket-info-label">Modalidad de Acceso</span>
+                        <span className="ticket-info-value" style={{ fontSize: '0.92rem', color: 'var(--text-secondary)' }}>
+                          Listado de Registro (No requiere boleto)
+                        </span>
+                      </div>
+
+                      <div className="ticket-info-item" style={{ gridColumn: '1 / -1' }}>
+                        <span className="ticket-info-label">Código de Vestimenta</span>
+                        <span className="ticket-info-value" style={{ fontSize: '0.92rem', color: '#fde047', lineHeight: '1.5' }}>
+                          👗 Código de vestimenta: ¡Tu pijama favorita! <span style={{ color: 'var(--text-secondary)', fontWeight: '500' }}>(Nota importante: Para mantener un ambiente súper cómodo y respetuoso para todos, te pedimos que tu pijama sea modesta. Por favor, asegúrate de llevar pantalones largos o tipo pants, camisetas holgadas y evita transparencias, shorts cortos, escotes o ropa muy ajustada. ¡La idea es estar cómodos y abrigaditos! 🧸)</span>
+                        </span>
+                      </div>
+                    </div>
+
+                    <div style={{ marginTop: '1.5rem' }}>
+                      <PaymentInfoBox participantName={`${formData.firstName} ${formData.lastName}`} />
+                    </div>
                   </div>
-                  <div className="ticket-logo">
-                    <span className="t-logo-text">Jóvenes</span>
-                    <div className="t-logo-sub" style={{ color: eventDetails.color }}>I C C</div>
+
+                  <div className="ticket-bottom">
+                    <div className="ticket-info-item" style={{ maxWidth: '100%' }}>
+                      <span className="ticket-info-label">Ubicación / Lugar</span>
+                      <span className="ticket-info-value" style={{ fontSize: '0.9rem', fontWeight: '500' }}>
+                        Iglesia De Convertidos a Cristo (ICC) — C/ Dr. Núñez Domínguez #30, La Julia, Santo Domingo
+                      </span>
+                    </div>
                   </div>
                 </div>
 
-                <div className="ticket-body-grid">
-                  <div className="ticket-info-item">
-                    <span className="ticket-info-label">Asistente</span>
-                    <span className="ticket-info-value">{formData.firstName} {formData.lastName}</span>
-                  </div>
+                {/* Actions */}
+                <div className="ticket-actions-bar">
+                  <a
+                    href="https://maps.app.goo.gl/Fu3FiZrv18pzMzdU6"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="ticket-action-btn nav"
+                  >
+                    <MapPin size={18} style={{ color: 'var(--accent-color)' }} />
+                    Ubicación Exacta (Maps)
+                  </a>
 
-                  <div className="ticket-info-item">
-                    <span className="ticket-info-label">
-                      Código de Pre-Registro
-                    </span>
-                    <span className="ticket-info-value" style={{ fontFamily: 'monospace', letterSpacing: '1px', color: eventDetails.color }}>
-                      {ticketCode}
-                    </span>
-                  </div>
-
-                  <div className="ticket-info-item">
-                    <span className="ticket-info-label">Fecha del Evento</span>
-                    <span className="ticket-info-value">
-                      {eventDetails.date}
-                    </span>
-                  </div>
-
-                  <div className="ticket-info-item">
-                    <span className="ticket-info-label">Hora de Apertura</span>
-                    <span className="ticket-info-value">
-                      {eventDetails.time}
-                    </span>
-                  </div>
-
-                  <div className="ticket-info-item">
-                    <span className="ticket-info-label">Costo</span>
-                    <span className="ticket-info-value free-badge" style={{ background: 'rgba(255, 255, 255, 0.05)', color: 'var(--text-secondary)', border: '1px solid rgba(255, 255, 255, 0.1)' }}>
-                      POR ANUNCIAR
-                    </span>
-                  </div>
-
-                  <div className="ticket-info-item">
-                    <span className="ticket-info-label">Iglesia</span>
-                    <span className="ticket-info-value">{formData.church || 'Iglesia De Convertidos a Cristo'}</span>
-                  </div>
+                  <button onClick={handleExitAttempt} className="ticket-action-btn nav">
+                    <RotateCcw size={18} />
+                    Registrar a Otra Persona
+                  </button>
                 </div>
-              </div>
-
-              <div className="ticket-bottom">
-                <div className="ticket-info-item" style={{ maxWidth: '70%' }}>
-                  <span className="ticket-info-label">Ubicación / Lugar</span>
-                  <span className="ticket-info-value" style={{ fontSize: '0.9rem', fontWeight: '500' }}>
-                    Iglesia De Convertidos a Cristo (ICC)<br />
-                    C/ Dr. Núñez Domínguez #30, La Julia, Santo Domingo
-                  </span>
+              </>
+            ) : (
+              <>
+                <div className="success-header">
+                  <CheckCircle size={64} style={{ color: eventDetails.color, margin: '0 auto 1rem auto' }} />
+                  <h2>¡Pre-Registro Completado!</h2>
+                  <p>Tu cupo de pre-registro para la <strong>{eventDetails.name}</strong> ha sido reservado con éxito. <strong>Te hemos enviado una confirmación por correo</strong>. Más adelante, te notificaremos por correo electrónico y redes sociales con los montos del evento y las instrucciones para realizar tu registro y pago formal.</p>
                 </div>
 
-                <div className="qr-code-box">
-                  {qrCodeUrl ? (
-                    <a
-                      href={`${window.location.origin}/ticket/${ticketCode}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-                    >
-                      <img
-                        src={qrCodeUrl}
-                        alt={`Código QR para entrada ${ticketCode}`}
-                        style={{ width: '100%', height: '100%', objectFit: 'contain', cursor: 'pointer' }}
-                      />
-                    </a>
-                  ) : (
-                    <MockQRCode />
-                  )}
+                {/* Virtual Ticket Card */}
+                <div className={`ticket-card animate-fade-in ${eventDetails.cardClass}`} onClick={(e) => e.stopPropagation()}>
+                  <div className="ticket-top">
+                    <div className="ticket-header">
+                      <div className="ticket-event-info">
+                        <span className="ticket-event-label">{eventDetails.label}</span>
+                        <span className="ticket-event-name text-gradient" style={{ backgroundImage: `linear-gradient(90deg, #fff 0%, ${eventDetails.color} 100%)` }}>
+                          {eventDetails.name}
+                        </span>
+                        <span className="ticket-event-subtitle">
+                          {eventDetails.subtitle}
+                        </span>
+                      </div>
+                      <div className="ticket-logo">
+                        <span className="t-logo-text">Jóvenes</span>
+                        <div className="t-logo-sub" style={{ color: eventDetails.color }}>I C C</div>
+                      </div>
+                    </div>
+
+                    <div className="ticket-body-grid">
+                      <div className="ticket-info-item">
+                        <span className="ticket-info-label">Asistente</span>
+                        <span className="ticket-info-value">{formData.firstName} {formData.lastName}</span>
+                      </div>
+
+                      <div className="ticket-info-item">
+                        <span className="ticket-info-label">
+                          Código de Pre-Registro
+                        </span>
+                        <span className="ticket-info-value" style={{ fontFamily: 'monospace', letterSpacing: '1px', color: eventDetails.color }}>
+                          {ticketCode}
+                        </span>
+                      </div>
+
+                      <div className="ticket-info-item">
+                        <span className="ticket-info-label">Fecha del Evento</span>
+                        <span className="ticket-info-value">
+                          {eventDetails.date}
+                        </span>
+                      </div>
+
+                      <div className="ticket-info-item">
+                        <span className="ticket-info-label">Hora de Apertura</span>
+                        <span className="ticket-info-value">
+                          {eventDetails.time}
+                        </span>
+                      </div>
+
+                      <div className="ticket-info-item">
+                        <span className="ticket-info-label">Costo</span>
+                        <span className="ticket-info-value free-badge" style={{ background: 'rgba(255, 255, 255, 0.05)', color: 'var(--text-secondary)', border: '1px solid rgba(255, 255, 255, 0.1)' }}>
+                          POR ANUNCIAR
+                        </span>
+                      </div>
+
+                      <div className="ticket-info-item">
+                        <span className="ticket-info-label">Iglesia</span>
+                        <span className="ticket-info-value">{formData.church || 'Iglesia De Convertidos a Cristo'}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="ticket-bottom">
+                    <div className="ticket-info-item" style={{ maxWidth: '70%' }}>
+                      <span className="ticket-info-label">Ubicación / Lugar</span>
+                      <span className="ticket-info-value" style={{ fontSize: '0.9rem', fontWeight: '500' }}>
+                        Iglesia De Convertidos a Cristo (ICC)<br />
+                        C/ Dr. Núñez Domínguez #30, La Julia, Santo Domingo
+                      </span>
+                    </div>
+
+                    <div className="qr-code-box">
+                      {qrCodeUrl ? (
+                        <a
+                          href={`${window.location.origin}/ticket/${ticketCode}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                        >
+                          <img
+                            src={qrCodeUrl}
+                            alt={`Código QR para entrada ${ticketCode}`}
+                            style={{ width: '100%', height: '100%', objectFit: 'contain', cursor: 'pointer' }}
+                          />
+                        </a>
+                      ) : (
+                        <MockQRCode />
+                      )}
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </div>
 
-            {/* Actions */}
-            <div className="ticket-actions-bar">
-              <button onClick={handlePrint} className="ticket-action-btn print">
-                <Printer size={18} />
-                Imprimir Boleto / PDF
-              </button>
+                {/* Actions */}
+                <div className="ticket-actions-bar">
+                  <button onClick={handlePrint} className="ticket-action-btn print">
+                    <Printer size={18} />
+                    Imprimir Boleto / PDF
+                  </button>
 
-              <a
-                href="https://maps.app.goo.gl/jRX8PC4S3oVrPMQz6"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="ticket-action-btn nav"
-              >
-                <MapPin size={18} style={{ color: 'var(--accent-color)' }} />
-                Cómo llegar (Maps)
-              </a>
+                  <a
+                    href="https://maps.app.goo.gl/jRX8PC4S3oVrPMQz6"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="ticket-action-btn nav"
+                  >
+                    <MapPin size={18} style={{ color: 'var(--accent-color)' }} />
+                    Cómo llegar (Maps)
+                  </a>
 
-              <button onClick={handleExitAttempt} className="ticket-action-btn nav">
-                <RotateCcw size={18} />
-                Registrar a Otro
-              </button>
-            </div>
+                  <button onClick={handleExitAttempt} className="ticket-action-btn nav">
+                    <RotateCcw size={18} />
+                    Registrar a Otro
+                  </button>
+                </div>
+              </>
+            )}
             </div>
           </div>,
           document.body

@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { createPortal } from 'react-dom';
+import { Link } from 'react-router-dom';
 import { TransformWrapper, TransformComponent } from 'react-zoom-pan-pinch';
 import { 
   ChevronLeft, 
@@ -12,6 +13,7 @@ import {
   X, 
   Info 
 } from 'lucide-react';
+import PaymentInfoBox from '../PaymentInfoBox/PaymentInfoBox';
 import './InstagramHighlights.css';
 
 /**
@@ -28,22 +30,22 @@ const INSTAGRAM_PUBLICATIONS = [
     id: 'siervos-post',
     badge: 'Servicio de Siervos',
     ministerio: 'Siervos Para Cristo · OneTwentyOne',
-    titulo: 'La Ira y Yo',
+    titulo: '¿Estás Seguro?',
     subtitulo: 'Jóvenes adultos (18+) · Salón Multiusos',
     horarioTexto: 'Viernes 08:00 PM - 10:00 PM',
     ubicacion: 'Salón Multiusos',
-    instagramUrl: 'https://www.instagram.com/p/DfBGU4BTmKz/',
+    instagramUrl: 'https://www.instagram.com/onetwentyoneicc/',
     images: [
-      '/assets/121-30-10-2026.jpeg'
+      '/assets/121-13-11-2026.jpeg'
     ],
-    // Fecha y hora de inicio: Viernes 30 de Octubre 2026 a las 20:00 (8:00 PM)
-    fechaInicio: new Date(2026, 9, 30, 20, 0, 0),
-    // Fecha y hora de expiración estricta: Viernes 30 de Octubre 2026 a las 22:00 (10:00 PM)
-    fechaFin: new Date(2026, 9, 30, 22, 0, 0),
+    // Fecha y hora de inicio: Viernes 13 de Noviembre 2026 a las 20:00 (8:00 PM)
+    fechaInicio: new Date(2026, 10, 13, 20, 0, 0),
+    // Fecha y hora de expiración estricta: Viernes 13 de Noviembre 2026 a las 22:00 (10:00 PM)
+    fechaFin: new Date(2026, 10, 13, 22, 0, 0),
     schedule: {
       year: 2026,
-      month: 10,
-      day: 30,
+      month: 11,
+      day: 13,
       dayOfWeek: 5,   // Viernes
       startHour: 20,  // 08:00 PM (20:00)
       startMinute: 0,
@@ -52,29 +54,43 @@ const INSTAGRAM_PUBLICATIONS = [
     }
   },
   {
-    id: 'jopece-post',
-    badge: 'Culto de JOTAPECE',
-    ministerio: 'Jóvenes Para Cristo · JOTAPECE',
-    titulo: 'Contenido Bloqueado',
-    subtitulo: 'Adolescentes (Edades 12-17) · Salón Multiusos',
-    horarioTexto: 'Sábado 07:00 PM - 08:30 PM',
-    ubicacion: 'Salón Multiusos',
-    instagramUrl: 'https://www.instagram.com/p/DfCcEeLxSWY/',
+    id: 'cena-post',
+    badge: 'Próxima Actividad · RD$ 350 p/p',
+    ministerio: 'Siervos x Jotapece · Jóvenes ICC',
+    titulo: 'Cena de Jóvenes: Christmas x Grace',
+    subtitulo: 'Sáb. 05 Dic. · 07:00 PM · 👗 Código de vestimenta: ¡Tu pijama favorita! 🧸',
+    horarioTexto: 'Sábado 05 de Diciembre, 2026 · 07:00 PM',
+    ubicacion: 'Salón Principal ICC',
+    instagramUrl: 'https://www.instagram.com/onetwentyoneicc/',
+    registrationUrl: '/registro?event=cena',
+    infoCompleta: {
+      descripcion: 'Acompáñanos el Sábado 5 de Diciembre a las 7:00 PM en nuestra tradicional Cena de Jóvenes: Christmas x Grace (Siervos x Jotapece). Un tiempo especial de comunión, cena compartida, dinámicas y agradecimiento al Señor por este año transcurrido.',
+      vestimentaTitulo: '👗 Código de vestimenta: ¡Tu pijama favorita!',
+      vestimentaTexto: '(Nota importante: Para mantener un ambiente súper cómodo y respetuoso para todos, te pedimos que tu pijama sea modesta. Por favor, asegúrate de llevar pantalones largos o tipo pants, camisetas holgadas y evita transparencias, shorts cortos, escotes o ropa muy ajustada. ¡La idea es estar cómodos y abrigaditos! 🧸)',
+      costo: 'RD$ 350 P/P',
+      notaBoleto: 'Esta cena no requiere ningún tipo de boleto o ticket de entrada. Al completar tu registro recibirás un correo electrónico de confirmación con toda la información.',
+      cuentas: [
+        { banco: 'Banreservas (Cuenta Corriente)', numero: '0102401330' },
+        { banco: 'Banco Popular (Cuenta Corriente RD$)', numero: '805943297' }
+      ],
+      rnc: '424-00200-2',
+      correoIglesia: 'secretaria@convertidosacristo.org'
+    },
     images: [
-      '/assets/JOTAPECE-31-10-2026.jpeg'
+      '/cena-jovenes-2026.jpeg'
     ],
-    // Fecha y hora de inicio: Sábado 31 de Octubre 2026 a las 19:00 (7:00 PM)
-    fechaInicio: new Date(2026, 9, 31, 19, 0, 0),
-    // Fecha y hora de expiración estricta: Sábado 31 de Octubre 2026 a las 20:30 (8:30 PM)
-    fechaFin: new Date(2026, 9, 31, 20, 30, 0),
+    // Fecha y hora de inicio: Sábado 5 de Diciembre 2026 a las 19:00 (7:00 PM)
+    fechaInicio: new Date(2026, 11, 5, 19, 0, 0),
+    // Fecha y hora de expiración estricta: Sábado 5 de Diciembre 2026 a las 22:30 (10:30 PM)
+    fechaFin: new Date(2026, 11, 5, 22, 30, 0),
     schedule: {
       year: 2026,
-      month: 10,
-      day: 31,
+      month: 12,
+      day: 5,
       dayOfWeek: 6,   // Sábado
       startHour: 19,  // 07:00 PM (19:00)
       startMinute: 0,
-      endHour: 20,    // 08:30 PM (20:30)
+      endHour: 22,    // 10:30 PM (22:30)
       endMinute: 30
     }
   }
@@ -322,6 +338,136 @@ function InstagramLightboxModal({ post, initialSlideIndex = 0, onClose }) {
     setIsManualUIHidden(prev => !prev);
   };
 
+  // Vista enriquecida con scroll para eventos con información detallada (ej. Cena de Jóvenes 2026)
+  if (post.infoCompleta) {
+    const info = post.infoCompleta;
+    return (
+      <div
+        className="ig-lightbox-modal is-details-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-label={`Información completa de ${post.titulo}`}
+        onClick={(e) => {
+          if (e.target === e.currentTarget || e.target.classList.contains('ig-details-modal-scroll')) {
+            onClose();
+          }
+        }}
+      >
+        <div className="ig-lightbox-backdrop" />
+
+        {/* Barra superior fija */}
+        <header className="ig-lightbox-top-bar is-fixed-bar" onClick={(e) => e.stopPropagation()}>
+          <div className="ig-lightbox-top-left">
+            <span className="ig-lightbox-badge">{post.badge}</span>
+          </div>
+
+          <button
+            type="button"
+            className="ig-lightbox-close-btn"
+            onClick={onClose}
+            aria-label="Cerrar modal"
+            title="Cerrar (Esc)"
+          >
+            <X size={20} />
+          </button>
+        </header>
+
+        {/* Contenedor desplazable con el Flyer + Toda la Información */}
+        <div className="ig-details-modal-scroll">
+          <div className="ig-details-modal-card" onClick={(e) => e.stopPropagation()}>
+            {/* Flyer Oficial */}
+            <div className="ig-details-poster-wrap">
+              <img
+                src={images[0]}
+                alt={post.titulo}
+                className="ig-details-poster-img"
+              />
+            </div>
+
+            {/* Toda la información legible de la actividad */}
+            <div className="ig-details-body">
+              <span className="ig-details-kicker">{post.ministerio}</span>
+              <h2 className="ig-details-title">{post.titulo}</h2>
+
+              <div className="ig-details-pills">
+                <div className="ig-lightbox-pill">
+                  <Clock size={14} className="ig-lightbox-pill-icon" />
+                  <span>{post.horarioTexto}</span>
+                </div>
+                <a
+                  href="https://maps.app.goo.gl/Fu3FiZrv18pzMzdU6"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="ig-lightbox-pill"
+                  style={{ textDecoration: 'none' }}
+                  title="Abrir ubicación exacta en Google Maps"
+                >
+                  <MapPin size={14} className="ig-lightbox-pill-icon" />
+                  <span>{post.ubicacion} (Ver en Maps)</span>
+                </a>
+                {info.costo && (
+                  <div className="ig-lightbox-pill" style={{ borderColor: 'rgba(239, 68, 68, 0.45)', background: 'rgba(239, 68, 68, 0.14)', color: '#fca5a5' }}>
+                    <span>Costo: {info.costo}</span>
+                  </div>
+                )}
+              </div>
+
+              {info.descripcion && (
+                <p className="ig-details-desc">{info.descripcion}</p>
+              )}
+
+              {/* Código de Vestimenta */}
+              {info.vestimentaTitulo && (
+                <div className="ig-details-box ig-details-dresscode">
+                  <div className="ig-details-box-title">{info.vestimentaTitulo}</div>
+                  <p className="ig-details-box-text">{info.vestimentaTexto}</p>
+                </div>
+              )}
+
+              {/* Cuentas Bancarias y Costo con Botones de Copiar */}
+              {info.cuentas && info.cuentas.length > 0 && (
+                <div className="ig-details-box ig-details-payment">
+                  <div className="ig-details-payment-header">
+                    <div>
+                      <span className="ig-details-payment-label">Costo por Persona</span>
+                      <div className="ig-details-payment-price">{info.costo}</div>
+                    </div>
+                  </div>
+                  {info.notaBoleto && (
+                    <p className="ig-details-payment-note">* {info.notaBoleto}</p>
+                  )}
+                  <PaymentInfoBox />
+                </div>
+              )}
+
+              {/* Botones de Acción */}
+              <div className="ig-details-actions">
+                {post.registrationUrl && (
+                  <Link
+                    to={post.registrationUrl}
+                    onClick={onClose}
+                    className="ig-lightbox-cta-btn ig-details-cta"
+                  >
+                    <Sparkles size={16} />
+                    <span>Registrarse a la Cena ({info.costo})</span>
+                    <ArrowUpRight size={16} />
+                  </Link>
+                )}
+                <button
+                  type="button"
+                  className="ig-details-close-secondary"
+                  onClick={onClose}
+                >
+                  Cerrar
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div 
       className={`ig-lightbox-modal ${isImmersive ? 'is-immersive' : ''} ${isZoomed ? 'is-zoomed' : ''}`}
@@ -503,18 +649,31 @@ function InstagramLightboxModal({ post, initialSlideIndex = 0, onClose }) {
           </div>
         </div>
 
-        {/* Botón CTA hacia la publicación oficial de Instagram */}
-        <a
-          href={post.instagramUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="ig-lightbox-cta-btn"
-          title="Ver publicación completa en Instagram"
-        >
-          <Sparkles size={15} />
-          <span>Ver publicación en Instagram</span>
-          <ArrowUpRight size={15} />
-        </a>
+        {/* Botón CTA hacia Registro o publicación oficial de Instagram */}
+        {post.registrationUrl ? (
+          <Link
+            to={post.registrationUrl}
+            onClick={onClose}
+            className="ig-lightbox-cta-btn"
+            title="Ir al formulario de registro de la Cena de Jóvenes"
+          >
+            <Sparkles size={15} />
+            <span>Registrarse a la Cena (RD$ 350 p/p)</span>
+            <ArrowUpRight size={15} />
+          </Link>
+        ) : (
+          <a
+            href={post.instagramUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="ig-lightbox-cta-btn"
+            title="Ver publicación completa en Instagram"
+          >
+            <Sparkles size={15} />
+            <span>Ver publicación en Instagram</span>
+            <ArrowUpRight size={15} />
+          </a>
+        )}
 
         {/* Indicadores de paginación (Dots) para JOPECE */}
         {hasMultiple && (
@@ -699,7 +858,7 @@ function PublicationCard({
         {/* Hint sutil para primer clic */}
         <div className={`ig-tap-hint ${hasMultiple ? 'with-dots' : ''}`}>
           <Info size={12} />
-          <span>Toca para ampliar foto</span>
+          <span>{post.infoCompleta ? 'Toca para leer toda la información' : 'Toca para ampliar foto'}</span>
         </div>
 
         {/* Flechas de navegación para JOPECE */}
@@ -759,15 +918,28 @@ function PublicationCard({
           <span className="ig-native-subtext">{post.subtitulo}</span>
         </div>
 
-        <button
-          type="button"
-          className="ig-native-details-btn"
-          onClick={() => onOpenModal(post.id, currentIndex)}
-          title="Ver foto y detalles"
-        >
-          <span>Ver foto</span>
-          <ArrowUpRight size={15} />
-        </button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexShrink: 0 }}>
+          {post.registrationUrl && (
+            <Link
+              to={post.registrationUrl}
+              className="ig-native-details-btn"
+              style={{ background: 'rgba(239, 68, 68, 0.2)', borderColor: 'rgba(239, 68, 68, 0.45)', color: '#fca5a5', textDecoration: 'none' }}
+              title="Registrarse a la Cena de Jóvenes"
+            >
+              <span>Registro</span>
+              <ArrowUpRight size={15} />
+            </Link>
+          )}
+          <button
+            type="button"
+            className="ig-native-details-btn"
+            onClick={() => onOpenModal(post.id, currentIndex)}
+            title={post.infoCompleta ? 'Leer toda la información de la actividad' : 'Ver foto y detalles'}
+          >
+            <span>{post.infoCompleta ? 'Ver info' : 'Ver foto'}</span>
+            <ArrowUpRight size={15} />
+          </button>
+        </div>
       </div>
     </article>
   );
@@ -796,6 +968,15 @@ export default function InstagramHighlights() {
     evaluatePreview();
     window.addEventListener('hashchange', evaluatePreview);
     return () => window.removeEventListener('hashchange', evaluatePreview);
+  }, []);
+
+  // Permitir abrir el modal de la Cena desde cualquier flyer del Home
+  useEffect(() => {
+    const handleOpenCena = () => {
+      setActiveModalData({ postId: 'cena-post', initialIndex: 0 });
+    };
+    window.addEventListener('open-cena-modal', handleOpenCena);
+    return () => window.removeEventListener('open-cena-modal', handleOpenCena);
   }, []);
 
   // 2. Temporizador en cliente: evalúa cada 30 segundos si la actividad venció o cambió de estado
