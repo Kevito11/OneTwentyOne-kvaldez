@@ -384,8 +384,41 @@ function doPost(e) {
     var timeFormatted = Utilities.formatDate(now, timezone, "hh:mm:ss a");
 
     var rowData;
+    var rowUpdated = false;
+
     if (isCena) {
-      // Cena de Jóvenes (no requiere boleto; guardamos estado de notificación en Columna K para diferenciar de Pre-Registros)
+      // Si el participante confirma a través del enlace de 1 Clic enviado a su correo,
+      // actualizamos su fila existente de Pre-Registro en vez de duplicarla.
+      var esConfirmacionPrefill = data.isPrefillConfirmation === true || data.isPrefill === true;
+
+      if (esConfirmacionPrefill) {
+        var existingData = sheet.getDataRange().getValues();
+        var targetEmail = data.email ? String(data.email).trim().toLowerCase() : "";
+
+        for (var r = 1; r < existingData.length; r++) {
+          var rowEmail = existingData[r][5] ? String(existingData[r][5]).trim().toLowerCase() : "";
+          if (targetEmail && rowEmail === targetEmail) {
+            var rowNum = r + 1;
+
+            // Actualizar datos personales en su misma fila por si los modificó
+            if (data.firstName) sheet.getRange(rowNum, 4).setValue(data.firstName);
+            if (data.lastName) sheet.getRange(rowNum, 5).setValue(data.lastName);
+            if (data.phone) sheet.getRange(rowNum, 7).setValue(data.phone);
+            if (data.church) sheet.getRange(rowNum, 8).setValue(data.church);
+            if (data.ageGroup) sheet.getRange(rowNum, 9).setValue(data.ageGroup);
+
+            // Marcar fila como confirmada
+            sheet.getRange(rowNum, 3).setValue("REGISTRO-CENA");
+            sheet.getRange(rowNum, 10).setValue(data.event || 'Cena de Jóvenes ICC 2026');
+            sheet.getRange(rowNum, 11).setValue("Registro Confirmado (1-Clic - " + dateFormatted + " " + timeFormatted + ")");
+
+            rowUpdated = true;
+            break;
+          }
+        }
+      }
+
+      // Si no fue por el enlace de prefill o no se encontró en la hoja, se prepara fila para inserción normal
       rowData = [
         dateFormatted,                // Fecha (Columna A)
         timeFormatted,                // Hora (Columna B)
@@ -432,7 +465,10 @@ function doPost(e) {
       ];
     }
 
-    sheet.appendRow(rowData);
+    // Si no se actualizó una fila existente de pre-registro, se agrega una nueva fila
+    if (!rowUpdated) {
+      sheet.appendRow(rowData);
+    }
 
     try {
       enviarCorreoConfirmacion(data);
@@ -902,8 +938,9 @@ function onOpen() {
 
   // Submenú de pruebas para Cena de Jóvenes 2026
   var pruebasCenaMenu = ui.createMenu('Pruebas')
-    .addItem('1. Enviar Prueba: Info de Registro a Pre-Registrados (kevito.valdez@gmail.com)', 'enviarPruebaCenaPreRegistrados')
-    .addItem('2. Enviar Prueba: Confirmación de Nuevo Registro (kevito.valdez@gmail.com)', 'enviarPruebaCenaNuevoRegistro');
+    .addItem('1. Enviar Prueba: Primer Envío (Inscripciones Abiertas)', 'enviarPruebaCenaPreRegistrados')
+    .addItem('2. Enviar Prueba: Segundo Envío / Paso Final (Título Diferente)', 'enviarPruebaCenaSegundoMensaje')
+    .addItem('3. Enviar Prueba: Confirmación de Nuevo Registro', 'enviarPruebaCenaNuevoRegistro');
 
   // Menú principal de Cena de Jóvenes 2026
   var cenaMenu = ui.createMenu('Cena de Jóvenes 2026')
@@ -924,22 +961,41 @@ function onOpen() {
  * incluyendo el afiche oficial, costo de RD$ 350 p/p y cuentas bancarias de ICC
  * (omitiendo la cuenta de ahorros del Banco Popular).
  * 
- * @param {Object} data - Datos del participante (firstName, lastName, email, church)
+ * @param {Object} data - Datos del participante (firstName, lastName, email, phone, church, ageGroup, isReenvio)
  * @param {boolean} isPreRegistrado - true si es para alguien que ya hizo el Pre-Registro; false si acaba de registrarse
+ * @param {boolean} [isReenvio] - true si ya se le había enviado un primer correo previamente (aplica título y mensaje diferenciados)
  */
-function enviarCorreoRegistroCena(data, isPreRegistrado) {
+function enviarCorreoRegistroCena(data, isPreRegistrado, isReenvio) {
   var email = data.email;
   var firstName = data.firstName || "Joven";
   var lastName = data.lastName || "";
   var fullName = (firstName + " " + lastName).trim();
+  var phone = data.phone || "";
   var church = data.church || "Iglesia De Convertidos a Cristo";
+  var ageGroup = data.ageGroup || "";
+  var esSegundoEnvio = isReenvio || data.isReenvio || false;
 
   var subject = isPreRegistrado
-    ? "🎄 ¡Inscripciones Abiertas! Información de Registro y Pago - Cena de Jóvenes 2026 (Christmas x Grace)"
+    ? (esSegundoEnvio
+        ? "🎄 Paso Final: Confirma tu Registro Oficial en 1 Clic - Cena de Jóvenes 2026 (Christmas x Grace)"
+        : "🎄 ¡Inscripciones Abiertas! Confirma tu Registro Oficial en 1 Clic - Cena de Jóvenes 2026 (Christmas x Grace)")
     : "🎄 ¡Registro Confirmado! - Cena de Jóvenes ICC 2026 (Christmas x Grace)";
 
   var flyerUrl = "https://ministeriodejovenesicc.netlify.app/cena-jovenes-2026.jpeg";
-  var registroUrl = "https://ministeriodejovenesicc.netlify.app/registro?event=cena";
+
+  // Enlace con parámetros de pre-rellenado para confirmación automática en 1 clic
+  var prefillParams = [
+    "event=cena",
+    "prefill=1",
+    "fn=" + encodeURIComponent(firstName),
+    "ln=" + encodeURIComponent(lastName),
+    "em=" + encodeURIComponent(email),
+    "ph=" + encodeURIComponent(phone),
+    "ch=" + encodeURIComponent(church),
+    "ag=" + encodeURIComponent(ageGroup)
+  ].join("&");
+  var prefillUrl = "https://ministeriodejovenesicc.netlify.app/registro?" + prefillParams + "#confirmar";
+  var registroUrl = isPreRegistrado ? prefillUrl : "https://ministeriodejovenesicc.netlify.app/registro?event=cena";
   var copiarDatosUrl = "https://ministeriodejovenesicc.netlify.app/registro?event=cena&copy=datos";
   var googleMapsUrl = "https://maps.app.goo.gl/Fu3FiZrv18pzMzdU6";
   var mailtoSubject = encodeURIComponent("Comprobante de Pago - Cena de Jóvenes 2026 - " + fullName);
@@ -949,19 +1005,54 @@ function enviarCorreoRegistroCena(data, isPreRegistrado) {
   var mailtoPagoUrl = "mailto:secretaria@convertidosacristo.org?subject=" + mailtoSubject + "&body=" + mailtoBody;
 
   var introHtml = isPreRegistrado
-    ? `¡Hola <strong>${firstName}</strong>! 👋 ¡Que Dios te bendiga mucho!<br><br>
-       Te escribimos porque realizaste tu <strong>Pre-Registro</strong> para nuestra esperada <strong>Cena de Jóvenes ICC 2026: "Christmas x Grace" (Siervos x Jotapece)</strong>. 🎉<br><br>
-       ¡Ya están abiertas las inscripciones oficiales! Te informamos que <strong>esta cena NO requerirá ningún tipo de boleto o ticket de entrada</strong>. A continuación te compartimos toda la información necesaria, el costo oficial y las cuentas bancarias de la iglesia para que puedas formalizar tu registro y realizar tu pago:`
+    ? (esSegundoEnvio
+        ? `¡Hola <strong>${firstName}</strong>! 👋 ¡Que Dios te bendiga mucho!<br><br>
+           Te escribimos nuevamente para compartirte un <strong>enlace directo de confirmación en 1 solo clic</strong> para nuestra <strong>Cena de Jóvenes ICC 2026: "Christmas x Grace" (Siervos x Jotapece)</strong>. 🎉<br><br>
+           Como ya habías realizado tu Pre-Registro, tus datos están listos en la web para que puedas formalizar tu inscripción oficial sin tener que escribir nada manualmente. Te recordamos que <strong>esta cena NO requerirá boleto físico de entrada</strong>. A continuación puedes confirmar tu registro en 1 clic y ver las cuentas bancarias para tu pago:`
+        : `¡Hola <strong>${firstName}</strong>! 👋 ¡Que Dios te bendiga mucho!<br><br>
+           Te escribimos porque realizaste tu <strong>Pre-Registro</strong> para nuestra esperada <strong>Cena de Jóvenes ICC 2026: "Christmas x Grace" (Siervos x Jotapece)</strong>. 🎉<br><br>
+           ¡Ya están abiertas las inscripciones oficiales! Te informamos que <strong>esta cena NO requerirá ningún tipo de boleto o ticket de entrada</strong>. Para facilitarte todo, hemos preparado un enlace con tus datos listos para que confirmes tu registro en 1 solo clic. A continuación te compartimos toda la información necesaria, el costo oficial y las cuentas bancarias de la iglesia:`)
     : `¡Hola <strong>${firstName}</strong>! 👋 ¡Que Dios te bendiga mucho!<br><br>
        ¡Hemos recibido con éxito tu registro para nuestra <strong>Cena de Jóvenes ICC 2026: "Christmas x Grace" (Siervos x Jotapece)</strong>! 🎉<br><br>
        Te recordamos que <strong>esta actividad NO requiere ningún tipo de boleto o ticket de entrada</strong>; tus datos ya han quedado anotados en nuestra lista oficial de participantes.<br><br>
        A continuación te compartimos el resumen de la actividad y las cuentas bancarias oficiales de la iglesia para realizar tu pago:`;
 
+  // Botón superior destacado para confirmación en 1 clic
+  var preRegTopCtaHtml = isPreRegistrado
+    ? `<tr>
+         <td style="padding: 10px 0 20px 0;">
+           <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #122c1e; border: 2px solid #ef4444; border-radius: 14px; padding: 20px; text-align: center;">
+             <tr>
+               <td align="center">
+                 <div style="color: #86efac; font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 800; margin-bottom: 6px;">
+                   ${esSegundoEnvio ? "✨ ENLACE DIRECTO DE CONFIRMACIÓN" : "✨ TUS DATOS DEL PRE-REGISTRO YA ESTÁN LISTOS"}
+                 </div>
+                 <div style="color: #ffffff; font-size: 17px; font-weight: 800; margin-bottom: 8px;">
+                   ¡Confirma tu cupo oficial con 1 solo clic!
+                 </div>
+                 <div style="color: #d1fae5; font-size: 13px; line-height: 1.5; margin-bottom: 16px; max-width: 440px;">
+                   ${esSegundoEnvio
+                     ? "Tus datos del pre-registro ya están cargados. Solo haz clic en el botón de abajo para asegurar tu lugar sin tener que volver a escribir nada:"
+                     : "Para facilitarte todo, hemos preparado este enlace con tus datos ya cargados. Toca el botón y confirma tu registro sin volver a escribir nada manualmente:"}
+                 </div>
+                 <a href="${prefillUrl}" target="_blank" style="background-color: #ef4444; color: #ffffff; display: inline-block; padding: 15px 30px; font-weight: 900; border-radius: 50px; text-decoration: none; font-size: 15px; letter-spacing: 0.3px; box-shadow: 0 4px 16px rgba(239, 68, 68, 0.45);">
+                   🎄 Confirmar Mi Registro en 1 Clic
+                 </a>
+                 <div style="color: #9ca3af; font-size: 11px; margin-top: 10px;">
+                   (Te llevará a la página oficial con tu formulario ya completado para confirmar)
+                 </div>
+               </td>
+             </tr>
+           </table>
+         </td>
+       </tr>`
+    : "";
+
   var preRegButtonHtml = isPreRegistrado
     ? `<tr>
          <td align="center" style="padding: 20px 0 8px 0;">
-           <a href="${registroUrl}" target="_blank" style="background-color: #ef4444; color: #ffffff; display: inline-block; padding: 14px 28px; font-weight: 800; border-radius: 50px; text-decoration: none; font-size: 14px; letter-spacing: 0.4px;">
-             🎄 Ver Página de Registro y Detalles
+           <a href="${prefillUrl}" target="_blank" style="background-color: #ef4444; color: #ffffff; display: inline-block; padding: 14px 28px; font-weight: 800; border-radius: 50px; text-decoration: none; font-size: 14px; letter-spacing: 0.4px;">
+             🎄 Ir a Confirmar Registro Oficial con mis Datos
            </a>
          </td>
        </tr>`
@@ -1000,6 +1091,8 @@ function enviarCorreoRegistroCena(data, isPreRegistrado) {
                 </td>
               </tr>
 
+              ${preRegTopCtaHtml}
+
               <!-- Resumen del Evento (Sin Boleto / Sin QR) -->
               <tr>
                 <td>
@@ -1026,9 +1119,19 @@ function enviarCorreoRegistroCena(data, isPreRegistrado) {
                       <td style="font-size: 11px; color: #86efac; text-transform: uppercase; letter-spacing: 1px; padding-bottom: 2px;">Código de Vestimenta</td>
                     </tr>
                     <tr>
-                      <td style="font-size: 13px; color: #fde047; font-weight: 700; padding-bottom: 12px; line-height: 1.55;">
+                      <td style="font-size: 13px; color: #fde047; font-weight: 700; padding-bottom: 12px; line-height: 1.6;">
                         👗 Código de vestimenta: ¡Tu pijama favorita!<br>
-                        <span style="color: #e5e7eb; font-weight: normal; font-size: 12.5px;">(Nota importante: Para mantener un ambiente súper cómodo y respetuoso para todos, te pedimos que tu pijama sea modesta. Por favor, asegúrate de llevar pantalones largos o tipo pants, camisetas holgadas y evita transparencias, shorts cortos, escotes o ropa muy ajustada. ¡La idea es estar cómodos y abrigaditos! 🧸)</span>
+                        <span style="color: #e5e7eb; font-weight: normal; font-size: 12.5px;">
+                          Para mantener un ambiente familiar, cómodo y respetuoso, te pedimos que tu pijama sea modesta (pantalones largos o tipo pants y camisetas holgadas).<br><br>
+                          <strong style="color: #fca5a5;">🚫 Qué NO se debe llevar:</strong><br>
+                          • <strong>NO</strong> ninguna clase de short.<br>
+                          • <strong>NO</strong> transparencias ni encajes reveladores.<br>
+                          • <strong>NO</strong> escotes pronunciados ni blusas de tirantes finos.<br>
+                          • <strong>NO</strong> ropa muy ceñida o ajustada (leggings sin cubrir, crop tops).<br>
+                          • <strong>NO</strong> batas cortas o prendas tipo lencería.<br><br>
+                          💡 <em>¿No tienes pijama?</em> ¡No te preocupes! Puedes asistir en <strong>jean y abrigo</strong>.<br><br>
+                          ¡La idea es estar cómodos y abrigaditos con pudor! 🧸
+                        </span>
                       </td>
                     </tr>
                     <tr>
@@ -1155,18 +1258,43 @@ function enviarCorreoRegistroCena(data, isPreRegistrado) {
 }
 
 /**
- * Envía un correo de prueba al administrador con la plantilla para quienes ya hicieron el Pre-Registro de la Cena.
+ * Envía un correo de prueba al administrador con la plantilla para quienes reciben el correo por primera vez.
  */
 function enviarPruebaCenaPreRegistrados() {
   var adminEmail = "kevito.valdez@gmail.com";
   try {
     enviarCorreoRegistroCena({
       email: adminEmail,
-      firstName: "Kevin (Prueba Pre-Registro)",
+      firstName: "Kevin (Prueba 1er Envío)",
       lastName: "Valdez",
-      church: "Iglesia De Convertidos a Cristo"
-    }, true);
-    SpreadsheetApp.getUi().alert("Correo de prueba (Pre-Registrados Cena de Jóvenes) enviado a " + adminEmail);
+      phone: "809-555-0199",
+      church: "Iglesia De Convertidos a Cristo",
+      ageGroup: "18-25",
+      isReenvio: false
+    }, true, false);
+    SpreadsheetApp.getUi().alert("Correo de prueba (Primer Envío: ¡Inscripciones Abiertas!) enviado a " + adminEmail);
+  } catch (e) {
+    SpreadsheetApp.getUi().alert("Error al enviar prueba: " + e.toString());
+  }
+}
+
+/**
+ * Envía un correo de prueba al administrador con la plantilla del Segundo Mensaje (Paso Final - Título Diferente)
+ * para quienes ya habían recibido una notificación previa.
+ */
+function enviarPruebaCenaSegundoMensaje() {
+  var adminEmail = "kevito.valdez@gmail.com";
+  try {
+    enviarCorreoRegistroCena({
+      email: adminEmail,
+      firstName: "Kevin (Prueba 2do Mensaje)",
+      lastName: "Valdez",
+      phone: "809-555-0199",
+      church: "Iglesia De Convertidos a Cristo",
+      ageGroup: "18-25",
+      isReenvio: true
+    }, true, true);
+    SpreadsheetApp.getUi().alert("Correo de prueba (Segundo Envío: Paso Final) enviado a " + adminEmail);
   } catch (e) {
     SpreadsheetApp.getUi().alert("Error al enviar prueba: " + e.toString());
   }
@@ -1182,7 +1310,9 @@ function enviarPruebaCenaNuevoRegistro() {
       email: adminEmail,
       firstName: "Kevin (Prueba Nuevo Registro)",
       lastName: "Valdez",
-      church: "Iglesia De Convertidos a Cristo"
+      phone: "809-555-0199",
+      church: "Iglesia De Convertidos a Cristo",
+      ageGroup: "18-25"
     }, false);
     SpreadsheetApp.getUi().alert("Correo de prueba (Nuevo Registro Cena de Jóvenes) enviado a " + adminEmail);
   } catch (e) {
@@ -1192,13 +1322,19 @@ function enviarPruebaCenaNuevoRegistro() {
 
 /**
  * Botón / Función de envío masivo para todas las personas que ya hicieron el Pre-Registro
- * en la hoja "Cena de Jóvenes", enviándoles las informaciones necesarias de registro y pago.
+ * en la hoja "Cena de Jóvenes", enviándoles el botón de confirmación en 1 clic.
+ * 
+ * • A quienes ya se les envió un primer mensaje: se les envía con el título actualizado ("🎄 Paso Final: Confirma tu Registro Oficial en 1 Clic").
+ * • A quienes no han recibido mensaje aún: se les envía con el título de apertura oficial ("🎄 ¡Inscripciones Abiertas! Confirma tu Registro Oficial en 1 Clic").
  */
 function enviarMasivoCenaPreRegistrados() {
   var ui = SpreadsheetApp.getUi();
   var response = ui.alert(
     'Confirmación de envío masivo - Cena de Jóvenes 2026',
-    '¿Estás seguro de que deseas enviar el correo con la información oficial (RD$ 350 p/p y cuentas de pago ICC) a todas las personas que hicieron el Pre-Registro en la hoja "Cena de Jóvenes"?',
+    'Se enviará el correo con el botón de confirmación en 1 clic a los pre-registrados en la hoja "Cena de Jóvenes":\n\n' +
+    '• A quienes ya se les envió un primer mensaje: recibirán el correo con el título actualizado ("🎄 Paso Final: Confirma tu Registro Oficial en 1 Clic").\n' +
+    '• A los nuevos pre-registrados: recibirán el correo de apertura ("🎄 ¡Inscripciones Abiertas! Confirma tu Registro Oficial en 1 Clic").\n\n' +
+    '¿Deseas continuar con el envío?',
     ui.ButtonSet.YES_NO
   );
 
@@ -1213,27 +1349,45 @@ function enviarMasivoCenaPreRegistrados() {
   }
 
   var data = sheet.getDataRange().getValues();
-  var count = 0;
+  var countNuevos = 0;
+  var countSegundoEnvio = 0;
 
   for (var i = 1; i < data.length; i++) {
     var firstName = data[i][3]; // Columna D: Nombre
     var lastName = data[i][4];  // Columna E: Apellido
     var email = data[i][5];     // Columna F: Correo
+    var phone = data[i][6];     // Columna G: Teléfono
     var church = data[i][7];    // Columna H: Iglesia
+    var ageGroup = data[i][8];  // Columna I: Rango de edad
     var estadoEnvio = data[i][10] ? String(data[i][10]).trim() : ""; // Columna K: Estado de Notificación
 
-    // Enviar a todos los pre-registrados que tengan correo válido y aún no hayan sido notificados
-    if (email && String(email).trim().indexOf("@") !== -1 && estadoEnvio === "") {
+    // Comprobar si ya se le envió este enlace de 1 Clic
+    var yaTieneEnlace1Clic = estadoEnvio.indexOf("1-Clic") !== -1;
+    var yaRecibioPrimerMensaje = estadoEnvio !== "" && !yaTieneEnlace1Clic;
+
+    // Procesar a quienes tengan correo válido y no hayan recibido aún el enlace de 1 Clic
+    if (email && String(email).trim().indexOf("@") !== -1 && !yaTieneEnlace1Clic) {
       try {
+        var esSegundo = yaRecibioPrimerMensaje;
+
         enviarCorreoRegistroCena({
           email: String(email).trim(),
           firstName: firstName,
           lastName: lastName,
-          church: church
-        }, true);
+          phone: phone,
+          church: church,
+          ageGroup: ageGroup,
+          isReenvio: esSegundo
+        }, true, esSegundo);
 
-        count++;
-        sheet.getRange(i + 1, 11).setValue("Info Pre-Registro Enviada (" + new Date().toLocaleDateString() + ")");
+        if (esSegundo) {
+          countSegundoEnvio++;
+          sheet.getRange(i + 1, 11).setValue("Info 1-Clic Enviada (2do Mensaje - " + new Date().toLocaleDateString() + ")");
+        } else {
+          countNuevos++;
+          sheet.getRange(i + 1, 11).setValue("Info 1-Clic Enviada (1er Mensaje - " + new Date().toLocaleDateString() + ")");
+        }
+
         Utilities.sleep(150); // Pausa prudente para respetar cuota de Apps Script
       } catch (e) {
         console.error("Error enviando correo de Cena a " + email + ": " + e.toString());
@@ -1242,7 +1396,14 @@ function enviarMasivoCenaPreRegistrados() {
   }
 
   SpreadsheetApp.flush();
-  ui.alert("Proceso completado", "Se han enviado " + count + " correos con la información de registro y pago a los pre-registrados de la Cena de Jóvenes.", ui.ButtonSet.OK);
+  ui.alert(
+    "Proceso completado",
+    "Se completó el envío de correos:\n\n" +
+    "• Segundo mensaje (Paso Final - Título Diferente): " + countSegundoEnvio + "\n" +
+    "• Primer mensaje (Nuevos pre-registrados): " + countNuevos + "\n" +
+    "• Total enviados: " + (countSegundoEnvio + countNuevos),
+    ui.ButtonSet.OK
+  );
 }
 
 /**

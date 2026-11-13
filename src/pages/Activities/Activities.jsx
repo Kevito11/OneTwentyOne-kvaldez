@@ -90,7 +90,7 @@ const activitiesList = [
     time: "07:00 PM · Costo: RD$ 350 p/p · Temática: Pijamas",
     location: "Salón Principal ICC",
     mapLink: "https://maps.app.goo.gl/Fu3FiZrv18pzMzdU6",
-    description: "Nuestra tradicional cena de fin de año (Siervos x Jotapece). Un tiempo especial de comunión, cena compartida y agradecimiento al Señor. 👗 Código de vestimenta: ¡Tu pijama favorita! (Nota importante: Para mantener un ambiente súper cómodo y respetuoso para todos, te pedimos que tu pijama sea modesta. Por favor, asegúrate de llevar pantalones largos o tipo pants, camisetas holgadas y evita transparencias, shorts cortos, escotes o ropa muy ajustada. ¡La idea es estar cómodos y abrigaditos! 🧸)",
+    description: "Nuestra tradicional cena de fin de año (Siervos x Jotapece). Un tiempo especial de comunión, cena compartida y agradecimiento al Señor. 👗 Código de vestimenta: ¡Tu pijama favorita! (Por favor pijama modesta: pantalones largos o pants y camisetas holgadas. Si no tienes pijama puedes ir en jean y abrigo. 🚫 Estrictamente NO: ninguna clase de short, escotes, transparencias, ropa muy ajustada o prendas tipo lencería. Mantengamos el pudor 🧸)",
     tag: "Registro Abierto · RD$ 350 p/p",
     countdownTarget: getDynamicTargetDate(12, 5, 19, 0)
   },
@@ -872,8 +872,17 @@ const Activities = () => {
                       <div style={{ fontSize: '0.88rem', fontWeight: '800', color: '#fde047', marginBottom: '0.45rem' }}>
                         👗 Código de vestimenta: ¡Tu pijama favorita!
                       </div>
-                      <p style={{ margin: 0, fontSize: '0.92rem', color: 'var(--text-primary)', lineHeight: '1.55' }}>
-                        (<strong>Nota importante:</strong> Para mantener un ambiente súper cómodo y respetuoso para todos, te pedimos que tu pijama sea modesta. Por favor, asegúrate de llevar pantalones largos o tipo pants, camisetas holgadas y evita transparencias, shorts cortos, escotes o ropa muy ajustada. ¡La idea es estar cómodos y abrigaditos! 🧸)
+                      <p style={{ margin: 0, fontSize: '0.92rem', color: 'var(--text-primary)', lineHeight: '1.6' }}>
+                        (<strong>Nota importante:</strong> Para mantener un ambiente súper cómodo, familiar y respetuoso para todos, te pedimos que tu pijama sea modesta y con pudor (pantalones largos o tipo pants y camisetas holgadas).
+                        <br /><br />
+                        <strong style={{ color: '#fca5a5' }}>🚫 Qué NO se debe llevar:</strong><br />
+                        • <strong>NO</strong> ninguna clase de short.<br />
+                        • <strong>NO</strong> transparencias ni encajes reveladores.<br />
+                        • <strong>NO</strong> escotes pronunciados ni blusas de tirantes finos.<br />
+                        • <strong>NO</strong> ropa ceñida o muy ajustada (leggings sin cubrir, crop tops, etc.).<br />
+                        • <strong>NO</strong> batas cortas o prendas tipo lencería.<br /><br />
+                        💡 <em>¿No tienes pijama?</em> ¡No te preocupes! Puedes asistir en <strong>jean y abrigo</strong>.<br /><br />
+                        ¡La idea es estar cómodos y abrigaditos! 🧸)
                       </p>
                     </div>
                     <div style={{ marginBottom: '1.5rem' }}>

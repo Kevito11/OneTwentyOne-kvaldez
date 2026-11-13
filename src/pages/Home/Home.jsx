@@ -249,7 +249,7 @@ const Home = () => {
               <h3 className="pre-reg-title">Cena de Jóvenes 2026: Christmas x Grace</h3>
               <p className="pre-reg-desc">
                 Acompáñanos a celebrar juntos este año de fe y bendición (Siervos x Jotapece).<br /><br />
-                <strong>👗 Código de vestimenta: ¡Tu pijama favorita!</strong> (Nota importante: Para mantener un ambiente súper cómodo y respetuoso para todos, te pedimos que tu pijama sea modesta. Por favor, asegúrate de llevar pantalones largos o tipo pants, camisetas holgadas y evita transparencias, shorts cortos, escotes o ropa muy ajustada. ¡La idea es estar cómodos y abrigaditos! 🧸)
+                <strong>👗 Código de vestimenta: ¡Tu pijama favorita!</strong> (Pantalones largos o pants y camisetas holgadas. Si no tienes pijama, puedes ir en <strong>jean y abrigo</strong>. <strong>🚫 Estrictamente NO:</strong> ninguna clase de short, escotes, transparencias, ropa muy ajustada ni prendas tipo lencería. ¡La idea es estar cómodos y abrigaditos con pudor! 🧸)
               </p>
               
               <div className="pre-reg-meta-list">

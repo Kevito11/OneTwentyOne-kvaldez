@@ -71,6 +71,7 @@ const Registration = () => {
 
   // Selected Event State ('cena' | 'campamento')
   const [selectedEvent, setSelectedEvent] = useState('cena');
+  const [isPrefilled, setIsPrefilled] = useState(false);
 
   // Read URL query parameter on load
   useEffect(() => {
@@ -80,6 +81,68 @@ const Registration = () => {
       setSelectedEvent('campamento');
     } else {
       setSelectedEvent('cena');
+    }
+
+    const prefill = params.get('prefill') === '1' || params.get('auto') === '1';
+    const fn = (params.get('fn') || params.get('firstName') || '').trim();
+    const ln = (params.get('ln') || params.get('lastName') || '').trim();
+    const em = (params.get('em') || params.get('email') || '').trim();
+    const ph = (params.get('ph') || params.get('phone') || '').trim();
+    const ch = (params.get('ch') || params.get('church') || '').trim();
+    const ag = (params.get('ag') || params.get('ageGroup') || '').trim();
+
+    if (prefill || fn || em) {
+      setIsPrefilled(true);
+
+      const isGuestChurch = ch.toLowerCase() === 'invitado';
+      let churchSelection = '';
+      let customChurchVal = '';
+
+      if (isGuestChurch) {
+        churchSelection = '';
+        customChurchVal = '';
+      } else if (ch) {
+        const found = CHURCH_OPTIONS.find(opt => opt.toLowerCase() === ch.toLowerCase());
+        if (found) {
+          churchSelection = found;
+          customChurchVal = '';
+        } else {
+          churchSelection = 'Otra';
+          customChurchVal = ch;
+        }
+      } else {
+        churchSelection = 'Iglesia De Convertidos a Cristo';
+        customChurchVal = '';
+      }
+
+      const validAges = ['12-17', '18-25', '26-35', '35+'];
+      let ageVal = '18-25';
+      if (ag) {
+        const foundAge = validAges.find(a => a === ag || ag.includes(a));
+        if (foundAge) ageVal = foundAge;
+      }
+
+      setFormData(prev => ({
+        ...prev,
+        firstName: fn || prev.firstName,
+        lastName: ln || prev.lastName,
+        email: em || prev.email,
+        phone: ph || prev.phone,
+        church: isGuestChurch ? 'Invitado' : (churchSelection === 'Otra' ? customChurchVal : churchSelection),
+        isGuest: isGuestChurch,
+        ageGroup: ageVal
+      }));
+
+      setSelectedChurch(churchSelection);
+      setCustomChurch(customChurchVal);
+
+      // Desplazamiento suave al contenedor de confirmación
+      setTimeout(() => {
+        const targetElement = document.getElementById('confirmar') || document.querySelector('.registration-form-container');
+        if (targetElement) {
+          targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }, 400);
     }
   }, []);
 
@@ -221,7 +284,11 @@ const Registration = () => {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+    if (e && e.preventDefault) e.preventDefault();
+    if (!formData.firstName.trim() || !formData.email.trim()) {
+      setSubmitError('Por favor verifica que tu nombre y correo electrónico estén completos.');
+      return;
+    }
     setIsSubmitting(true);
     setSubmitError('');
 
@@ -265,6 +332,8 @@ const Registration = () => {
             ? 'Campamento de Jóvenes 2027' 
             : 'Cena de Jóvenes 2026',
           eventType: selectedEvent,
+          isPrefillConfirmation: isPrefilled && selectedEvent === 'cena',
+          isPrefill: isPrefilled && selectedEvent === 'cena',
           ticketUrl: `${window.location.origin}/ticket/${generatedCode}`,
           ticketLink: `${window.location.origin}/ticket/${generatedCode}`,
           validationUrl: `${window.location.origin}/ticket/${generatedCode}`,
@@ -376,8 +445,19 @@ const Registration = () => {
                       <div className="perk-icon" style={{ background: 'rgba(239, 68, 68, 0.12)', color: '#ef4444' }}><Star size={24} /></div>
                       <div>
                         <h3>👗 Código de vestimenta: ¡Tu pijama favorita!</h3>
-                        <p>
-                          (<strong>Nota importante:</strong> Para mantener un ambiente súper cómodo y respetuoso para todos, te pedimos que tu pijama sea modesta. Por favor, asegúrate de llevar pantalones largos o tipo pants, camisetas holgadas y evita transparencias, shorts cortos, escotes o ropa muy ajustada. ¡La idea es estar cómodos y abrigaditos! 🧸)
+                        <p style={{ lineHeight: '1.6' }}>
+                          (<strong>Nota importante:</strong> Para mantener un ambiente súper cómodo, familiar y respetuoso para todos, te pedimos que tu pijama sea completamente modesta y con pudor. Por favor, asegúrate de llevar pantalones largos o tipo pants y camisetas holgadas.
+                          <br /><br />
+                          <strong style={{ color: '#fca5a5' }}>🚫 Qué NO se debe llevar:</strong>
+                          <br />
+                          • <strong>NO</strong> ninguna clase de short.<br />
+                          • <strong>NO</strong> transparencias ni encajes reveladores.<br />
+                          • <strong>NO</strong> escotes pronunciados ni blusas de tirantes finos.<br />
+                          • <strong>NO</strong> ropa ceñida o muy ajustada (leggings sin cubrir, crop tops, etc.).<br />
+                          • <strong>NO</strong> batas cortas o prendas tipo lencería.
+                          <br /><br />
+                          💡 <em>¿No tienes pijama?</em> ¡No te preocupes! Puedes asistir en <strong>jean y abrigo</strong>.<br /><br />
+                          ¡La idea es que todos estemos cómodos, abrigaditos y compartiendo en bendición! 🧸)
                         </p>
                       </div>
                     </div>
@@ -451,10 +531,97 @@ const Registration = () => {
             </div>
 
             {/* Form Column */}
-            <div className="registration-form-container glass-panel">
+            <div className="registration-form-container glass-panel" id="confirmar">
               <h2 className="form-title">
                 {selectedEvent === 'cena' ? 'Formulario de Registro' : 'Formulario de Pre-Registro'}
               </h2>
+
+              {/* Tarjeta de Confirmación Rápida con 1 Clic para Pre-Registrados */}
+              {isPrefilled && selectedEvent === 'cena' && (
+                <div
+                  className="prefill-express-card animate-fade-in"
+                  style={{
+                    background: 'linear-gradient(135deg, rgba(239, 68, 68, 0.18), rgba(18, 44, 30, 0.75))',
+                    border: '2px solid #ef4444',
+                    borderRadius: '16px',
+                    padding: '1.4rem',
+                    marginBottom: '1.8rem',
+                    boxShadow: '0 8px 32px rgba(239, 68, 68, 0.25)',
+                    textAlign: 'left'
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '0.6rem' }}>
+                    <span style={{ fontSize: '1.3rem' }}>🎄</span>
+                    <span
+                      style={{
+                        fontSize: '0.76rem',
+                        fontWeight: '800',
+                        letterSpacing: '1px',
+                        textTransform: 'uppercase',
+                        color: '#86efac',
+                        background: 'rgba(34, 197, 94, 0.15)',
+                        padding: '0.2rem 0.65rem',
+                        borderRadius: '50px',
+                        border: '1px solid rgba(34, 197, 94, 0.3)'
+                      }}
+                    >
+                      Pre-Registro Encontrado
+                    </span>
+                  </div>
+
+                  <h3 style={{ fontSize: '1.3rem', fontWeight: '800', color: '#ffffff', margin: '0 0 0.4rem 0', lineHeight: '1.3' }}>
+                    ¡Hola {formData.firstName || 'Joven'}! Ya cargamos tus datos
+                  </h3>
+                  <p style={{ color: '#d1fae5', fontSize: '0.88rem', margin: '0 0 1rem 0', lineHeight: '1.5' }}>
+                    Identificamos tu pre-registro con éxito. Solo haz clic en el siguiente botón para <strong>confirmar tu inscripción oficial</strong> a la Cena de Jóvenes 2026 sin tener que volver a escribir nada:
+                  </p>
+
+                  <div
+                    style={{
+                      background: 'rgba(0, 0, 0, 0.45)',
+                      borderRadius: '10px',
+                      padding: '0.85rem 1rem',
+                      marginBottom: '1.2rem',
+                      border: '1px solid rgba(255, 255, 255, 0.08)',
+                      fontSize: '0.84rem',
+                      color: '#e2e8f0',
+                      display: 'grid',
+                      gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))',
+                      gap: '0.5rem'
+                    }}
+                  >
+                    <div><span style={{ color: '#94a3b8' }}>Nombre:</span> <strong style={{ color: '#fff' }}>{formData.firstName} {formData.lastName}</strong></div>
+                    <div><span style={{ color: '#94a3b8' }}>Correo:</span> <strong style={{ color: '#fff' }}>{formData.email}</strong></div>
+                    {formData.phone && <div><span style={{ color: '#94a3b8' }}>Teléfono:</span> <strong style={{ color: '#fff' }}>{formData.phone}</strong></div>}
+                    <div><span style={{ color: '#94a3b8' }}>Iglesia:</span> <strong style={{ color: '#fff' }}>{formData.church || 'Iglesia De Convertidos a Cristo'}</strong></div>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={handleSubmit}
+                    disabled={isSubmitting}
+                    className="submit-btn"
+                    style={{
+                      background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+                      boxShadow: '0 4px 18px rgba(239, 68, 68, 0.45)',
+                      fontSize: '1.05rem',
+                      fontWeight: '800',
+                      padding: '0.95rem 1.5rem',
+                      margin: 0,
+                      width: '100%',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    {isSubmitting ? 'Confirmando tu Registro...' : '✨ Confirmar Mi Registro Oficial Ahora (1 Clic)'}
+                  </button>
+
+                  <div style={{ textAlign: 'center', marginTop: '0.75rem' }}>
+                    <span style={{ fontSize: '0.78rem', color: '#94a3b8' }}>
+                      ¿Deseas corregir algún dato? Puedes editar los campos del formulario de abajo antes de confirmar.
+                    </span>
+                  </div>
+                </div>
+              )}
 
               {submitError && (
                 <div className="submit-error-alert">
@@ -604,7 +771,9 @@ const Registration = () => {
                 <button type="submit" className="submit-btn" disabled={isSubmitting}>
                   {isSubmitting
                     ? (selectedEvent === 'cena' ? 'Guardando Registro...' : 'Guardando Pre-Registro...')
-                    : (selectedEvent === 'cena' ? 'Completar Registro' : 'Completar Pre-Registro')}
+                    : (isPrefilled && selectedEvent === 'cena'
+                        ? 'Confirmar mi Registro Oficial (1 Clic)'
+                        : (selectedEvent === 'cena' ? 'Completar Registro' : 'Completar Pre-Registro'))}
                 </button>
               </form>
             </div>
@@ -700,8 +869,8 @@ const Registration = () => {
 
                       <div className="ticket-info-item" style={{ gridColumn: '1 / -1' }}>
                         <span className="ticket-info-label">Código de Vestimenta</span>
-                        <span className="ticket-info-value" style={{ fontSize: '0.92rem', color: '#fde047', lineHeight: '1.5' }}>
-                          👗 Código de vestimenta: ¡Tu pijama favorita! <span style={{ color: 'var(--text-secondary)', fontWeight: '500' }}>(Nota importante: Para mantener un ambiente súper cómodo y respetuoso para todos, te pedimos que tu pijama sea modesta. Por favor, asegúrate de llevar pantalones largos o tipo pants, camisetas holgadas y evita transparencias, shorts cortos, escotes o ropa muy ajustada. ¡La idea es estar cómodos y abrigaditos! 🧸)</span>
+                        <span className="ticket-info-value" style={{ fontSize: '0.92rem', color: '#fde047', lineHeight: '1.55' }}>
+                          👗 Código de vestimenta: ¡Tu pijama favorita! <span style={{ color: 'var(--text-secondary)', fontWeight: '500' }}>(Pantalones largos o pants, camisetas holgadas. Si no tienes pijama puedes ir en <strong>jean y abrigo</strong>. <strong>🚫 Estrictamente NO:</strong> ninguna clase de short, escotes, transparencias, ropa muy ajustada o prendas tipo lencería. Mantengamos el pudor y la modestia cristiana 🧸)</span>
                         </span>
                       </div>
                     </div>

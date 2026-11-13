@@ -66,7 +66,7 @@ const INSTAGRAM_PUBLICATIONS = [
     infoCompleta: {
       descripcion: 'Acompáñanos el Sábado 5 de Diciembre a las 7:00 PM en nuestra tradicional Cena de Jóvenes: Christmas x Grace (Siervos x Jotapece). Un tiempo especial de comunión, cena compartida, dinámicas y agradecimiento al Señor por este año transcurrido.',
       vestimentaTitulo: '👗 Código de vestimenta: ¡Tu pijama favorita!',
-      vestimentaTexto: '(Nota importante: Para mantener un ambiente súper cómodo y respetuoso para todos, te pedimos que tu pijama sea modesta. Por favor, asegúrate de llevar pantalones largos o tipo pants, camisetas holgadas y evita transparencias, shorts cortos, escotes o ropa muy ajustada. ¡La idea es estar cómodos y abrigaditos! 🧸)',
+      vestimentaTexto: 'Para mantener un ambiente cómodo, familiar y respetuoso, te pedimos que tu pijama sea modesta (pantalones largos o tipo pants y camisetas holgadas).\n\n💡 ¿No tienes pijama? ¡No te preocupes! Puedes asistir en jean y abrigo.\n\n🚫 Qué NO se debe llevar:\n• NO ninguna clase de short.\n• NO transparencias ni encajes reveladores.\n• NO escotes pronunciados ni tirantes finos.\n• NO ropa muy ceñida o ajustada (crop tops, leggings sin cubrir).\n• NO batas cortas o prendas tipo lencería.\n\n¡La idea es estar cómodos y abrigaditos! 🧸',
       costo: 'RD$ 350 P/P',
       notaBoleto: 'Esta cena no requiere ningún tipo de boleto o ticket de entrada. Al completar tu registro recibirás un correo electrónico de confirmación con toda la información.',
       cuentas: [
@@ -420,7 +420,7 @@ function InstagramLightboxModal({ post, initialSlideIndex = 0, onClose }) {
               {info.vestimentaTitulo && (
                 <div className="ig-details-box ig-details-dresscode">
                   <div className="ig-details-box-title">{info.vestimentaTitulo}</div>
-                  <p className="ig-details-box-text">{info.vestimentaTexto}</p>
+                  <p className="ig-details-box-text" style={{ whiteSpace: 'pre-line' }}>{info.vestimentaTexto}</p>
                 </div>
               )}
 
