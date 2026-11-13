@@ -91,15 +91,26 @@ export default function PaymentInfoBox({ participantName = '', defaultExpanded =
         marginTop: '0.5rem',
         textAlign: 'left',
         overflow: 'hidden',
+        position: 'relative',
+        zIndex: 5,
         transition: 'all 0.25s ease'
       }}
     >
       {/* Cabecera comprimida / Botón desplegable */}
-      <button
-        type="button"
+      <div
+        role="button"
+        tabIndex={0}
         onClick={(e) => {
+          e.preventDefault();
           e.stopPropagation();
           setIsExpanded((prev) => !prev);
+        }}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            e.stopPropagation();
+            setIsExpanded((prev) => !prev);
+          }
         }}
         aria-expanded={isExpanded}
         style={{
@@ -109,16 +120,18 @@ export default function PaymentInfoBox({ participantName = '', defaultExpanded =
           alignItems: 'center',
           gap: '0.75rem',
           padding: '0.85rem 1.1rem',
-          background: isExpanded ? 'rgba(239, 68, 68, 0.1)' : 'rgba(255, 255, 255, 0.04)',
-          border: 'none',
+          background: isExpanded ? 'rgba(239, 68, 68, 0.12)' : 'rgba(255, 255, 255, 0.05)',
           borderBottom: isExpanded ? '1px solid rgba(255, 255, 255, 0.1)' : 'none',
           cursor: 'pointer',
           textAlign: 'left',
           color: '#ffffff',
-          transition: 'background 0.2s ease'
+          userSelect: 'none',
+          WebkitUserSelect: 'none',
+          transition: 'background 0.2s ease',
+          boxSizing: 'border-box'
         }}
       >
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.15rem', minWidth: 0 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.15rem', minWidth: 0, pointerEvents: 'none' }}>
           <span
             style={{
               fontSize: '0.78rem',
@@ -142,20 +155,21 @@ export default function PaymentInfoBox({ participantName = '', defaultExpanded =
             display: 'inline-flex',
             alignItems: 'center',
             gap: '0.3rem',
-            padding: '0.32rem 0.7rem',
+            padding: '0.35rem 0.75rem',
             borderRadius: '9999px',
-            background: 'rgba(239, 68, 68, 0.18)',
-            border: '1px solid rgba(239, 68, 68, 0.38)',
+            background: isExpanded ? 'rgba(239, 68, 68, 0.28)' : 'rgba(239, 68, 68, 0.18)',
+            border: '1px solid rgba(239, 68, 68, 0.45)',
             color: '#fca5a5',
-            fontSize: '0.73rem',
+            fontSize: '0.75rem',
             fontWeight: '700',
-            flexShrink: 0
+            flexShrink: 0,
+            pointerEvents: 'none'
           }}
         >
           <span>{isExpanded ? 'Ocultar' : 'Ver cuentas'}</span>
           {isExpanded ? <ChevronUp size={15} /> : <ChevronDown size={15} />}
         </span>
-      </button>
+      </div>
 
       {/* Contenido desplegable */}
       {isExpanded && (

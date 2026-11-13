@@ -383,15 +383,7 @@ const Registration = () => {
                     </div>
                   </div>
 
-                  <div className="registration-poster-wrapper glass-panel">
-                    <img
-                      src={getImageUrl("/cena-jovenes-2026.jpeg")}
-                      alt="Afiche Oficial Cena de Jóvenes 2026 - Christmas x Grace"
-                      className="featured-card-poster"
-                    />
-                  </div>
-
-                  <div className="free-pass-badge" style={{ borderLeft: '4px solid #ef4444', textAlign: 'left', marginTop: '2rem' }}>
+                  <div className="free-pass-badge" style={{ borderLeft: '4px solid #ef4444', textAlign: 'left', marginBottom: '2.5rem' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '0.4rem' }}>
                       <span className="badge-title" style={{ color: '#fca5a5', margin: 0 }}>Costo por Persona</span>
                       <span className="badge-price" style={{ fontSize: '1.9rem', color: '#ef4444', margin: 0 }}>RD$ 350 P/P</span>
@@ -400,6 +392,14 @@ const Registration = () => {
                       * Esta cena <strong>no requiere boleto de entrada</strong>. Al registrarte te llegará un correo con los detalles y confirmación.
                     </span>
                     <PaymentInfoBox participantName={`${formData.firstName} ${formData.lastName}`} />
+                  </div>
+
+                  <div className="registration-poster-wrapper glass-panel">
+                    <img
+                      src={getImageUrl("/cena-jovenes-2026.jpeg")}
+                      alt="Afiche Oficial Cena de Jóvenes 2026 - Christmas x Grace"
+                      className="featured-card-poster"
+                    />
                   </div>
                 </>
               )}
